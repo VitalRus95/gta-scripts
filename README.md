@@ -13,7 +13,7 @@ Files extensions:
 
 ¹Vital is a nickname of Vitaly Pavlovich Ulyanov (Russian: Виталий Павлович Ульянов)
 
-## RUSSIAN
+## РУССКИЙ
 Скриптовые модификации для Grand Theft Auto 3, Vice City и San Andreas. Автор — Vital (Виталий Павлович Ульянов).
 
 Расширения файлов:
