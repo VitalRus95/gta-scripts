@@ -1,0 +1,125 @@
+{$CLEO}
+0000:
+while true //1
+wait 0
+    if //2
+    player.Defined(0)
+    then
+        if and //3
+        not actor.Dead($PLAYER_ACTOR)
+        not actor.Driving($PLAYER_ACTOR)
+        0ADC: test_cheat "RCHELI"
+        then
+        model.Load(#RCGOBLIN)
+        038B: load_requested_models
+        04C4: store_coords_to 1@ 2@ 3@ from_actor $PLAYER_ACTOR with_offset 1.0 3.0 1.0
+        02C1: store_to 1@ 2@ 3@ car_path_coords_closest_to 1@ 2@ 3@ 
+        car.Create(4@,#RCGOBLIN,1@,2@,3@)
+        car.SetImmunities(4@,1,1,1,1,1)
+        model.Destroy(#RCGOBLIN)
+        marker.CreateAboveCar(5@,4@)
+        marker.SetColor(5@,0x0026FFFF)
+        0825: set_helicopter 4@ instant_rotor_start
+        07BB: set_heli 4@ horizontal_thrust_power 8 
+        04DF: set_heli 4@ lean_and_thrust_limiter 0 
+        04A2: set_heli 4@ fly_to 1@ 2@ 3@ altitude_between 7.0 and 14.0 
+            while true //4
+            wait 0
+            car.StorePos(4@,6@,7@,8@)
+            02CE: 9@ = ground_z_at 6@ 7@ 8@
+            0087: 10@ = 8@ // (float)  
+                if and //5.1
+                not actor.Dead($PLAYER_ACTOR)
+                not actor.Driving($PLAYER_ACTOR)
+                80E1:   not player 0 pressed_key 6 
+                00E1:   player 0 pressed_key 8
+                then
+                0726: heli 4@ follow_actor $PLAYER_ACTOR follow_car -1 radius 7.0
+                wait 750
+                end //5.1 
+                if and //5.2
+                not actor.Dead($PLAYER_ACTOR)
+                not actor.Driving($PLAYER_ACTOR)
+                80E1:   not player 0 pressed_key 6 
+                00E1:   player 0 pressed_key 9
+                then
+                actor.StorePos($PLAYER_ACTOR,1@,2@,3@)
+                02C1: store_to 1@ 2@ 3@ car_path_coords_closest_to 1@ 2@ 3@                 
+                04A2: set_heli 4@ fly_to 1@ 2@ 3@ altitude_between 7.0 and 14.0
+                wait 750
+                end //5.2
+                if or //5.3
+                actor.Dead($PLAYER_ACTOR)
+                0741:   actor $PLAYER_ACTOR busted
+                0ADC: test_cheat "RCEXIT"
+                then
+                marker.Disable(5@)
+                car.Destroy(4@)
+                car.RemoveReferences(4@)
+                wait 750
+                break
+                end //5.3
+                if or //5.4
+                0025:   9@ > 8@ // (float)
+                8205:   not actor $PLAYER_ACTOR near_car 4@ radius 175.0 175.0 9999.0 flag 0 
+                0AB0:  key_pressed 0x24
+                then
+                actor.StorePos($PLAYER_ACTOR,1@,2@,3@)
+                02C1: store_to 1@ 2@ 3@ car_path_coords_closest_to 1@ 2@ 3@
+                car.PutAt(4@,1@,2@,3@)
+                //04A2: set_heli 4@ fly_to 1@ 2@ 3@ altitude_between 7.0 and 14.0
+                0726: heli 4@ follow_actor $PLAYER_ACTOR follow_car -1 radius 7.0
+                wait 750
+                end //5.4
+                if and //5.5
+                not actor.Dead($PLAYER_ACTOR)
+                not actor.Driving($PLAYER_ACTOR)
+                0205:   actor $PLAYER_ACTOR near_car 4@ radius 50.0 50.0 35.0 flag 0
+                00E1:   player 0 pressed_key 6 
+                00E1:   player 0 pressed_key 8
+                then
+                0AD2: 11@ = player $PLAYER_CHAR targeted_actor 
+                    if //5.5.1
+                    actor.Defined(11@)
+                    then
+                        for 12@ = 0 to 9 //5.5.2
+                        wait 0
+                        0208: 17@ = random_float_in_ranges -0.2 0.2 
+                        0407: store_coords_to 1@ 2@ 3@ from_car 4@ with_offset 0.0 0.0 -0.2
+                        04C4: store_coords_to 13@ 14@ 15@ from_actor 11@ with_offset 17@ 17@ 17@
+                        0209: 16@ = random_int_in_ranges 25 55 
+                        wait 16@
+                        0209: 16@ = random_int_in_ranges 8 13 
+                        06BC: create_M4_shoot_from 1@ 2@ 3@ target 13@ 14@ 15@ energy 16@ 
+                        end //5.5.2
+                    end //5.5.1
+                actor.RemoveReferences(11@)
+                wait 500                    
+                end //5.5
+                if and //5.6
+                not actor.Dead($PLAYER_ACTOR)
+                not actor.Driving($PLAYER_ACTOR)
+                0205:   actor $PLAYER_ACTOR near_car 4@ radius 50.0 50.0 35.0 flag 0 
+                00E1:   player 0 pressed_key 6
+                00E1:   player 0 pressed_key 9
+                then
+                0AD2: 11@ = player $PLAYER_CHAR targeted_actor 
+                    if //5.6.1
+                    actor.Defined(11@)
+                    then
+                    0407: store_coords_to 1@ 2@ 3@ from_car 4@ with_offset 0.0 0.0 -0.1  
+                    04C4: store_coords_to 13@ 14@ 15@ from_actor 11@ with_offset 0.0 0.0 -0.1 
+                        if //5.6.2
+                        06BD:   no_obstacles_between 1@ 2@ 3@ and 13@ 14@ 15@ solid 1 car 1 actor 0 object 1 particle 0
+                        then
+                        actor.StorePos(11@,13@,14@,15@) 
+                        020C: create_explosion_with_radius 0 at 13@ 14@ 15@  
+                        wait 1050
+                        end //5.6.2
+                    end //5.6.1
+                actor.RemoveReferences(11@)                                    
+                end //5.6 
+            end //4
+        end //3
+    end //2
+end //1                                    

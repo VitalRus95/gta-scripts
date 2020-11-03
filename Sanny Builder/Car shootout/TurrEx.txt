@@ -1,0 +1,185 @@
+/* Made by Vital */
+//$PLAYER_ACTOR $PLAYER_GROUP $ONMISSION
+//Byte, Char – 1; Short, Word – 2; Long, DWord, Float – 4
+{$CLEO}
+0000:
+while true
+wait 0
+    if and
+    player.Defined(0)
+    0ADC:   test_cheat "TURRET"
+    then
+    077E: get_active_interior_to 0@
+        if and
+        0@ == 0
+        not actor.Driving($PLAYER_ACTOR)
+        then
+        model.Load(#GREENWOO)
+        model.Load(#FAM1)
+        model.Load(#TEC9)
+        model.Load(#MP5LNG)
+        038B: load_requested_models
+        actor.StorePos($PLAYER_ACTOR,0@,1@,2@)
+        03D3: get_route_nearest_for 0@ 1@ 2@ store_to 0@ 1@ 2@ Z_angle_to 3@
+        car.Create(4@,#GREENWOO,0@,1@,2@)
+        car.Health(4@) = 1250 //1000 is usual health
+        car.SetImmunities(4@,0,0,0,1,0) //collision proof
+        01EC: make_car 4@ very_heavy 1
+        053F: set_car 4@ tires_vulnerability 0
+        car.Angle(4@) = 3@
+        actor.CreateAsDriver(5@,Gang2,#FAM1,4@)
+        actor.CreateAsPassenger(6@,Gang2,#FAM1,4@,1)
+        actor.Health(6@) = 150
+        actor.SetImmunities(6@,0,1,1,0,0) //fire & explosion proof
+        0446: set_actor 6@ dismemberment_possible 0 //disable headshots
+        
+        /* passenger seats: 0 - front, 1 - rear left, 2 - rear right */
+        
+        actor.GiveWeaponAndAmmo(6@,Tec9,9999)        
+        077A: set_actor 5@ acquaintance 1 to_actors_pedtype 0 // see ped.dat
+        077A: set_actor 6@ acquaintance 1 to_actors_pedtype 0 // see ped.dat
+        077A: set_actor 6@ acquaintance 4 to_actors_pedtype 6 // see ped.dat
+        car.SetToPsychoDriver(4@) //drive around
+        car.SetMaxSpeed(4@,30.0)
+        00AE: set_car 4@ traffic_behaviour_to 2 //ignore traffic lights
+        03ED: set_car 4@ disable_flipped_explosion_when_empty 1
+        09F6: set_actor 5@ get_out_of_upside_down_car 0
+        09F6: set_actor 6@ get_out_of_upside_down_car 0
+        072F: enable_car 4@ stuck_check_distance 2.0 time 2000 and_restore_if stuck 1 flipped 1 unk_place_on_road_properly 1 to_path -1 // extended 03CC
+        0464: put_actor $PLAYER_ACTOR into_turret_on_car 4@ at_car_offset 0.5 -1.0 0.7 position 2 shooting_angle_limit 360.0 with_weapon 29
+        //06A7: put_actor $PLAYER_ACTOR into_turret_on_car 4@ at_car_offset 0.5 -1.0 0.7 position 2 shooting_angle 360.0 5.0 with_weapon 29
+        
+        /* position (direction of looking): 0 - forward, 1 - left, 2 - backward, 3 - right */
+                
+        model.Destroy(#GREENWOO)
+        model.Destroy(#FAM1)
+        model.Destroy(#TEC9)
+        model.Destroy(#MP5LNG)
+        041E: set_radio_station 12 //turn off the radio
+        
+        /* 0 PlayBack, 1 K-Rose, 2 K-DST, 3 Bounce FM, 4 SFUR,
+        5 Radio Los Santos, 6 Radio, X 7 CSR 103.9, 8 K-JAH West Radio,
+        9 Master Sounds, 10 WCTR Talking Radio, 11 MP3 Player, 12  Off */
+        
+        player.WantedLevel(0) = 2
+        3@ = 29 //weapon number
+        32@ = 0 //timer 1
+        33@ = 0 //timer 2
+        0629: change_integer_stat 176 to 0 //"kills since last checkpoint"
+            while player.Defined(0) //TURRET MAIN
+            wait 0
+            077E: get_active_interior_to 10@
+                if or
+                10@ <> 0
+                car.Wrecked(4@)
+                actor.Dead(5@)
+                not actor.InCar(5@,4@)                
+                00E1:   player 0 pressed_key 15
+                then
+                0465: remove_actor $PLAYER_ACTOR from_turret_mode                 
+                break
+                else 
+                    if
+                    03CE:   car 4@ stuck
+                    then
+                    actor.StorePos($PLAYER_ACTOR,0@,1@,2@)
+                    03D3: get_route_nearest_for 0@ 1@ 2@ store_to 0@ 1@ 2@ Z_angle_to 10@
+                    car.PutAt(4@,0@,1@,2@)
+                    car.Angle(4@) = 10@
+                    end
+                0652: 7@ = integer_stat 176
+                8@ = actor.Health(6@)
+                9@ = car.Health(4@)
+                    if and //next weapon
+                    3@ < 38
+                    00E1:   player 0 pressed_key 7 
+                    then
+                    3@ ++
+                        if and
+                        3@ > 33
+                        3@ < 37
+                        then
+                        3@ = 37
+                        end
+                    0AB1: call_scm_func @SwitchWeap 2 3@ 4@
+                    else
+                        if and //previous weapon
+                        3@ > 22
+                        00E1:   player 0 pressed_key 5
+                        then
+                        3@ --
+                            if and
+                            3@ > 33
+                            3@ < 37
+                            then
+                            3@ = 33
+                            end
+                        0AB1: call_scm_func @SwitchWeap 2 3@ 4@
+                        end
+                    end 
+                
+                    if and //car's health regeneration
+                    9@ < 1250
+                    32@ > 49
+                    then
+                    9@ ++
+                    car.Health(4@) = 9@
+                    32@ = 0
+                    end
+                                                     
+                    if and //player's health regeneration
+                    8184: not  actor $PLAYER_ACTOR health >= 49
+                    33@ > 999
+                    then
+                    10@ = actor.Health($PLAYER_ACTOR)
+                    10@ ++
+                    actor.Health($PLAYER_ACTOR) = 10@                    
+                    end
+                    
+                    if //driveby
+                    not actor.Dead(6@)
+                    then
+                    actor.StorePos(6@,0@,1@,2@)
+                    0713: actor 6@ driveby_actor -1 car -1 point 0@ 1@ 2@ radius 100.0 4 0 firing_rate 100
+                        if and //shooter's health regeneration
+                        8@ < 150
+                        33@ > 1199
+                        then
+                        8@ ++
+                        actor.Health(6@) = 8@
+                        33@ = 0
+                        end 
+                    else
+                        if
+                        33@ > 999
+                        then
+                        33@ = 0
+                        end   
+                    end                    
+                
+                9@ -= 250 //when a car's health is below 250, it starts to burn and then explodes
+                    if
+                    9@ < 1
+                    then
+                    9@ = 0
+                    end
+                                    
+                0AD0: show_formatted_text_lowpriority "Kills: ~r~%i ~s~Shooter: ~r~%i ~s~Car: ~r~%i" time 200 7@ 8@ 9@                    
+                end
+            end //TURRET MAIN
+        0110: clear_player 0 wanted_level
+        048F: actor $PLAYER_ACTOR remove_weapons
+        car.RemoveReferences(4@)
+        actor.RemoveReferences(5@)
+        actor.RemoveReferences(6@)
+        end
+    end
+end
+
+:SwitchWeap //2 parameters - weapon number (3@ -> 0@) & car (4@ -> 1@)
+0781: get_weapon_with_ID 0@ model_to 2@
+model.Load(2@)
+038B: load_requested_models
+0464: put_actor $PLAYER_ACTOR into_turret_on_car 1@ at_car_offset 0.5 -1.0 0.7 position 2 shooting_angle_limit 360.0 with_weapon 0@
+model.Destroy(2@)
+0AB2: ret 0

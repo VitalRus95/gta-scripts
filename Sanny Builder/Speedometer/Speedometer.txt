@@ -1,0 +1,47 @@
+/* Made by Vital */
+//$PLAYER_ACTOR $PLAYER_GROUP $ONMISSION
+//Byte, Char – 1; Short, Word – 2; Long, DWord, Float – 4
+{$CLEO}
+0000:
+while true
+wait 0
+    if
+    player.Defined(0)
+    then
+        if
+        actor.Driving($PLAYER_ACTOR)
+        then
+        0@ = actor.CurrentCar($PLAYER_ACTOR)
+        02E3: 1@ = car 0@ speed            
+        0087: 2@ = 1@ //text RGB settings
+        0087: 3@ = 1@ //outline transparency                   
+        1@ *= 3.9583 //ingame values to km/h (approximately)         
+        2@ *= 8.5 //text colour change multiplier                    
+        3@ *= 5.75 //outline transparency change multiplier
+        0092: 1@ = float 1@ to_integer //displayed speed        
+        0092: 2@ = float 2@ to_integer //text RGB settings to integer       
+        0092: 3@ = float 3@ to_integer //outline transparency to integer
+        3@ += 35 //minimal outline transparency
+        
+            if
+            2@ > 255
+            then
+            2@ = 255 //text colour limit
+            end 
+            
+            if
+            3@ > 255
+            then
+            3@ = 255 //outline transparency limit
+            end
+                      
+        03F0: enable_text_draw 1
+        0342: set_text_draw_centered 1
+        0340: set_text_draw_RGBA 2@ 0 0 255 //faster — more red
+        081C: draw_text_outline 1 RGBA 255 255 255 3@ //faster — less transparent             
+        0349: set_text_draw_font 3
+        033F: set_text_draw_letter_size 0.6 2.3
+        045A: draw_text_1number 88.0 312.0 GXT 'BJ_0' number 1@             
+        end
+    end
+end

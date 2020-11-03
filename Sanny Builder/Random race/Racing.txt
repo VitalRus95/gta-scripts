@@ -1,0 +1,199 @@
+//$PLAYER_ACTOR $ONMISSION $PLAYER_GROUP
+{$CLEO}
+0000:
+while true //1
+wait 0
+    if //2
+    player.Defined(0)
+    then
+        if and //3
+        not actor.Dead($PLAYER_ACTOR)
+        0ADC: test_cheat "RACE"
+        then
+        0110: clear_player 0 wanted_level 
+        00BE: text_clear_all 
+        9@ = 25 //Prize ; Приз
+        fade 0 500
+        player.CanMove(0,0)
+        actor.StorePos($PLAYER_ACTOR,0@,1@,2@)
+            if //Destroy car
+            actor.Driving($PLAYER_ACTOR)
+            then
+            03C0: 3@ = actor $PLAYER_ACTOR car
+            0362: remove_actor $PLAYER_ACTOR from_car_and_place_at 0@ 1@ 2@
+            car.RemoveReferences(3@)
+            end //Destroy car
+        02C1: store_to 0@ 1@ 2@ car_path_coords_closest_to 0@ 1@ 2@        
+        01EB: set_traffic_density_multiplier_to 0.0
+        03DE: set_pedestrians_density_multiplier_to 0.0 
+        wait 650
+        0395: clear_area 1 at 0@ 1@ 2@ radius 1000.0
+        gosub @RCar
+        model.Load(3@)
+        038B: load_requested_models
+        car.Create(4@,3@,0@,1@,2@) //Player's car ; Машина игрока
+        model.Destroy(3@)
+        036A: put_actor $PLAYER_ACTOR in_car 4@
+        041E: set_radio_station 12 
+        fade 1 500
+        car.SetImmunities(4@,1,1,1,1,1)
+        053F: set_car 4@ tires_vulnerability 0 
+        wait 650
+        player.CanMove(0,1)
+            for 6@ = 1 to 5@ //4
+            0ACD: show_text_highpriority "Searching a new marker" time 1250
+            wait 500
+            gosub @GetMarker    
+            32@ = 0 //Timer ; Таймер
+                if //5
+                gosub @Race
+                then
+                    if //6
+                    003B:   6@ == 5@ // (int)
+                    then
+                    0ACB: show_styled_text "You are the winner!" time 2000 style 2
+                    player.Money(0) += 9@ 
+                    018C: play_sound 1057 at 0.0 0.0 0.0 
+                    else
+                    06D6: disable_racing_checkpoint 7@
+                    marker.Disable(8@)
+                    018C: play_sound 1052 at 0.0 0.0 0.0
+                    end //6
+                else
+                0ACB: show_styled_text "Race failed" time 2000 style 2
+                break
+                end //5
+            end //4
+            01EB: set_traffic_density_multiplier_to 1.0
+            03DE: set_pedestrians_density_multiplier_to 1.0
+            06D6: disable_racing_checkpoint 7@ 
+            marker.Disable(8@)
+            car.SetImmunities(4@,0,0,0,0,0)
+            053F: set_car 4@ tires_vulnerability 1 
+            car.RemoveReferences(4@)
+        end //3
+    end //2
+end //1
+
+:RCar //Random racing car ; Случайная машина для гонки
+4@ = 0
+repeat
+wait 0
+0209: 3@ = random_int_in_ranges 402 604
+if or                                     
+3@ == 402
+3@ == 411
+3@ == 415
+3@ == 429
+3@ == 451
+3@ == 477
+3@ == 480
+3@ == 496
+3@ == 506
+then
+4@ = 1
+else
+    if or
+    3@ == 541
+    3@ == 587
+    3@ == 589
+    3@ == 602
+    3@ == 603
+    then
+    4@ = 1
+    end
+end    
+until 4@ == 1
+0209: 5@ = random_int_in_ranges 10 31 //Number of markers ; Число маркеров
+006A: 9@ *= 5@ // (int) 
+return
+
+:GetMarker //Finding a marker ; Поиск маркера
+15@ = 0
+while true //1
+wait 0
+0208: 3@ = random_float_in_ranges 31.0 100.0
+0208: 10@ = random_float_in_ranges -10.0 10.1
+    if or //2.1
+    actor.Dead($PLAYER_ACTOR)
+    car.Wrecked(4@)
+    not actor.Driving($PLAYER_ACTOR)
+    not actor.InCar($PLAYER_ACTOR,4@)
+    then    
+    break
+    end //2.1
+0407: store_coords_to 0@ 1@ 2@ from_car 4@ with_offset 10@ 3@ 0.0
+02C1: store_to 0@ 1@ 2@ car_path_coords_closest_to 0@ 1@ 2@
+car.StorePos(4@,11@,12@,13@)
+0087: 16@ = 2@ // (float) 
+0097: make 13@ absolute_float
+0097: make 16@ absolute_float 
+0063: 13@ -= 16@ // (float)
+0097: make 13@ absolute_float // |-3| = 3
+    if and //2.2
+    not 13@ > 2.5
+    00EE:   actor $PLAYER_ACTOR 0 near_point 0@ 1@ radius 100.0 100.0 in_car
+    80EE:   not actor $PLAYER_ACTOR 0 near_point 0@ 1@ radius 30.0 30.0 in_car
+    then
+    15@ = 1
+    break
+    end //2.2
+end //1
+if
+15@ == 0
+then
+return      
+end
+car.StorePos(4@,11@,12@,13@)
+050A: 14@ = distance_between_XYZ 0@ 1@ 2@ and_XYZ 11@ 12@ 13@   
+14@ /= 10.0
+008E: 14@ = float 14@ to_integer
+14@ *= 3000   // 50.0 / 10.0 = 5.0 ; 5.0 -> 5 ; 5 * 3000 = 15000
+0087: 16@ = 2@ // (float)
+16@ += 5.0
+if //Маркер ; Marker
+803B:   not  6@ == 5@ // (int)
+then
+06D5: 7@ = create_racing_checkpoint_at 0@ 1@ 2@ point_to 0@ 1@ 16@ type 0 radius 5.0
+02A7: 8@ = create_icon_marker_and_sphere 53 at 0@ 1@ 2@ 
+else
+06D5: 7@ = create_racing_checkpoint_at 0@ 1@ 2@ point_to 0@ 1@ 0.0 type 1 radius 5.0
+02A7: 8@ = create_icon_marker_and_sphere 53 at 0@ 1@ 2@ 
+end //Маркер ; Marker
+0ACD: show_text_highpriority "Go!" time 850
+return
+
+:Race
+while true //0
+wait 0  
+    if //1
+    player.Defined(0)
+    then
+        if or //2
+        actor.Dead($PLAYER_ACTOR)
+        not actor.Driving($PLAYER_ACTOR)
+        not actor.InCar($PLAYER_ACTOR,4@)
+        car.Wrecked(4@)
+        then
+        059A: return_false
+        break
+        else
+            if //3
+            001D:   32@ > 14@ // (int) 
+            then
+            0ACD: show_text_highpriority "You are out of time" time 2000
+            059A: return_false
+            break
+            else
+                if and //4
+                801D:   not  32@ > 14@ // (int) 
+                0100:   actor $PLAYER_ACTOR in_sphere 0@ 1@ 2@ radius 5.0 5.0 5.0 sphere 0 in_car
+                then 
+                0485: return_true
+                break
+                end //4
+            end //3
+        end //2
+    end //1
+end //0
+return

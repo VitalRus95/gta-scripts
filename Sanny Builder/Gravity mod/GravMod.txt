@@ -1,0 +1,195 @@
+//$PLAYER_ACTOR $PLAYER_GROUP
+/* Made by Vital */
+/* Gravity Mod: Normal, No gravity, Moon, Low, High, The Highest */ 
+{$CLEO}
+0000:
+repeat
+wait 0
+until player.Defined(0)
+0A8C: write_memory 0x863984 size 4 value 0.008 virtual_protect 0
+var
+3@ : Array 6 of Float //3,4,5,6,7,8 @
+9@ : Float = 0.008
+end
+2@ = 0
+3@[2@] = 0.0
+2@ ++
+3@[2@] = 0.0013
+2@ ++
+3@[2@] = 0.003
+2@ ++
+3@[2@] = 0.008
+2@ ++
+3@[2@] = 0.01
+2@ ++
+3@[2@] = 0.03
+while true
+wait 0
+    if
+    player.Defined(0)
+    then
+        if and
+        not actor.Driving($PLAYER_ACTOR)
+        0ADC:   test_cheat "GRM"
+        then
+        11@ = 0 //Exit Flag
+        player.CanMove(0,0)
+        //Start
+        0ADF: add_dynamic_GXT_entry "GR1" text "~r~~>~Gravity Mod~<~"
+        0ADF: add_dynamic_GXT_entry "GR2" text "Zero"
+        0ADF: add_dynamic_GXT_entry "GR3" text "Moon"
+        0ADF: add_dynamic_GXT_entry "GR4" text "Low"
+        0ADF: add_dynamic_GXT_entry "GR5" text "~h~Normal"
+        0ADF: add_dynamic_GXT_entry "GR6" text "High"
+        0ADF: add_dynamic_GXT_entry "GR7" text "The Highest"
+        0ADF: add_dynamic_GXT_entry "GR8" text "Custom"
+        03E6: remove_text_box
+        08D4: 0@ = create_panel_with_title 'DUMMY' position 20.0 40.0 width 140.0 columns 1 interactive 1 background 1 alignment 1  // Imports
+        08DB: set_panel 0@ column 0 header 'GR1' data 'GR2' 'GR3' 'GR4' 'GR5' 'GR6' 'GR7' 'GR8' 'DUMMY' 'DUMMY' 'DUMMY' 'DUMMY' 'DUMMY'  // Sunday // Monday // Tuesday // Wednesday // Thursday // Friday // Saturday
+            while true //Main Body
+            wait 0
+                if or
+                11@ == 1
+                not player.Defined(0)
+                actor.Driving($PLAYER_ACTOR)
+                00E1:   player 0 pressed_key 15
+                then                
+                break
+                else
+                    if
+                    00E1:   player 0 pressed_key 16
+                    then
+                    08D7: 1@ = panel 0@ active_row
+                        if
+                        1@ <> 6
+                        then
+                        0087: 9@ = 3@[1@] // (float)
+                        0AB1: call_scm_func @Gravity 1 3@[1@]  
+                        else
+                        0AB1: call_scm_func @KeyRelease 1 16
+                        0087: 10@ = 9@ // (float)
+                        08DA: remove_panel 0@                         
+                        0ADF: add_dynamic_GXT_entry "GR9" text "~r~~>~Custom Gravity~<~"
+                        0ADF: add_dynamic_GXT_entry "GR10" text "~k~~PED_CYCLE_WEAPON_LEFT~ - Decrease"
+                        0ADF: add_dynamic_GXT_entry "GR11" text "~k~~PED_CYCLE_WEAPON_RIGHT~ - Increase"
+                        0ADF: add_dynamic_GXT_entry "GR12" text "~k~~PED_SPRINT~ - Confirm"
+                        0ADF: add_dynamic_GXT_entry "GR13" text "~k~~VEHICLE_ENTER_EXIT~ - Cancel"
+                        0ADF: add_dynamic_GXT_entry "GR14" text "~k~~PED_ANSWER_PHONE~ - Default"
+                        gosub @Custom   
+                        0AE0: remove_dynamic_GXT_entry "GR9"
+                        0AE0: remove_dynamic_GXT_entry "GR10"
+                        0AE0: remove_dynamic_GXT_entry "GR11"
+                        0AE0: remove_dynamic_GXT_entry "GR12"
+                        0AE0: remove_dynamic_GXT_entry "GR13"
+                        0AE0: remove_dynamic_GXT_entry "GR14"
+                        end
+                    end
+                end
+            end //Main Body
+        //Exit 
+        08DA: remove_panel 0@
+        0AE0: remove_dynamic_GXT_entry "GR1"
+        0AE0: remove_dynamic_GXT_entry "GR2"
+        0AE0: remove_dynamic_GXT_entry "GR3"
+        0AE0: remove_dynamic_GXT_entry "GR4"
+        0AE0: remove_dynamic_GXT_entry "GR5"
+        0AE0: remove_dynamic_GXT_entry "GR6"
+        0AE0: remove_dynamic_GXT_entry "GR7"
+        0AE0: remove_dynamic_GXT_entry "GR8"        
+        player.CanMove(0,1)
+        end
+    end
+end
+
+:Gravity
+0A8C: write_memory 0x863984 size 4 value 0@ virtual_protect 0
+0AB2: ret 0 
+
+:Wait //Delay for softer change of the gravity value
+32@ = 0
+repeat
+wait 0
+    if or
+    not player.Defined(0)
+    actor.Driving($PLAYER_ACTOR)
+    80E1: not  player 0 pressed_key 0@
+    then
+    break
+    end
+until 32@ > 39
+0AB2: ret 0
+
+:KeyRelease //Wait for the player to release a pressed key
+repeat
+wait 0
+    if or
+    not player.Defined(0)
+    actor.Driving($PLAYER_ACTOR)
+    then
+    break
+    end
+until 80E1: not  player 0 pressed_key 0@
+0AB2: ret 0
+
+:Custom //Custom Gravity
+08D4: 0@ = create_panel_with_title 'DUMMY' position 20.0 40.0 width 200.0 columns 1 interactive 0 background 1 alignment 1  // Imports
+08DB: set_panel 0@ column 0 header 'GR9' data 'GR10' 'GR11' 'GR12' 'GR13' 'GR14' 'DUMMY' 'DUMMY' 'DUMMY' 'DUMMY' 'DUMMY' 'DUMMY' 'DUMMY'  // Sunday // Monday // Tuesday // Wednesday // Thursday // Friday // Saturday
+while true //CG Body
+wait 0
+0AD1: show_formatted_text_highpriority "Gravity: %.4f" time 100 9@
+    if or
+    not player.Defined(0)
+    actor.Driving($PLAYER_ACTOR)    
+    then
+    11@ = 1
+    08DA: remove_panel 0@
+    03E6: remove_text_box
+    break
+    else
+        if
+        00E1:   player 0 pressed_key 15 //Enter/Exit Vehicle
+        then
+        0AB1: call_scm_func @KeyRelease 1 15
+        0AB1: call_scm_func @Gravity 1 10@
+        03E6: remove_text_box
+        08DA: remove_panel 0@
+        08D4: 0@ = create_panel_with_title 'DUMMY' position 20.0 40.0 width 140.0 columns 1 interactive 1 background 1 alignment 1  // Imports
+        08DB: set_panel 0@ column 0 header 'GR1' data 'GR2' 'GR3' 'GR4' 'GR5' 'GR6' 'GR7' 'GR8' 'DUMMY' 'DUMMY' 'DUMMY' 'DUMMY' 'DUMMY'  // Sunday // Monday // Tuesday // Wednesday // Thursday // Friday // Saturday
+        break //We'll go back to the previous menu
+        else
+            if
+            00E1:   player 0 pressed_key 16 //Confirm
+            then
+            11@ = 1 //Let the Main Body stop the script after 'return'
+            018C: play_sound 1054 at 0.0 0.0 0.0
+            break
+            else
+                if
+                00E1:   player 0 pressed_key 5 //Prev. Weapon
+                then
+                9@ -= 0.0001
+                0AB1: call_scm_func @Wait 1 5
+                0AB1: call_scm_func @Gravity 1 9@
+                else
+                    if
+                    00E1:   player 0 pressed_key 7 //Next Weapon
+                    then
+                    9@ += 0.0001
+                    0AB1: call_scm_func @Wait 1 7
+                    0AB1: call_scm_func @Gravity 1 9@
+                    else
+                        if
+                        00E1:   player 0 pressed_key 4 //Action
+                        then 
+                        9@ = 0.008
+                        0AB1: call_scm_func @KeyRelease 1 4
+                        018C: play_sound 1052 at 0.0 0.0 0.0
+                        0AB1: call_scm_func @Gravity 1 9@                        
+                        end
+                    end
+                end
+            end                
+        end
+    end
+end //CG Body
+return //Back to the Main Body

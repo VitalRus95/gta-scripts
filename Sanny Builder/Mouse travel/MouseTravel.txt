@@ -1,0 +1,40 @@
+/* Made by Vital */
+//$PLAYER_ACTOR $PLAYER_GROUP $ONMISSION
+//Byte, Char – 1; Short, Word – 2; Long, DWord, Float – 4
+{$CLEO}
+0000: 
+while true
+wait 0
+    if and
+    player.Defined(0)
+    0ADC:   test_cheat "GO"
+    then
+    077E: get_active_interior_to 5@
+        if and
+        not actor.Driving($PLAYER_ACTOR)
+        5@ == 0
+        then
+        player.CanMove(0,0)
+        067C: put_camera_on_actor $PLAYER_ACTOR offset 0.0 -30.0 30.0 rotation 0.0 0.0 0.0 tilt 0.0 switchstyle 2
+            while true
+            wait 0
+            077E: get_active_interior_to 5@
+                if or
+                not player.Defined(0)
+                actor.Driving($PLAYER_ACTOR)
+                00E1:   player 0 pressed_key 16
+                5@ <> 0
+                then
+                break
+                else
+                0A4A: store_joystick_X_offset_to 0@ Y_offset_to 1@
+                //0AD0: show_formatted_text_lowpriority "X: %.2f Y: %.2f" time 100 0@ 1@
+                04C4: store_coords_to 2@ 3@ 4@ from_actor $PLAYER_ACTOR with_offset 0@ 1@ 0.0
+                actor.PutAt($PLAYER_ACTOR,2@,3@,-100.0)
+                end
+            end        
+        camera.Restore_WithJumpCut()
+        player.CanMove(0,1)
+        end
+    end
+end

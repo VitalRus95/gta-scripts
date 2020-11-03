@@ -1,0 +1,93 @@
+/* Made by Vital */
+//$PLAYER_ACTOR $PLAYER_GROUP $ONMISSION
+//Byte, Char – 1; Short, Word – 2; Long, DWord, Float – 4
+{$CLEO}
+0000:
+       
+const
+ TEXT_X = 608.0 //timer X position (0.0–640.0) 
+ TEXT_Y = 136.0 //timer Y position (0.0–448.0)
+ TEXT_R = 144 //timer red colour (0–255)
+ TEXT_G = 96 //timer green colour (0–255)
+ TEXT_B = 16 //timer blue colour (0–255)
+ TEXT_A = 255 //timer alpha (0–255)
+ TEXT_FONT = 3 //0 (Gothic),1 (Standard),2 (Menu),3 (Pricedown) 
+ LETTER_H = 2.3 //letter height
+ LETTER_W = 0.6 //letter width
+ OUTLINE_R = 0 //outline red colour (0–255)
+ OUTLINE_G = 0 //outline green colour (0–255)
+ OUTLINE_B = 0 //outline blue colour (0–255)
+ OUTLINE_A = 200 //outline alpha (0–255)
+ OUTLINE_W = 1 //outline width (1 & 2 are optimal values)
+end // const
+
+while true //mathematical
+wait 0
+    if
+    gosub @Check_Wanted
+    then
+    32@ = 0
+    
+        while gosub @Check_Wanted //while wanted
+        wait 0        
+            if //not fading
+            not fading
+            then 
+            0AB1: convert @MS_to_M_and_S 1 ms_value 32@ store_min_to 0@ sec_to 1@
+            03F0: enable_text_draw 1
+            03E4: set_text_draw_align_right 1
+            0340: set_text_draw_RGBA TEXT_R TEXT_G TEXT_B TEXT_A
+            081C: draw_text_outline OUTLINE_W RGBA OUTLINE_R OUTLINE_G OUTLINE_B OUTLINE_A
+            0349: set_text_draw_font TEXT_FONT
+            033F: set_text_draw_letter_size LETTER_W LETTER_H 
+                if
+                1@ < 10
+                then
+                045B: draw_text_2numbers TEXT_X TEXT_Y GXT 'TIME_0' numbers 0@ 1@ //~1~:0~1~
+                else
+                045B: draw_text_2numbers TEXT_X TEXT_Y GXT 'TIME' numbers 0@ 1@ //~1~:~1~
+                end
+            03F0: enable_text_draw 0  
+            end //not fading                                    
+        end //while wanted             
+        
+        if
+        1@ < 10
+        then
+        036D: show_text_2numbers_styled GXT "TIME_0" numbers 0@ 1@ time 3000 style 2 //~1~:0~1~
+        else
+        036D: show_text_2numbers_styled GXT "TIME" numbers 0@ 1@ time 3000 style 2 //~1~:~1~
+        end 
+        
+    end
+end
+
+:Check_Wanted
+0A8D: 0@ = read_memory 0xA444A0 size 1 virtual_protect 0 //HUD enabled
+    if and
+    player.Defined(0)
+    010F:   player 0 wanted_level > 0
+    0@ == 1    
+    then
+    0485:  return_true
+    else
+    059A:  return_false
+    end
+return
+
+:MS_to_M_and_S //0@ - ms; return 1@ - minutes, 3@ - seconds; 150000 ms - step by step example
+0093: 0@ = integer 0@ to_float //convert timer value to float
+{0@ = 150000 ms > 150000.0}
+0@ /= 60000.0 //divide msec by 60.0 sec
+{0@ = 150000.0 / 60000.0 = 2.5}
+0092: 1@ = float 0@ to_integer //convert float MINUTES to integer to display
+{1@ = 2.5 min > 2 min}
+0093: 2@ = integer 1@ to_float //convert this to float for calculations
+{2@ = 2 min > 2.0 min}
+0063: 0@ -= 2@  // float minutes – integer minutes to find the fractional part
+{0@ = 2.5 min – 2.0 min = 0.5 min}
+0@ *= 60.0 //multiply the fraction by 60.0 to get seconds in float
+{0@ = 0.5 * 60.0 = 30.0 sec}
+0092: 3@ = float 0@ to_integer //convert float SECONDS to integer to display
+{3@ = 30.0 sec > 30 sec}
+0AB2: ret 2 min 1@ sec 3@

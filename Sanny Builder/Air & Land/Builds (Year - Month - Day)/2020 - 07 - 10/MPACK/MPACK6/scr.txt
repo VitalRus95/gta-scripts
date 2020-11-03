@@ -1,0 +1,4491 @@
+//GTA SA Air & Land\\
+//----------\\
+//-By Vital-\\
+//BETA
+DEFINE MISSIONS 1
+//DEFINE MISSION {ID} 0 AT {LABEL} @
+DEFINE MISSION 0 AT @SF_Tour
+DEFINE EXTERNAL_SCRIPTS -1 // Use -1 in order not to compile AAA script
+//DEFINE SCRIPT {NAME}  AT {LABEL} @
+DEFINE UNKNOWN_EMPTY_SEGMENT 0
+DEFINE UNKNOWN_THREADS_MEMORY 0
+var
+ $PLAYER_CHAR: Player
+end // var 
+03A4: name_thread 'MAIN' 
+for 0@ = 354164 to 354188 //Open map code
+&0(0@,1i) = 16843009
+end //Thanks to Seemann
+01F0: set_max_wanted_level_to 0
+0111: toggle_wasted_busted_check 0
+0209: 1@ = random_int_in_ranges 0 23
+0209: 2@ = random_int_in_ranges 0 59
+00C0: set_current_time_hours_to 1@ minutes_to 2@
+03DE: set_pedestrians_density_multiplier_to 0.0
+01EB: set_traffic_density_multiplier_to 0.0
+08E7: disable_entrance_markers 1
+09BA: show_entered_zone_name 0 
+04E4: unknown_refresh_game_renderer_at 24.1881 -14.6014  
+03CB: set_rendering_origin_at 24.1881 -14.6014 3.1172 
+0053: $PLAYER_CHAR = create_player #NULL at 24.1881 -14.6014 -100.0
+01F5: $PLAYER_ACTOR = create_player_actor $PLAYER_CHAR
+07AF: $PLAYER_GROUP = player $PLAYER_CHAR group 
+0373: set_camera_directly_behind_player 
+01B6: set_weather 0 
+0001: wait 0 ms 
+087B: set_player 0 clothes_texture "PLAYER_FACE" model "HEAD" body_part 1 
+087B: set_player 0 clothes_texture "worktrcamogry" model "worktr" body_part 2 
+087B: set_player 0 clothes_texture "timberhike" model "bask1" body_part 3 
+087B: set_player 0 clothes_texture "hoodyAblack" model "hoodyA" body_part 0
+player.SetClothes(0,"capblk","cap",16) 
+0629: change_integer_stat 223 to 1000
+062A: change_float_stat 24 to 1000.0   
+070D: rebuild_player 0
+0A8C: write_memory 0x969174 size 1 value 1 virtual_protect 0
+0A8C: write_memory 0x96918C size 1 value 0 virtual_protect 0 
+wait 0
+actor.Health($PLAYER_ACTOR) = 1000
+//016A: fade 1 time 0 
+04BB: select_interior 0 
+0395: clear_area 1 at 24.1881 -14.6014 3.1172 radius 500.0
+0629: change_integer_stat 181 to 4
+016C: restart_if_wasted_at 24.1881 -14.6014 3.1172 angle 0.0 town_number 0 
+016D: restart_if_busted_at 24.1881 -14.6014 3.1172 angle 0.0 town_number 0  
+0180: set_on_mission_flag_to $ONMISSION // Note: your missions have to use the variable defined here 
+03E6: remove_text_box
+
+var
+$DEBUG : Integer = 0 //Debug flag (turns on saving some information into "CLEO\Air_Land_LOG.txt")
+$HATE_VEHICLES : Array 21 of Integer //$HATE_VEHICLES[20] - Hostile planes counter; "hate" for vehicles
+$HATE_INFANTRY : Array 10 of Integer //"hate" for infantry
+
+$KILL_GENERAL : Integer = 0 //General kill counter
+$KILL_PLANES : Integer = 0 //Hostile planes destroyed counter 
+$LESSMONEY : Integer = 0 //Give less money for destroying planes
+$MUT_CURR : Integer = 0 //Current mutator
+$MUTRAM : Integer = 0 //"Ram" mutator flag
+
+$MARKS : Array 20 of Integer //Markers
+$MODELS : Array 20 of Integer //Vehicles' models          
+$ENEMY : Array 20 of Integer //0-14 - pilots; 15-19 - drivers [20-24 - helicopter pilots]
+$INFANTRY : Array 10 of Integer //Infantry enemies
+$PARACHUTE : Array 10 of Integer //Parachutes for infantry
+$PARACHUTE_PACK : Array 10 of Integer //PARA_PACKs for infantry
+$VEHICLE : Array 20 of Integer //0-14 - planes; 15-19 - bikes [20-24 - helicopters]
+
+$OFF_THE_BORDER : Array 15 of Integer //Off the map borders flag for planes
+$PEACEFUL : Array 16 of Integer //$PEACEFUL[15] - "Peaceful Mode" flag
+$RAMMED : Array 15 of Integer //Being rammed flag
+$TYPE_OF_DEATH : Array 15 of Integer //Type of plane's death animation
+$HS_ROCKET : Array 15 of Integer //Custom heat-seeking rockets
+$HS_ROCKET_SPEED : Array 15 of Float //Custom heat-seeking rockets' speed
+$HS_ROCKET_TARGET : Array 15 of Integer //Custom heat-seeking rockets' targets
+$HS_ROCKET_PARENT : Array 15 of Integer //Custom heat-seeking rockets' launching vehicles
+$ENEMY_HEALTH : Integer = 550 //Hostile plane's health
+$PLAYER_HEALTH : Integer = 1500 //Health of the player's new planes
+//$HELI_TARGET : Array 5 of Integer //Handles of helicopters' targets
+
+$SEARCH_COOLDOWN : Array 10 of Integer //Searching for enemies flag + cooldown timer
+$JUMP_COOLDOWN : Array 10 of Integer //Jumping cooldown timer to prevent jumping too often
+$NOISE_COOLDOWN : Array 10 of Integer //Noise cooldown for reactions to sound
+$DRIVE_BY_COOLDOWN : Array 10 of Integer //Drive-by cooldown for bikers
+$ROCKET_COOLDOWN : Array 15 of Integer //Planes' rocket attack cooldown for hunting targets
+$HS_ROCKET_FLIGHT_TIMER : Array 15 of Integer //Custom HS rockets flight timer
+
+$SEARCH_X : Array 10 of Float //Search destination's X
+$SEARCH_Y : Array 10 of Float //Search destination's Y
+$SEARCH_Z : Array 10 of Float //Search destination's Z
+/*$HELI_DESTINATION_X : Array 5 of Float //Helicopter destination's X
+$HELI_DESTINATION_Y : Array 5 of Float //Helicopter destination's Y
+$HELI_DESTINATION_Z : Array 5 of Float //Helicopter destination's Z*/
+end
+
+060A: create_decision_maker_type 0 store_to $BEHAVIOUR
+//On foot
+0709: set_decision_maker $BEHAVIOUR on_event 9 (damage) task 1000 (kill) chance respect 0.0 hate 100.0 like 0.0 dislike 100.0 in_car 0 on_foot 1
+0709: set_decision_maker $BEHAVIOUR on_event 12 (may get run over) task 603 (get out way) respect 100.0 hate 100.0 like 100.0 dislike 100.0 in_car 0 on_foot 1
+0709: set_decision_maker $BEHAVIOUR on_event 36 (hate) task 1000 chance respect 0.0 hate 50.0 like 0.0 dislike 0.0 in_car 0 on_foot 1
+0709: set_decision_maker $BEHAVIOUR on_event 37 (dislike) task 1000 chance respect 0.0 hate 0.0 like 0.0 dislike 50.0 in_car 0 on_foot 1
+//0709: set_decision_maker $BEHAVIOUR on_event 49 (shot nearby) task 1000 (investigate) respect 0.0 hate 100.0 like 0.0 dislike 100.0 in_car 0 on_foot 1
+0709: set_decision_maker $BEHAVIOUR on_event 59 (fire near) task 510 (walk round) respect 100.0 hate 100.0 like 100.0 dislike 100.0 in_car 0 on_foot 1
+//0709: set_decision_maker $BEHAVIOUR on_event 62 (sound quiet) task 935 (investigate) respect 0.0 hate 100.0 like 0.0 dislike 100.0 in_car 0 on_foot 1 //works
+0709: set_decision_maker $BEHAVIOUR on_event 79 (veh. on fire) task 909 (flee) respect 100.0 hate 100.0 like 100.0 dislike 100.0 in_car 0 on_foot 1
+
+//In car
+0709: set_decision_maker $BEHAVIOUR on_event 7 (dragged out) task 706 (flee) respect 100.0 hate 100.0 like 100.0 dislike 100.0 in_car 1 on_foot 0
+0709: set_decision_maker $BEHAVIOUR on_event 9 (damage) task 1022 (driveby) chance respect 0.0 hate 100.0 like 0.0 dislike 100.0 in_car 1 on_foot 0
+0709: set_decision_maker $BEHAVIOUR on_event 36 (hate) task 1022 chance respect 0.0 hate 100.0 like 0.0 dislike 0.0 in_car 1 on_foot 0
+0709: set_decision_maker $BEHAVIOUR on_event 37 (dislike) task 1022 chance respect 0.0 hate 0.0 like 0.0 dislike 100.0 in_car 1 on_foot 0
+0709: set_decision_maker $BEHAVIOUR on_event 79 (veh. on fire) task 909 (flee) respect 100.0 hate 100.0 like 100.0 dislike 100.0 in_car 1 on_foot 0
+//Always
+
+$HATE_VEHICLES[20] = 0
+$MODELS[0] = #AT400 //Planes
+$MODELS[1] = #BEAGLE
+$MODELS[2] = #CROPDUST
+$MODELS[3] = #DODO
+$MODELS[4] = #NEVADA
+$MODELS[5] = #SHAMAL
+$MODELS[6] = #SKIMMER
+$MODELS[7] = #STUNT
+$MODELS[8] = #ANDROM
+$MODELS[9] = #BF400 //Bikes
+$MODELS[10] = #FAGGIO
+$MODELS[11] = #FCR900
+$MODELS[12] = #FREEWAY
+$MODELS[13] = #NRG500
+$MODELS[14] = #PCJ600
+$MODELS[15] = #PIZZABOY
+$MODELS[16] = #QUAD
+$MODELS[17] = #SANCHEZ
+$MODELS[18] = #WAYFARER
+$MODELS[19] = #COPBIKE
+
+0A99: chdir 0
+if
+0AAB:   file_exists "gta_sa_air.ini"
+then
+0AF0: 0@ = get_int_from_ini_file "gta_sa_air.ini" section "AIR" key "LANG"
+    if or
+    0@ == 0
+    0@ == 1
+    then
+    008A: $LANGUAGE = 0@ // (int)
+    else
+    gosub @Restore_INI
+    end       
+0AF0: 0@ = get_int_from_ini_file "gta_sa_air.ini" section "AIR" key "MUTS"
+    if or
+    0@ == 0
+    0@ == 1
+    then
+    008A: $MUTATORS = 0@ // (int)
+    else
+    gosub @Restore_INI
+    end
+0AF0: 0@ = get_int_from_ini_file "gta_sa_air.ini" section "AIR" key "CURMUT"
+    if or
+    0@ > -1
+    0@ < 6
+    then
+    008A: $MUT_CURR = 0@ // (int)
+    else
+    gosub @Restore_INI
+    end
+0AF0: 0@ = get_int_from_ini_file "gta_sa_air.ini" section "AIR" key "MODL"
+    if or
+    0@ == 520
+    0@ == 476
+    then
+    008A: $MODEL = 0@ // (int)
+    else
+    gosub @Restore_INI
+    end
+0AF0: 0@ = get_int_from_ini_file "gta_sa_air.ini" section "AIR" key "ENHL"
+0AF0: 1@ = get_int_from_ini_file "gta_sa_air.ini" section "AIR" key "PLHL"
+    if and
+    0@ > 290
+    0@ < 710
+    then 
+    008A: $ENEMY_HEALTH = 0@ // (int)
+    else
+    gosub @Restore_INI 
+    end
+    
+    if and
+    1@ > 990
+    1@ < 1660
+    then
+    008A: $PLAYER_HEALTH = 1@ // (int)
+    else
+    gosub @Restore_INI
+    end
+    
+0AF0: 0@ = get_int_from_ini_file "gta_sa_air.ini" section "AIR" key "MONEY"
+0093: 0@ = integer 0@ to_float
+0@ *= 0.95   
+0092: 0@ = float 0@ to_integer
+player.Money(0) += 0@
+0AF1: write_int 0@ to_ini_file "gta_sa_air.ini" section "AIR" key "MONEY"
+else
+gosub @Restore_INI
+end
+
+06D5: $H1 = create_racing_checkpoint_at -1306.0979 -111.3054 14.4647 point_to -1306.0979 -111.3054 14.4647 type 2 radius 10.0
+06D5: $H2 = create_racing_checkpoint_at 1538.8806 1552.2576 11.1142 point_to 1538.8806 1552.2576 11.1142 type 2 radius 10.0
+06D5: $H3 = create_racing_checkpoint_at 1935.6898 -2359.7598 13.836 point_to 1935.6898 -2359.7598 13.836 type 2 radius 10.0
+marker.CreateIconWithoutSphere($H1M,5,-1306.0979, -111.3054, 14.4647)
+marker.CreateIconWithoutSphere($H2M,5,1538.8806, 1552.2576, 11.1142)
+marker.CreateIconWithoutSphere($H3M,5,1935.6898, -2359.7598, 13.836)
+04A6: $SECRET_1 = create_asset_money_pickup_at 414.51 2531.94 19.16 money 25 1000 
+04A6: $SECRET_2 = create_asset_money_pickup_at 1591.32 1170.91 14.22 money 25 1000
+04A6: $SECRET_3 = create_asset_money_pickup_at 1953.72 -2188.64 13.55 money 25 1000
+04A6: $SECRET_4 = create_asset_money_pickup_at -1271.48 47.27 14.15 money 25 1000
+014B: $PARK_1 = init_car_generator #HYDRA color -1 -1 force_spawn 1 alarm 0 door_lock 0 min_delay 0 max_delay 10000 at 1574.21 1178.09 11.47 angle 0.0
+014B: $PARK_2 = init_car_generator #HYDRA color -1 -1 force_spawn 1 alarm 0 door_lock 0 min_delay 0 max_delay 10000 at -1364.89 -491.35 14.90 angle 210.65
+014B: $PARK_3 = init_car_generator #HYDRA color -1 -1 force_spawn 1 alarm 0 door_lock 0 min_delay 0 max_delay 10000 at 1857.86 -2399.36 14.27 angle 184.41
+014B: $PARK_4 = init_car_generator #RUSTLER color -1 -1 force_spawn 1 alarm 0 door_lock 0 min_delay 0 max_delay 10000 at 1789.38 -2669.49 14.27 angle 2.57
+014B: $PARK_5 = init_car_generator #RUSTLER color -1 -1 force_spawn 1 alarm 0 door_lock 0 min_delay 0 max_delay 10000 at -1480.79 -623.28 14.86 angle 44.48 
+014B: $PARK_6 = init_car_generator #RUSTLER color -1 -1 force_spawn 1 alarm 0 door_lock 0 min_delay 0 max_delay 10000 at 1277.50 1324.21 11.53 angle 269.32
+014B: $PARK_7 = init_car_generator #HYDRA color -1 -1 force_spawn 1 alarm 0 door_lock 0 min_delay 0 max_delay 10000 at 404.8851 2460.6108 17.4132 angle 0.5373
+014C: set_parked_car_generator $PARK_1 cars_to_generate_to 101
+014C: set_parked_car_generator $PARK_2 cars_to_generate_to 101
+014C: set_parked_car_generator $PARK_3 cars_to_generate_to 101
+014C: set_parked_car_generator $PARK_4 cars_to_generate_to 101
+014C: set_parked_car_generator $PARK_5 cars_to_generate_to 101
+014C: set_parked_car_generator $PARK_6 cars_to_generate_to 101
+014C: set_parked_car_generator $PARK_7 cars_to_generate_to 101
+
+for 0@ = 0 to 19 
+$VEHICLE[0@] = -1 //0-14 - planes; 15-19 - bikes
+$ENEMY[0@] = -1 //0-14 - pilots; 15-19 - drivers
+end
+
+for 0@ = 0 to 9 
+$INFANTRY[0@] = -1 //Infantrymen
+end
+
+for 0@ = 0 to 14
+$HS_ROCKET[0@] = -1
+$HS_ROCKET_TARGET[0@] = -1
+end
+
+for 0@ = 69 to 79 //Random weapon skills
+0208: 1@ = random_float_in_ranges 0.0 1200.1
+062A: change_float_stat 0@ to 1@
+end 
+
+    if
+    $DEBUG == 1
+    then
+    0A99: chdir 0
+    $LOG = file.Open("CLEO\Air_Land_LOG.txt","wt")
+    0AD9: write_formatted_text "0AD9: write_formatted_text  in_file $LOG value 0xD%c" in_file $LOG 0xD
+    end
+    
+01B7: release_weather
+create_thread @CustomParachute //Parachutes for infantry
+create_thread @CustomRockets //A system of custom heat-seeking rockets
+create_thread @Weight //Inventory weight affects stamina
+create_thread @CentreView //Center view while pressing or holding "Handbrake" in aircraft
+create_thread @Meteorite_Shower //Explosive particles falling from the sky
+create_thread @Regeneration //Health regeneration
+create_thread @MoneySave //Saving player's current money to gta_sa_air.ini
+create_thread @Cooldown //Cooldown timers' manager
+create_thread @RandomStart //Random starting point
+create_thread @Difficulty //Dynamic difficulty system
+create_thread @SpeedRust //Speed boost for Rustler
+create_thread @RocketEffect //Visual effects for rockets
+create_thread @ExplosionCorona //Corona effect for explosions
+create_thread @UpsideDown //Bonus for flying upside down in Rustler
+create_thread @VehWep //Hide weapons while in vehicle
+create_thread @Mutators //Random slight changes to the gameplay
+create_thread @Bonuses //Bonuses for destroyed planes
+create_thread @DeathManager //No payment after death if you have less than 800$
+create_thread @GPar //Give parachute
+create_thread @RPar //Remove parachute
+create_thread @Peaceful //Peaceful mode
+create_thread @Home //Missions
+create_thread @HUD //HUD: health and hostiles
+create_thread @Infantry //Create and manage infantry
+create_thread @Bikes //Create and manage bikes
+//create_thread @Helis //Create and manage helicopters
+create_thread @Planes //Create and manage planes
+create_thread @Slow //Slow motion
+create_thread @Rep_Mut //Plane repair or Change mutator
+create_thread @Respray //Rustler respray
+create_thread @Info //Tips
+create_thread @STARTER //Parachute "external" script
+
+:MAIN_LOOP
+wait 0
+00BF: $TIME_HOURS = current_time_hours, $TIME_MINS = current_time_minutes
+077E: get_active_interior_to $ACTIVE_INTERIOR
+03DE: set_pedestrians_density_multiplier_to 0.0
+01EB: set_traffic_density_multiplier_to 0.0
+08E7: disable_entrance_markers 1
+06D0: enable_emergency_traffic 0
+0923: enable_air_traffic 0
+08F8: display_stat_update_box 0
+0989: set_text_boxes_width 200
+    if and
+    $MUTRAM == 0
+    $RESPRAY == 0
+    actor.Driving($PLAYER_ACTOR)
+    then
+    0@ = actor.CurrentCar($PLAYER_ACTOR)
+    car.SetImmunities(0@,0,0,0,0,0)
+    end
+jump @MAIN_LOOP
+
+:Restore_INI //If the .ini is broken, restore default settings
+0A99: chdir 0
+0B00: delete_file "gta_sa_air.ini"  // IF and SET
+0AF1: write_int 0 to_ini_file "gta_sa_air.ini" section "AIR" key "LANG"
+0AF1: write_int 0 to_ini_file "gta_sa_air.ini" section "AIR" key "MUTS"
+0AF1: write_int 0 to_ini_file "gta_sa_air.ini" section "AIR" key "CURMUT"
+0AF1: write_int 520 to_ini_file "gta_sa_air.ini" section "AIR" key "MODL"
+0AF1: write_int 550 to_ini_file "gta_sa_air.ini" section "AIR" key "ENHL"
+0AF1: write_int 1500 to_ini_file "gta_sa_air.ini" section "AIR" key "PLHL"
+0AF1: write_int 50 to_ini_file "gta_sa_air.ini" section "AIR" key "MONEY"
+$LANGUAGE = 0
+$MUTATORS = 0
+$MUT_CURR = 0
+$MODEL = #HYDRA
+$ENEMY_HEALTH = 550
+$PLAYER_HEALTH = 1500
+player.Money(0) += 50
+return
+
+:CustomParachute
+thread 'infpara'
+wait 0
+
+for 0@ = 0 to 9
+    if
+    03CA:   object $PARACHUTE[0@] exists
+    then
+        if
+        056D:   actor $INFANTRY[0@] defined
+        then
+            if or
+            actor.Dead($INFANTRY[0@])
+            8184: not  actor $INFANTRY[0@] health >= 29
+            8818: not actor $INFANTRY[0@] in_air
+            then
+            object.Destroy($PARACHUTE[0@])
+            
+                if //return weapon
+                not actor.Dead($INFANTRY[0@])
+                then
+                    for 1@ = 1 to 11
+                    04B8: get_weapon_data_from_actor $INFANTRY[0@] slot 1@ weapon 2@ ammo 3@ model 4@
+                        if
+                        2@ <> 0
+                        then
+                        01B9: set_actor $INFANTRY[0@] armed_weapon_to 2@
+                        //0AD1: show_formatted_text_highpriority "Actor %i returned weapon %i" time 2000 0@ 2@
+                        break
+                        end
+                    end
+            
+                    if
+                    02D8:   actor $INFANTRY[0@] current_weapon == 46
+                    then
+                    048F: actor $INFANTRY[0@] remove_weapons
+                    //0AD1: show_formatted_text_highpriority "Actor %i cleared weapon" time 2000 0@            
+                    end
+                end //return weapon
+                
+                if
+                $DEBUG == 1
+                then
+                0A99: chdir 0
+                0AD9: write_formatted_text "Delete parachute [%i]: actor landed/dead/wounded%c" in_file $LOG 0@ 0xD
+                end
+            else
+            083D: get_actor $INFANTRY[0@] velocity_in_direction_XYZ 1@ 2@ 3@
+                if
+                3@ < -10.0
+                then
+                3@ *= 0.6
+                083C: set_actor $INFANTRY[0@] velocity_in_direction_XYZ 1@ 2@ 3@
+                end
+            end
+        else
+        object.Destroy($PARACHUTE[0@])
+            
+            if
+            $DEBUG == 1
+            then
+            0A99: chdir 0
+            0AD9: write_formatted_text "Delete parachute [%i]: no actor found%c" in_file $LOG 0@ 0xD
+            end
+        end
+    end
+end
+
+jump @CustomParachute
+end_thread 
+
+:CreateCustomParachute //0@ - infantryman number in array
+if
+056D:   actor $INFANTRY[0@] defined
+then
+model.Load(3131)
+
+    while not model.Available(3131)
+    wait 0
+    end
+    
+    if
+    actor.HasWeapon($INFANTRY[0@],46)
+    then
+    01B9: set_actor $INFANTRY[0@] armed_weapon_to 46
+    else
+    model.Load(#GUN_PARA)
+        while not model.Available(#GUN_PARA)
+        wait 0
+        end
+    actor.GiveWeaponAndAmmo($INFANTRY[0@],Parachute,1)
+    01B9: set_actor $INFANTRY[0@] armed_weapon_to 46
+    model.Destroy(#GUN_PARA)
+    end
+
+object.Create($PARACHUTE[0@],3131,0.0,0.0,0.0)
+069B: attach_object $PARACHUTE[0@] to_actor $INFANTRY[0@] with_offset 0.0 0.0 0.0 rotation 0.0 0.0 0.0 
+model.Destroy(3131)
+    if
+    $DEBUG == 1
+    then
+    0A99: chdir 0
+    0AD9: write_formatted_text "Parachute [%i] created%c" in_file $LOG 0@ 0xD
+    end
+else
+    if
+    $DEBUG == 1
+    then
+    0A99: chdir 0
+    0AD9: write_formatted_text "No actor found for parachute [%i]%c" in_file $LOG 0@ 0xD
+    end
+end
+0AB2: ret 0
+
+:CustomRockets
+thread 'hsrock'
+//32@ = 0
+wait 0
+
+for 0@ = 0 to 14
+    if
+    $HS_ROCKET[0@] <> -1
+    then //Rocket exists
+    object.StorePos($HS_ROCKET[0@],1@,2@,3@)
+    095C: create_smoke_at 1@ 2@ 3@ velocity 0.0 0.0 0.1 RGBA 0.0 0.0 0.4 0.9 size 0.18 last_factor 0.3
+        
+        if
+        056E:   car $HS_ROCKET_TARGET[0@] defined
+        then //Target exists
+        0AB1: call_scm_func @ThrowRocketAtCar 3 rocket $HS_ROCKET[0@] car $HS_ROCKET_TARGET[0@] rocket_speed $HS_ROCKET_SPEED[0@]
+            if //Explode conditions            
+            $HS_ROCKET_FLIGHT_TIMER[0@] == 0
+            then //Timer ran out
+            020C: create_explosion_with_radius 0 at 1@ 2@ 3@                                       
+            object.Destroy($HS_ROCKET[0@])
+            $HS_ROCKET[0@] = -1
+            $HS_ROCKET_TARGET[0@] = -1
+                if
+                $DEBUG == 1
+                then
+                0A99: chdir 0                       
+                0AD9: write_formatted_text "Timer of plane's [%i] rocket ran out%c" in_file $LOG $HS_ROCKET_PARENT[0@] 0xD
+                end
+            else
+            car.StorePos($HS_ROCKET_TARGET[0@],4@,5@,6@)
+            0A8D: 7@ = read_memory 0xB7CB64 size 4 virtual_protect 0 //Game speed to adjust rocket speed
+            006F: 7@ *= $HS_ROCKET_SPEED[0@] // (float)
+//0AD1: show_formatted_text_highpriority "%.2f target %i xyz %.2f %.2f %.2f" time 5000 7@ $HS_ROCKET_TARGET[0@] 4@ 5@ 6@
+                if or //On collision or on reaching target
+                034E: move_object $HS_ROCKET[0@] to 4@ 5@ 6@ speed 7@ 7@ 7@ collision_check 0
+                04DA:   has_object $HS_ROCKET[0@] collided
+                then
+                    if
+                    056E:   car $HS_ROCKET_PARENT[0@] defined
+                    then //Check if collided with launching vehicle                                                           
+                        if
+                        8897: not  car $HS_ROCKET_PARENT[0@] collided_with_object $HS_ROCKET[0@]
+                        then                      
+                            if
+                            $DEBUG == 1
+                            then 
+                            0A99: chdir 0                      
+                            0AD9: write_formatted_text "Rocket of plane [%i] hit plane [%i]%c" in_file $LOG $HS_ROCKET_PARENT[0@] $HS_ROCKET_TARGET[0@] 0xD
+                            end                  
+                        020C: create_explosion_with_radius 0 at 1@ 2@ 3@                                       
+                        object.Destroy($HS_ROCKET[0@])
+                        $HS_ROCKET[0@] = -1
+                        $HS_ROCKET_TARGET[0@] = -1                            
+                        else 
+                            if
+                            $DEBUG == 1
+                            then
+                            0A99: chdir 0                       
+                            0AD9: write_formatted_text "Plane [%i] collided with its rocket%c" in_file $LOG $HS_ROCKET_PARENT[0@] 0xD
+                            end
+                        end
+                    else //No launching vehicle found - free to explode
+                        if
+                        $DEBUG == 1
+                        then
+                        0A99: chdir 0                       
+                        0AD9: write_formatted_text "Rocket hit plane [%i]%c" in_file $LOG $HS_ROCKET_TARGET[0@] 0xD
+                        end                                    
+                    020C: create_explosion_with_radius 0 at 1@ 2@ 3@                                       
+                    object.Destroy($HS_ROCKET[0@])
+                    $HS_ROCKET[0@] = -1
+                    $HS_ROCKET_TARGET[0@] = -1
+                    end                
+                end //On collision                            
+            end //Explode conditions
+        else //Target doesn't exist
+        object.StorePos($HS_ROCKET[0@],1@,2@,3@)
+        020C: create_explosion_with_radius 11 at 1@ 2@ 3@
+        object.Destroy($HS_ROCKET[0@])
+        $HS_ROCKET[0@] = -1
+        $HS_ROCKET_TARGET[0@] = -1
+        end
+    end
+end
+
+//0AD1: show_formatted_text_highpriority "Rockets processed in %i ms" time 2000 32@
+jump @CustomRockets
+end_thread
+
+:ThrowRocketAtCar //0@ - object, 1@ - car, 2@ - object speed
+object.StorePos(0@,3@,4@,5@)
+car.StorePos(1@,6@,7@,8@)
+050A: 9@ = distance_between_XYZ 6@ 7@ 8@ and_XYZ 3@ 4@ 5@ //hypotenuse
+050A: 10@ = distance_between_XYZ 6@ 7@ 8@ and_XYZ 6@ 7@ 5@ //side
+0073: 10@ /= 9@ // (float) side/hyp. = sine
+
+if
+10@ < 0.95
+then
+10@ /= 3.14159265 //Á‡ ÙÓÏÛÎÛ ÔËÏÂÌÓ„Ó ‡ÍÒËÌÛÒ‡ ÒÔ‡ÒË·Ó wmysterio (¬‡ÒËÎ¸ ¡ÂÁ‰iÚÌËÈ)
+10@ *= 180.0 //convert to X rotation angle (approx. arcsin); thanks for this formula to wmysterio
+else
+10@ = 90.0
+end
+    
+if
+0025:   5@ > 8@  // (float) rocket Z > target Z
+then
+10@ *= -1.0 //invert the angle if the rocket is above the target vehicle
+end
+
+0063: 6@ -= 3@  // (float)
+0063: 7@ -= 4@  // (float)
+0063: 8@ -= 5@  // (float)
+0604: get_Z_angle_for_point 6@ 7@ store_to 11@ //get target Z rotation angle
+12@ = object.Angle(0@)
+0063: 11@ -= 12@  // (float)
+005B: 12@ += 11@  // (float) get Z rotation angle
+0453: set_object 0@ XY_rotation 10@ 0.0 angle 12@
+
+//get movement vector
+if
+0897:   car 1@ collided_with_object 0@
+then
+object.StorePos(0@,3@,4@,5@)
+else
+2@ *= -8.0 //offset for additional speed
+0400: store_coords_to 3@ 4@ 5@ from_object 0@ with_offset 0.0 2@ 0.0
+end
+
+car.StorePos(1@,6@,7@,8@)
+0063: 6@ -= 3@  // (float)
+0063: 7@ -= 4@  // (float)
+0063: 8@ -= 5@  // (float)
+0381: throw_object 0@ velocity_in_direction 6@ 7@ 8@
+object.ToggleInMovingList(0@,1)
+0AB2: ret 0
+
+:CreateCustomRocket //0@,1@,2@ - spawn XYZ; 3@ - speed; 4@ - target; 5@ - lifetime; 6@ - launching vehicle 
+for 7@ = 0 to 14
+    if
+    $HS_ROCKET[7@] == -1
+    then //free index
+        if
+        $TURTLE_ROCKET == 1
+        then
+        8@ = 1609
+        else
+        8@ = #MISSILE
+        end
+    model.Load(8@)
+        repeat
+        wait 0        
+        until model.Available(8@) 
+    object.Create($HS_ROCKET[7@],8@,0.0,0.0,-500.0)
+    model.Destroy(8@)
+    0088: $HS_ROCKET_SPEED[7@] = 3@ // (float)
+    008A: $HS_ROCKET_TARGET[7@] = 4@ // (int)
+    008A: $HS_ROCKET_FLIGHT_TIMER[7@] = 5@ // (int)
+    008A: $HS_ROCKET_PARENT[7@] = 6@ // (int)
+    050E: set_object $HS_ROCKET[7@] no_collision_with_car $HS_ROCKET_PARENT[7@]
+    object.PutAt($HS_ROCKET[7@],0@,1@,2@)
+    //0750: set_object $HS_ROCKET[7@] visibility 0    
+    break
+    end
+end
+0AB2: ret 0
+
+:Weight //The more weapons and ammo you carry, the less stamina you have
+thread 'weight'
+wait 0
+if and                
+player.Defined(0)
+not actor.Driving($PLAYER_ACTOR)
+jf @Weight
+4@ = 0 //Initial weight
+
+for 0@ = 1 to 13
+04B8: get_weapon_data_from_actor $PLAYER_ACTOR slot 0@ weapon 1@ ammo 2@ model 3@
+    if
+    2@ > 0
+    then
+    4@ ++ //+1 weapon
+    005A: 4@ += 2@  // (int) +its ammo
+    end
+end
+
+//0AD1: show_formatted_text_highpriority "%i %.1f" time 2000 4@ $WEIGHT_MULTIPLIER
+0093: 4@ = integer 4@ to_float
+006F: 4@ *= $WEIGHT_MULTIPLIER // (float) Weight * multiplier (standard is -2.0) 
+4@ += 1000.0 //Max stamina ñ weight
+    if
+    4@ < 0.0
+    then
+    4@ = 0.0
+    end
+062A: change_float_stat 22 to 4@
+jump @Weight
+end_thread
+
+:CentreView //Press "Handbrake" to center view in planes
+thread 'cenview'
+wait 0
+if and
+player.Defined(0)
+04C8:   actor $PLAYER_ACTOR driving_flying_vehicle
+00E1:   player 0 pressed_key 6
+jf @CentreView
+0A39: get_vehicle_camera_mode_to 0@
+if and
+0@ <> 0 //first-person
+0@ <> 5 //cinematic
+jf @CentreView
+camera.Restore_WithJumpCut()
+jump @CentreView
+end_thread
+
+:Meteorite_Shower //Explosive particles falling from the sky from time to time
+thread 'meteor'
+wait 0
+if
+player.Defined(0)
+jf @Meteorite_Shower
+
+var //Used in forÖend
+ 2@ : Float //Ground Z
+ 3@ : Float //Start Z
+ 4@ : Float //ForÖend counter
+ 6@ : Float //Game speed (used to determine falling speed)
+end // var
+
+0208: 0@ = random_float_in_ranges -100.0 100.0
+0208: 1@ = random_float_in_ranges -100.0 100.0
+04C4: store_coords_to 0@ 1@ 2@ from_actor $PLAYER_ACTOR with_offset 0@ 1@ 0.0
+02CE: 2@ = ground_z_at 0@ 1@ 2@ //Ground point
+0208: 3@ = random_float_in_ranges 300.0 600.0 
+005B: 3@ += 2@  // (float) Start point
+0A8D: 6@ = read_memory 0xB7CB64 size 4 virtual_protect 0 //Game speed to adjust falling speed
+6@ *= 0.7 //0.7 as default falling speed
+
+    for 4@ = 3@ downto 2@ step 6@ //Move from start point to ground point
+    wait 0
+    0087: 5@ = 4@ // (float)
+    6@ *= 2.0
+    0063: 5@ -= 6@  // (float) For collision check
+        if
+        86BD:   obstacles_between 0@ 1@ 5@ and 0@ 1@ 4@ solid 1 car 1 actor 1 object 1 particle 0
+        then
+        break
+        else
+        //0AD1: show_formatted_text_highpriority "%.2f" time 2000 4@
+            if
+            00C2:   sphere_onscreen 0@ 1@ 4@ radius 150.0
+            then                                 
+            095C: create_smoke_at 0@ 1@ 4@ velocity 0.0 0.0 1.0 RGBA 0.5 0.3 0.1 0.9 size 0.25 last_factor 0.35
+                if and
+                00C2:   sphere_onscreen 0@ 1@ 4@ radius 0.01
+                00FE:   actor $PLAYER_ACTOR sphere 0 in_sphere 0@ 1@ 4@ radius 170.0 170.0 170.0
+                then
+                024F: create_corona_with_radius 3.0 type 1 lensflares 1 with_color 255 255 255 at 0@ 1@ 4@
+                end
+            end                        
+        //06BC: create_M4_shoot_from 0@ 1@ 3@ target 0@ 1@ 4@ energy -1
+        //03A1: show_sphere_at 0@ 1@ 2@ radius 5.0        
+        end
+    0A8D: 6@ = read_memory 0xB7CB64 size 4 virtual_protect 0 //Game speed to adjust falling speed
+    6@ *= 0.7  
+    end
+    
+020C: create_explosion_with_radius 10 at 0@ 1@ 4@
+jump @Meteorite_Shower
+end_thread
+
+:Regeneration //Health regeneration for player
+thread 'regenh'
+wait 0
+if
+player.Defined(0)
+jf @Regeneration
+0@ = actor.Health($PLAYER_ACTOR)
+if
+0@ < 50
+jf @Regeneration
+0085: 1@ = 0@ // (int)
+1@ *= 30 //1 hp = 20 ms
+1@ -= 4000 //3,970 sec max, 2,5 sec min
+0095: make 1@ absolute_integer
+32@ = 0 //If player's health is the same after 5 seconds, regenerate
+
+    repeat
+    wait 0
+        if
+        not player.Defined(0)
+        then
+        break
+        end
+    until 001D:   32@ > 1@  // (int)
+//0AD1: show_formatted_text_highpriority "%i" time 2000 32@
+
+    if
+    player.Defined(0)
+    then    
+    1@ = actor.Health($PLAYER_ACTOR)
+        if
+        003B:   0@ == 1@  // (int)
+        then           
+        0851: set_actor $PLAYER_ACTOR decrease_health_by -1 affect_armour 0        
+        end
+    end
+
+jump @Regeneration
+end_thread 
+
+:MoneySave //Saving current money to .ini file
+thread 'monsave'
+wait 0
+if
+player.Defined(0)
+jf @MoneySave
+0@ = player.Money(0)
+    repeat
+    wait 0
+    1@ = player.Money(0)
+    until 803B: not  1@ == 0@  // (int)
+0AF1: write_int 1@ to_ini_file "gta_sa_air.ini" section "AIR" key "MONEY"
+jump @MoneySave
+end_thread
+
+:Cooldown //Pseudotimers cooldown system
+thread 'cooldwn'
+32@ = 0
+
+    while 32@ == 0
+    wait 0
+    end
+
+    for 0@ = 0 to 9 //[0;9]    
+        if and
+        $SEARCH_COOLDOWN[0@] > 0
+        $JUMP_COOLDOWN[0@] < 3000
+        then
+        0066: $SEARCH_COOLDOWN[0@] -= 32@  // (int) 
+        //0AD1: show_formatted_text_highpriority "Search [%i]: %i ms" time 1000 0@ $SEARCH_COOLDOWN[0@]
+        else       
+            if
+            $SEARCH_COOLDOWN[0@] < 0            
+            then
+            $SEARCH_COOLDOWN[0@] = 0
+            end
+        end
+
+        if
+        $JUMP_COOLDOWN[0@] > 0
+        then
+        0066: $JUMP_COOLDOWN[0@] -= 32@  // (int) 
+        else       
+            if
+            $JUMP_COOLDOWN[0@] < 0
+            then
+            $JUMP_COOLDOWN[0@] = 0
+            end
+        end
+        
+        if
+        $NOISE_COOLDOWN[0@] > 0
+        then        
+        //0AD1: show_formatted_text_highpriority "Noise: %i" time 2000 $NOISE_COOLDOWN[0@]
+        $NOISE_COOLDOWN[0@] --
+        else         
+            if
+            $NOISE_COOLDOWN[0@] < 0
+            then
+            $NOISE_COOLDOWN[0@] = 0
+            end
+        end                                                                  
+    end //[0;9] 
+    
+    for 0@ = 15 to 19 //[15;19]
+        if
+        $DRIVE_BY_COOLDOWN[0@] > 0
+        then
+        0066: $DRIVE_BY_COOLDOWN[0@] -= 32@  // (int)
+            if
+            $DRIVE_BY_COOLDOWN[0@] == 0
+            then            
+                if
+                056E:   car $VEHICLE[0@] defined
+                then                
+                car.SetToPsychoDriver($VEHICLE[0@])
+                00AE: set_car $VEHICLE[0@] traffic_behaviour_to 2
+                car.SetMaxSpeed($VEHICLE[0@],20.0)
+                end
+            end            
+        else       
+            if
+            $DRIVE_BY_COOLDOWN[0@] < 0
+            then
+            $DRIVE_BY_COOLDOWN[0@] = 0
+                if
+                056E:   car $VEHICLE[0@] defined
+                then                
+                car.SetToPsychoDriver($VEHICLE[0@])
+                00AE: set_car $VEHICLE[0@] traffic_behaviour_to 2
+                car.SetMaxSpeed($VEHICLE[0@],20.0)
+                end
+            end
+        end      
+    end //[15;19]
+    
+    for 0@ = 0 to 14 //[0;14]
+        if
+        $ROCKET_COOLDOWN[0@] > 0
+        then
+        0066: $ROCKET_COOLDOWN[0@] -= 32@  // (int) 
+        else       
+            if
+            $ROCKET_COOLDOWN[0@] < 0
+            then
+            $ROCKET_COOLDOWN[0@] = 0
+            end
+        end 
+        
+        if
+        $HS_ROCKET_FLIGHT_TIMER[0@] > 0
+        then
+        0066: $HS_ROCKET_FLIGHT_TIMER[0@] -= 32@  // (int) 
+        else       
+            if
+            $HS_ROCKET_FLIGHT_TIMER[0@] < 0
+            then
+            $HS_ROCKET_FLIGHT_TIMER[0@] = 0
+            end
+        end
+    end //[0;14]   
+jump @Cooldown
+end_thread
+
+:RandomStart //Choosing a random map spot
+thread 'ranstrt'
+while true
+wait 0
+0208: 1@ = random_float_in_ranges -2800.0 2800.0 
+0208: 2@ = random_float_in_ranges -2800.0 2800.0
+02CE: 3@ = ground_z_at 1@ 2@ 3@
+092E: get_water_height_at 1@ 2@ ignore_waves 1 store_to 4@
+    if
+    4@ < -1.0    
+    then
+    break
+    end                
+end
+04E4: refresh_game_renderer_at 1@ 2@ 3@
+03CB: set_rendering_origin_at 1@ 2@ -100.0
+actor.PutAt($PLAYER_ACTOR,1@,2@,-100.0)
+0915: sync_weather_with_time_and_location_instantly
+09BA: show_entered_zone_name 1
+fade 1 700
+wait 700
+0ACB: show_styled_text "Air & Land" time 4000 style 7
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Press ~r~~k~~CONVERSATION_YES~~s~ to show the menu."
+    else
+    0ACA: show_text_box "≠aõØú¶e ~r~~k~~CONVERSATION_YES~~s~ öû¨ £okaüa ØeÆ´."
+    end
+end_thread
+
+:Difficulty //Dynamic difficulty system
+thread 'dyndiff'
+wait 0
+if
+player.Defined(0)
+jf @Difficulty
+if
+actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+jf @Difficulty
+0@ = actor.CurrentCar($PLAYER_ACTOR)
+008B: 1@ = $KILL_PLANES // (int)
+2@ = 0 //damage counter
+32@ = 0 //timer
+    while 32@ < 15000
+    wait 0
+    008B: 3@ = $KILL_PLANES // (int)
+    //0AD0: show_formatted_text_lowpriority "%i %i" time 200 $ENEMY_HEALTH $PLAYER_HEALTH
+        if or
+        2@ > 2
+        803B: not  1@ == 3@  // (int)
+        car.Wrecked(0@)
+        not player.Defined(0) 
+        not actor.InCar($PLAYER_ACTOR,0@)
+        then
+        break
+        else            
+            if or
+            031E:   car 0@ hit_by_weapon 31
+            031E:   car 0@ hit_by_weapon 51
+            then
+            2@ ++ //+1 damage
+            0468: clear_car 0@ last_weapon_damage
+            end
+        end
+    end
+    
+    if
+    32@ > 4999
+    then
+        if
+        2@ > 0
+        then //- difficulty
+            if
+            $ENEMY_HEALTH > 300
+            then
+            2@ ++
+            2@ *= 5
+            0066: $ENEMY_HEALTH -= 2@  // (int)
+            end
+            if
+            $PLAYER_HEALTH < 1650
+            then
+            $PLAYER_HEALTH += 10
+            end
+        else //+ difficulty
+            if
+            $ENEMY_HEALTH < 700
+            then
+            $ENEMY_HEALTH += 5
+            end
+            if
+            $PLAYER_HEALTH > 1000
+            then
+            $PLAYER_HEALTH -= 5
+            end
+        end
+    0A99: chdir 0
+    0AF1: write_int $ENEMY_HEALTH to_ini_file "gta_sa_air.ini" section "AIR" key "ENHL"
+    0AF1: write_int $PLAYER_HEALTH to_ini_file "gta_sa_air.ini" section "AIR" key "PLHL"
+    end
+jump @Difficulty
+end_thread
+
+:SpeedRust //Rustler's speed boost
+thread 'spdrust'
+wait 0
+if
+player.Defined(0)
+jf @SpeedRust
+if and
+actor.DrivingVehicleType($PLAYER_ACTOR,#RUSTLER)
+00E1:   player 0 pressed_key 17
+jf @SpeedRust
+32@ = 0
+while true
+wait 0
+    if and
+    actor.DrivingVehicleType($PLAYER_ACTOR,#RUSTLER)
+    00E1:   player 0 pressed_key 17
+    not 32@ > 2999
+    then
+    0@ = actor.CurrentCar($PLAYER_ACTOR)
+    02E3: 1@ = car 0@ speed
+        if and
+        1@ > 10.0
+        1@ < 200.0
+        then
+        1@ *= 1.23
+        car.SetSpeedInstantly(0@,1@)
+        end
+    else
+    break
+    end
+end
+0085: 2@ = 32@ // (int)
+2@ *= 2.0
+0095: make 2@ absolute_integer
+if
+not 2@ > 999
+then
+2@ = 1500
+end
+32@ = 0
+repeat
+wait 0
+    if and
+    actor.DrivingVehicleType($PLAYER_ACTOR,#RUSTLER)
+    00E1:   player 0 pressed_key 17
+    then
+    0085: 1@ = 2@ // (int)
+    0062: 1@ -= 32@  // (int)
+        if
+        $LANGUAGE == 0
+        then
+        0ACD: show_text_highpriority "Reloading speed boost..." time 1@
+        else
+        0ACD: show_text_highpriority "åepeüap¨öka yckopeÆú¨..." time 1@
+        end
+    end
+until 001D:   32@ > 2@  // (int)
+jump @SpeedRust
+end_thread
+
+:RocketEffect //Visual effects for rockets
+thread 'rckteff'
+wait 0 
+if
+player.Defined(0)
+jf @RocketEffect                
+    for 0@ = 0xC891A8 to 0xC89604 step 0x24 //size - 0x24, number - 32 
+    0085: 1@ = 0@ // (int)
+    1@ += 16 //Rocket exists? 1 - yes, 0 - no 
+    0A8D: 1@ = read_memory 1@ size 1 virtual_protect 0
+        if
+        1@ == 1
+        then
+        0A8D: 1@ = read_memory 0@ size 4 virtual_protect 0 //Rocket type
+            if or
+            1@ == 19 //Normal rocket
+            1@ == 20 //Heatseeking rocket
+            then
+            0085: 1@ = 0@
+            1@ += 20 //X                
+            0A8D: 2@ = read_memory 1@ size 4 virtual_protect 0
+            1@ += 4 //Y
+            0A8D: 3@ = read_memory 1@ size 4 virtual_protect 0
+            1@ += 4 //Z
+            0A8D: 4@ = read_memory 1@ size 4 virtual_protect 0
+                if
+                00C2:   sphere_onscreen 2@ 3@ 4@ radius 150.0
+                then
+                09E5: create_flash_light_at 2@ 3@ 4@ RGB_mask 255 125 0 radius 50.0
+                    if
+                    $COL_TRAIL == 1
+                    then
+                    0208: 5@ = random_float_in_ranges 0.3 1.0
+                    0208: 6@ = random_float_in_ranges 0.3 1.0
+                    0208: 7@ = random_float_in_ranges 0.3 1.0                
+                    095C: create_smoke_at 2@ 3@ 4@ velocity 0.0 0.0 0.0 RGBA 5@ 6@ 7@ 0.9 size 0.18 last_factor 0.3
+                    else
+                    actor.StorePos($PLAYER_ACTOR,5@,6@,7@)                    
+                    050A: 8@ = distance_between_XYZ 2@ 3@ 4@ and_XYZ 5@ 6@ 7@
+                    8@ *= 0.02
+                        if
+                        8@ > 1.0
+                        then
+                        8@ = 1.0
+                        end                    
+                    095C: create_smoke_at 2@ 3@ 4@ velocity 0.0 0.0 0.0 RGBA 8@ 0.0 0.0 0.9 size 0.18 last_factor 0.3                                      
+                    end
+                end
+            end
+        end
+    end
+jump @RocketEffect
+end_thread
+
+:ExplosionCorona //Corona effect for explosions
+thread 'explcor'
+wait 0
+    for 0@ = 0xC88950 to 0xC89094 step 0x7C //size - 0x7C, number - 16
+    0085: 1@ = 0@ // (int)
+    1@ += 0x28 //(Byte) Frames from Created 
+    0A8D: 1@ = read_memory 1@ size 1 virtual_protect 0    
+        if 
+        1@ > 0
+        then
+        0085: 1@ = 0@ // (int)
+        1@ += 0x04 //X
+        0A8D: 2@ = read_memory 1@ size 4 virtual_protect 0
+        1@ += 4 //Y
+        0A8D: 3@ = read_memory 1@ size 4 virtual_protect 0
+        1@ += 4 //Z
+        0A8D: 4@ = read_memory 1@ size 4 virtual_protect 0       
+            if and 
+            00C2:   sphere_onscreen 2@ 3@ 4@ radius 0.01
+            00FE:   actor $PLAYER_ACTOR sphere 0 in_sphere 2@ 3@ 4@ radius 170.0 170.0 170.0
+            then
+            024F: create_corona_with_radius 0.01 type 1 lensflares 2 with_color 255 30 0 at 2@ 3@ 4@            
+            end
+        end
+    end
+jump @ExplosionCorona
+end_thread
+
+:UpsideDown //Bonus for flying upside down in Rustler
+thread 'upsdown'
+wait 0
+if
+player.Defined(0)
+jf @UpsideDown
+if and
+not player.Money(0) > 249
+actor.DrivingVehicleType($PLAYER_ACTOR,#RUSTLER)
+jf @UpsideDown
+0@ = actor.CurrentCar($PLAYER_ACTOR)
+if
+01F4:   car 0@ flipped
+then
+32@ = 0
+    while true
+    wait 0
+        if or
+        not player.Defined(0)
+        not actor.InCar($PLAYER_ACTOR,0@)
+        car.Wrecked(0@)
+        81F4: not  car 0@ flipped
+        then
+        break
+        else
+            if
+            32@ > 999
+            then            
+            player.Money(0) += 1  
+            32@ = 0
+            end
+        end
+    end
+end
+jump @UpsideDown
+end_thread
+
+:VehWep //Hide weapons when in vehicle
+thread 'hidweap'
+wait 0
+if
+player.Defined(0)
+jf @VehWep
+if and
+actor.Driving($PLAYER_ACTOR)
+847A: not  actor $PLAYER_ACTOR driving_bike
+not actor.HasWeapon($PLAYER_ACTOR,28)
+not actor.HasWeapon($PLAYER_ACTOR,29)
+not actor.HasWeapon($PLAYER_ACTOR,32)
+jf @VehWep
+06AB: set_actor $PLAYER_ACTOR all_weapons_hidden 1
+repeat
+wait 0
+until not actor.Driving($PLAYER_ACTOR)
+jump @VehWep
+end_thread
+
+:Mutators //Mutators system
+thread 'mutator'
+wait 0
+if
+player.Defined(0)
+jf @Mutators
+if and
+$MUTATORS == 1
+actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+jf @Mutators
+//Thanks to DK22Pac for these memory addresses
+0A8C: write_memory 0x58B81F size 4 value 0x900CC483 virtual_protect 1
+0A8C: write_memory 0x58B823 size 1 value 0x90 virtual_protect 1
+//Thanks to DK22Pac for these memory addresses
+0871: init_jump_table $MUT_CURR total_jumps 6 default_jump 0 @Mutators jumps 0 @LowHealth 1 @Ram 2 @Firework 3 @BadWeath 4 @ColourTrail 5 @LongNight -1 @Mutators
+
+:Mutators2
+03E6: remove_text_box
+repeat
+wait 0  
+until 88FE: not  text_box_displayed
+//Thanks to DK22Pac for these memory addresses
+0A8C: write_memory 0x58B81F size 4 value 0xF7B67CE8 virtual_protect 1
+0A8C: write_memory 0x58B823 size 1 value 0xFF virtual_protect 1
+//Thanks to DK22Pac for these memory addresses
+jump @Mutators
+end_thread
+
+:LowHealth
+$THIS_MUT = 0
+$LESSMONEY = 1
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Mutator: ~y~Weak enemies"
+    else
+    0ACA: show_text_box "ñy¶a¶op: ~y~Cûaó®e ¢paôú"
+    end
+while true
+wait 0
+    if or
+    not player.Defined(0)
+    not actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+    803A: not  $MUT_CURR == $THIS_MUT // (int)
+    then
+    break
+    else
+        for 0@ = 0 to 14
+            if
+            $VEHICLE[0@] <> -1
+            then
+                if
+                0185:   car $VEHICLE[0@] health >= 251
+                then
+                car.Health($VEHICLE[0@]) = 251
+                end 
+            end
+        end
+    end 
+end
+$LESSMONEY = 0
+jump @Mutators2
+
+:Ram
+$THIS_MUT = 1 
+$MUTRAM = 1
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Mutator: ~y~Ram"
+    else
+    0ACA: show_text_box "ñy¶a¶op: ~y~èapaÆ"
+    end
+while true
+wait 0
+    if or
+    not player.Defined(0)
+    not actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)    
+    803A: not  $MUT_CURR == $THIS_MUT // (int)
+    then
+    break
+    else
+    1@ = actor.CurrentCar($PLAYER_ACTOR)
+    car.SetImmunities(1@,1,1,1,1,1)
+        for 0@ = 0 to 14
+            if
+            $VEHICLE[0@] <> -1
+            then
+            car.SetImmunities($VEHICLE[0@],1,1,1,0,1)
+            end
+        end
+    end
+end
+1@ = actor.CurrentCar($PLAYER_ACTOR)
+car.SetImmunities(1@,0,0,0,0,0)
+for 0@ = 0 to 14
+    if
+    $VEHICLE[0@] <> -1
+    then
+    car.SetImmunities($VEHICLE[0@],0,0,0,0,0)
+    end
+end
+$MUTRAM = 0
+jump @Mutators2
+
+:Firework
+$THIS_MUT = 2
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Mutator: ~y~Firework"
+    else
+    0ACA: show_text_box "ñy¶a¶op: ~y~Åeùep¢epk"
+    end
+while true
+wait 0
+    if or
+    not player.Defined(0)
+    not actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+    803A: not  $MUT_CURR == $THIS_MUT // (int)
+    then
+    break
+    else
+        for 0@ = 0 to 14
+            if
+            $VEHICLE[0@] <> -1
+            then
+                if and
+                $OFF_THE_BORDER[0@] == 0                               
+                8185: not  car $VEHICLE[0@] health >= 250
+                then 
+                    if or
+                    $RAMMED[0@] == 1                                
+                    051C:   car $VEHICLE[0@] damaged_by_actor $PLAYER_ACTOR 
+                    then   
+                    car.StorePos($VEHICLE[0@],2@,3@,4@)
+                        if
+                        00C2:   sphere_onscreen 2@ 3@ 4@ radius 50.0
+                        then
+                        066B: 1@ = attach_particle "shootlight" to_car $VEHICLE[0@] with_offset 0.0 0.0 0.0 type 1
+                        064C: make_particle 1@ visible
+                        064F: remove_references_to_particle 1@
+                        wait 200
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+jump @Mutators2
+
+:BadWeath
+$THIS_MUT = 3
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Mutator: ~y~Bad weather"
+    else
+    0ACA: show_text_box "ñy¶a¶op: ~y~åûoxa¨ £oôoöa"
+    end
+while true
+wait 0
+    if or
+    not player.Defined(0)
+    not actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+    803A: not  $MUT_CURR == $THIS_MUT // (int)
+    then
+    break
+    else
+    set_weather 8
+    end
+end
+0915: sync_weather_with_time_and_location_instantly
+jump @Mutators2
+
+:ColourTrail
+$THIS_MUT = 4
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Mutator: ~y~Multicoloured trails"
+    else
+    0ACA: show_text_box "ñy¶a¶op: ~y~PaüÆo†¢e¶Æ®e cûeö®"
+    end
+while true
+wait 0
+    if or
+    not player.Defined(0)
+    not actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+    803A: not  $MUT_CURR == $THIS_MUT // (int)
+    then
+    break
+    else
+    $COL_TRAIL = 1
+    end
+end
+$COL_TRAIL = 0
+jump @Mutators2
+
+:LongNight
+$THIS_MUT = 5
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Mutator: ~y~Long night"
+    else
+    0ACA: show_text_box "ñy¶a¶op: ~y~Éoûôa¨ Æo§©"
+    end
+0253: save_current_time
+while true
+wait 0
+    if or
+    not player.Defined(0)
+    not actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+    803A: not  $MUT_CURR == $THIS_MUT // (int)
+    then
+    break
+    else
+    set_weather 2
+    00C0: set_current_time 0 0
+    end
+end
+0254: restore_current_time
+0915: sync_weather_with_time_and_location_instantly
+jump @Mutators2
+//Mutators end
+
+:Bonuses //Money bonuses for destroying enemy planes
+thread 'bonuses'
+wait 0
+if
+player.Defined(0)
+jf @Bonuses
+repeat
+wait 0
+until $KILL_PLANES >= 5
+    if
+    $LANGUAGE == 0
+    then
+    0ACB: show_styled_text "5 kills! $15" time 1000 style 2
+    else
+    0ACB: show_styled_text "5 yóúùc¶¢! $15" time 1000 style 2
+    end
+player.Money(0) += 15
+repeat
+wait 0
+until $KILL_PLANES >= 10
+    if
+    $LANGUAGE == 0
+    then
+    0ACB: show_styled_text "10 kills! $25" time 1000 style 2
+    else
+    0ACB: show_styled_text "10 yóúùc¶¢! $25" time 1000 style 2
+    end
+player.Money(0) += 25
+repeat
+wait 0
+until $KILL_PLANES >= 15
+    if
+    $LANGUAGE == 0
+    then
+    0ACB: show_styled_text "15 kills! $35" time 1000 style 2
+    else
+    0ACB: show_styled_text "15 yóúùc¶¢! $35" time 1000 style 2
+    end
+player.Money(0) += 35
+repeat
+wait 0
+until $KILL_PLANES >= 20
+    if
+    $LANGUAGE == 0
+    then
+    0ACB: show_styled_text "20 kills! $45" time 1000 style 2
+    else
+    0ACB: show_styled_text "20 yóúùc¶¢! $45" time 1000 style 2
+    end
+player.Money(0) += 45                    
+repeat
+wait 0
+until $KILL_PLANES >= 25
+    if
+    $LANGUAGE == 0
+    then
+    0ACB: show_styled_text "25 kills! $70" time 1000 style 2
+    else
+    0ACB: show_styled_text "25 yóúùc¶¢! $70" time 1000 style 2
+    end
+player.Money(0) += 70
+repeat
+wait 0
+until $KILL_PLANES >= 30
+018C: play_sound 1057 at 0.0 0.0 0.0
+    if
+    $LANGUAGE == 0
+    then
+    0ACB: show_styled_text "30 kills! $100" time 1000 style 2
+    else
+    0ACB: show_styled_text "30 yóúùc¶¢! $100" time 1000 style 2
+    end
+player.Money(0) += 100
+$KILL_PLANES = 0
+jump @Bonuses
+end_thread
+
+:DeathManager //Save money and weapons if player's money is less than 500$ + weight multiplier + random weapon skills + random respawn point
+thread 'deathmg'
+wait 0                                                        
+if                                         
+player.Defined(0)
+jf @DeathManager
+
+repeat
+wait 0
+008F: 0@ = integer $KILL_GENERAL to_float
+0@ /= 8.0
+
+    if
+    0@ < 1.0
+    then
+    0@ = 1.0
+    else
+        if
+        0@ > 4.0
+        then
+        0@ = 4.0
+        end
+    end
+
+0@ *= -1.0    
+0088: $WEIGHT_MULTIPLIER = 0@ // (float)
+until not player.Defined(0)
+
+    if
+    not player.Money(0) > 500
+    then
+    0414: set_player 0 free_treatment_once 1
+    08DE: lose_stuff_after_busted 0
+    08DD: lose_stuff_after_wasted 0
+    else
+    048F: actor $PLAYER_ACTOR remove_weapons
+    end
+
+for 0@ = 69 to 79
+0208: 1@ = random_float_in_ranges 0.0 1200.1
+062A: change_float_stat 0@ to 1@
+end
+    
+while true
+wait 0
+0208: 1@ = random_float_in_ranges -2800.0 2800.0 
+0208: 2@ = random_float_in_ranges -2800.0 2800.0
+02CE: 3@ = ground_z_at 1@ 2@ 3@
+092E: get_water_height_at 1@ 2@ ignore_waves 1 store_to 4@
+    if
+    4@ < -1.0    
+    then
+    break
+    end                
+end
+
+    if
+    $LANGUAGE == 0
+    then
+    0ACF: show_formatted_styled_text "Kills: ~r~%i" time 4000 style 1 $KILL_GENERAL
+    else
+    0ACF: show_formatted_styled_text "Yóúùc¶¢: ~r~%i" time 4000 style 1 $KILL_GENERAL  
+    end
+    
+repeat
+wait 0
+until player.Defined(0)
+
+fade 0 0
+04E4: refresh_game_renderer_at 1@ 2@ 3@
+03CB: set_rendering_origin_at 1@ 2@ -100.0
+actor.PutAt($PLAYER_ACTOR,1@,2@,-100.0)
+fade 1 500
+$KILL_GENERAL = 0
+jump @DeathManager
+end_thread
+
+:GPar //Give parachute in flying vehicles
+thread 'givepar'
+wait 0
+if
+player.Defined(0)
+jf @GPar
+if and
+04C8:   actor $PLAYER_ACTOR driving_flying_vehicle
+not actor.HasWeapon($PLAYER_ACTOR,46)
+jf @GPar
+model.Load(#GUN_PARA)
+038B: load_requested_models
+actor.GiveWeaponAndAmmo($PLAYER_ACTOR,Parachute,1)
+model.Destroy(#GUN_PARA)
+jump @GPar
+end_thread
+
+:RPar //Remove parachute after respawning
+thread 'rmovpar'
+wait 0
+if
+player.Defined(0)
+jf @RPar
+repeat
+wait 0
+until not player.Defined(0)
+repeat
+wait 0
+until player.Defined(0)
+if
+actor.HasWeapon($PLAYER_ACTOR,46)
+then
+0555: remove_weapon 46 from_actor $PLAYER_ACTOR
+end
+jump @RPar
+end_thread
+
+:Peaceful //Peaceful mode
+thread 'peacmod'
+wait 0
+if
+player.Defined(0)
+jf @Peaceful
+if and
+actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+00E1:   player 0 pressed_key 10
+jf @Peaceful
+if
+$PEACEFUL[15] == 0
+then
+$PEACEFUL[15] = 1
+for 0@ = 0 to 14
+    if
+    $VEHICLE[0@] <> -1
+    then
+        if
+        $HATE_VEHICLES[0@] == 0
+        then
+        $PEACEFUL[0@] = 1
+        else
+        $PEACEFUL[0@] = 0
+        end
+    end
+end
+    if
+    $LANGUAGE ==0
+    then
+    0ACD: show_text_highpriority "Peaceful Mode: ~y~On" time 2000
+    else
+    0ACD: show_text_highpriority "ñúpÆ®ù peõúØ: ~y~ãkû" time 2000
+    end
+018C: play_sound 1058 at 0.0 0.0 0.0
+else 
+$PEACEFUL[15] = 0
+for 0@ = 0 to 14
+    if
+    $VEHICLE[0@] <> -1
+    then
+    $PEACEFUL[0@] = 0
+    end
+end
+    if
+    $LANGUAGE == 0
+    then
+    0ACD: show_text_highpriority "Peaceful Mode: ~y~Off" time 2000
+    else
+    0ACD: show_text_highpriority "ñúpÆ®ù peõúØ: ~y~ã®kû" time 2000
+    end
+018C: play_sound 1058 at 0.0 0.0 0.0
+end
+repeat
+wait 0
+until 80E1: not  player 0 pressed_key 10
+jump @Peaceful
+end_thread
+
+:Home //Missions' starters go here
+thread 'mission'
+wait 0
+if
+player.Defined(0)
+jf @Home
+if and
+$ONMISSION == 0
+actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+jf @Home
+if or
+0103:   actor $PLAYER_ACTOR in_sphere -1306.0979 -111.3054 14.4647 radius 4.0 4.0 4.0 sphere 0 stopped_in_car
+0103:   actor $PLAYER_ACTOR in_sphere 1538.8806 1552.2576 11.1142 radius 4.0 4.0 4.0 sphere 0 stopped_in_car
+0103:   actor $PLAYER_ACTOR in_sphere 1935.6898 -2359.7598 13.836 radius 4.0 4.0 4.0 sphere 0 stopped_in_car
+jf @Home
+06D6: disable_racing_checkpoint $H1
+06D6: disable_racing_checkpoint $H2
+06D6: disable_racing_checkpoint $H3
+marker.Disable($H1M)
+marker.Disable($H2M)
+marker.Disable($H3M)
+0209: 0@ = random_int_in_ranges 0 1 //Random mission [0;1)
+increment_mission_attempts
+start_mission 0@
+
+repeat
+wait 0
+until $ONMISSION == 0
+
+06D5: $H1 = create_racing_checkpoint_at -1306.0979 -111.3054 14.4647 point_to -1306.0979 -111.3054 14.4647 type 2 radius 10.0
+06D5: $H2 = create_racing_checkpoint_at 1538.8806 1552.2576 11.1142 point_to 1538.8806 1552.2576 11.1142 type 2 radius 10.0
+06D5: $H3 = create_racing_checkpoint_at 1935.6898 -2359.7598 13.836 point_to 1935.6898 -2359.7598 13.836 type 2 radius 10.0
+marker.CreateIconWithoutSphere($H1M,5,-1306.0979, -111.3054, 14.4647)
+marker.CreateIconWithoutSphere($H2M,5,1538.8806, 1552.2576, 11.1142)
+marker.CreateIconWithoutSphere($H3M,5,1935.6898, -2359.7598, 13.836)
+jump @Home
+end_thread
+
+:HUD //Planes' HUD
+thread 'air_hud'
+wait 0
+if
+player.Defined(0)
+jf @HUD
+0A8D: 0@ = read_memory 0xBA6769 size 1 virtual_protect 0 //Hud Mode (menu)
+if and
+0@ == 1
+actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+jf @HUD
+0ADF: add_dynamic_GXT_entry "HLTH" text "~r~%"
+0ADF: add_dynamic_GXT_entry "HSTL" text "~r~!"
+04F7: status_text $HEALTH type 0 line 1 GXT 'HLTH'
+04F7: status_text $HATE_VEHICLES[20] type 0 line 2 GXT 'HSTL'
+while player.Defined(0)
+wait 0
+0A8D: 2@ = read_memory 0xBA6769 size 1 virtual_protect 0 //Hud Mode (menu)
+    if or
+    2@ <> 1
+    not actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+    then
+    break
+    else
+    0@ = actor.CurrentCar($PLAYER_ACTOR)
+    1@ = car.Health(0@)
+        if
+        1@ >= 2000
+        then
+        $HEALTH = 100
+        else
+            if
+            1@ < 2000
+            then
+            0093: 2@ = integer 1@ to_float
+            2@ /= 20.0
+            0092: $HEALTH = float 2@ to_integer
+                if
+                $HEALTH == 100
+                then
+                $HEALTH = 99
+                end
+            end
+        end    
+    end
+end
+0151: remove_status_text $HEALTH
+0151: remove_status_text $HATE_VEHICLES[20]
+0AE0: remove_dynamic_GXT_entry "HLTH"
+0AE0: remove_dynamic_GXT_entry "HSTL"
+jump @HUD
+end_thread
+
+:Infantry //Enemy pedestrians
+thread 'infntry'
+wait 0
+if
+player.Defined(0)
+jf @Infantry
+for 0@ = 0 to 9
+    if and
+    $INFANTRY[0@] <> -1
+    056D:   actor $INFANTRY[0@] defined
+    then //Enemy exists
+        if or //Is alive and near?
+        actor.Dead($INFANTRY[0@])
+        8104: not  actor $PLAYER_ACTOR near_actor $INFANTRY[0@] radius 150.0 150.0 330.0 sphere 0
+        then //Enemy is dead or too far away
+            if and
+            actor.Dead($INFANTRY[0@])
+            051A:   actor $INFANTRY[0@] damaged_by_actor $PLAYER_ACTOR
+            then
+            //0ACA: show_text_box "Ped killed"
+            $KILL_GENERAL ++
+            end
+        actor.RemoveReferences($INFANTRY[0@])                
+        $INFANTRY[0@] = -1
+        $SEARCH_COOLDOWN[0@] = 0
+        $JUMP_COOLDOWN[0@] = 0
+        $NOISE_COOLDOWN[0@] = 0                    
+        else //Enemy is alive and near; hearing & sight mechanics; parachute
+        actor.StorePos($INFANTRY[0@],1@,2@,3@)
+        04C4: store_coords_to 4@ 5@ 6@ from_actor $INFANTRY[0@] with_offset 0.0 -5.0 0.0
+        0855: get_actor -1 noise_level_at 1@ 2@ 3@ store_to 10@ //in front of the enemy
+        0855: get_actor -1 noise_level_at 4@ 5@ 6@ store_to 11@ //behind the enemy
+            if //Add noise
+            0025:   11@ > 10@  // (float)
+            then            
+                if
+                $NOISE_COOLDOWN[0@] < 65
+                then
+                11@ *= 2.7
+                else
+                11@ /= 1.5
+                end             
+            0092: 11@ = float 11@ to_integer                         
+            005E: $NOISE_COOLDOWN[0@] += 11@  // (int)
+            end //Add noise
+            
+/*actor.StorePos($INFANTRY[0@],1@,2@,3@) //old noise detection (worked only for player's noise)
+actor.StorePos($PLAYER_ACTOR,4@,5@,6@)       
+0855: get_actor $PLAYER_ACTOR noise_level_at 4@ 5@ 6@ store_to 10@
+050A: 11@ = distance_between_XYZ 1@ 2@ 3@ and_XYZ 4@ 5@ 6@
+0073: 10@ /= 11@ // (float)*/
+        actor.StorePos($PLAYER_ACTOR,1@,2@,3@)                 
+        0A96: 4@ = actor $INFANTRY[0@] struct
+        0085: 5@ = 4@ // (int)
+        0085: 6@ = 4@ // (int)
+        4@ += 0xEC //X, Y, Z of last collision
+        5@ += 0xF0  
+        6@ += 0xF4     
+        0A8D: 4@ = read_memory 4@ size 4 virtual_protect 0
+        0A8D: 5@ = read_memory 5@ size 4 virtual_protect 0
+        0A8D: 6@ = read_memory 6@ size 4 virtual_protect 0 
+        04C4: store_coords_to 7@ 8@ 9@ from_actor $INFANTRY[0@] with_offset 0.0 1.5 1.0                
+        050A: 10@ = distance_between_XYZ 4@ 5@ 6@ and_XYZ 7@ 8@ 9@
+        
+            if and //Climbing obstacles & other actions
+            86BD:   obstacles_between 4@ 5@ 6@ and 7@ 8@ 9@ solid 1 car 0 actor 0 object 1 particle 0
+            8818: not actor $INFANTRY[0@] in_air 
+            $JUMP_COOLDOWN[0@] == 0            
+            10@ < 1.95
+            then //Climb
+            0687: clear_actor $INFANTRY[0@] task 
+            0604: get_Z_angle_for_point 4@ 5@ store_to 7@
+            0AB1: call_scm_func @AS_Pack_Climb 8 actor_index 0@ obstacle_coords 4@ 5@ 6@ angle 7@ player_coords 1@ 2@ 3@
+            $JUMP_COOLDOWN[0@] = 4000         
+            else //Don't climb
+            
+                if //or //Attack & Forget mechanisms
+                09ED:   actor $INFANTRY[0@] is_within_field_of_view_actor $PLAYER_ACTOR
+                //10@ > 2.1 //1.75 //Player's noise level / distance to the enemy (old noise system)
+                then 
+                    if and //Check kill conditions
+                    $HATE_INFANTRY[0@] <> 1
+                    84AD: not  actor $INFANTRY[0@] in_water
+                    then //Kill
+                    $HATE_INFANTRY[0@] = 1 
+                    0687: clear_actor $INFANTRY[0@] task                    
+                    0AB1: call_scm_func @AS_Pack_Kill 4 actor_index 0@ player_coords 1@ 2@ 3@ 
+                    $SEARCH_COOLDOWN[0@] = 0                    
+                    //0ACE: show_formatted_text_box "Enemy [%i]: attacking" 0@                                       
+                    end
+                else //Other states (enemy doesn't see player)
+                    if and //Check search conditions
+                    $HATE_INFANTRY[0@] == 1
+                    89ED: not  actor $INFANTRY[0@] is_within_field_of_view_actor $PLAYER_ACTOR                
+                    then //Search
+                    $HATE_INFANTRY[0@] = 2
+                    0209: 7@ = random_int_in_ranges 6 8
+                    0687: clear_actor $INFANTRY[0@] task                
+                    actor.StorePos($PLAYER_ACTOR,$SEARCH_X[0@],$SEARCH_Y[0@],$SEARCH_Z[0@])
+                    0AB1: call_scm_func @AS_Pack_Search 2 actor_index 0@ run_mode 7@
+                    $SEARCH_COOLDOWN[0@] = 20000
+                    //0ACE: show_formatted_text_box "Enemy [%i]: searching" 0@                    
+                    else
+                        if and //Check stop search conditions
+                        $HATE_INFANTRY[0@] == 2
+                        $SEARCH_COOLDOWN[0@] == 0
+                        then //Stop search
+                        $HATE_INFANTRY[0@] = 0
+                        0687: clear_actor $INFANTRY[0@] task
+                        05DE: AS_actor $INFANTRY[0@] walk_around_ped_path                        
+                        //0ACE: show_formatted_text_box "Enemy [%i]: walking" 0@
+                        else
+                            if and //Check noise reaction conditions
+                            $HATE_INFANTRY[0@] == 0
+                            82E0: not  actor $INFANTRY[0@] firing_weapon
+                            $SEARCH_COOLDOWN[0@] == 0
+                            $JUMP_COOLDOWN[0@] == 0
+                            $NOISE_COOLDOWN[0@] > 100                                                       
+                            then                            
+                            0209: 7@ = random_int_in_ranges 1500 3001
+                            04C4: store_coords_to 4@ 5@ 6@ from_actor $INFANTRY[0@] with_offset 0.0 -10.0 0.0
+                            0687: clear_actor $INFANTRY[0@] task
+                            0AB1: call_scm_func @AS_Pack_Noise 5 actor_index 0@ look_at 4@ 5@ 6@ for 7@ ms
+                            $SEARCH_COOLDOWN[0@] = 6000
+                            $NOISE_COOLDOWN[0@] = 0                                                                                                               
+                            end //Check noise reaction conditions
+                        end //Check stop search conditions                                    
+                    end //Check search conditions
+                end
+            end //Climbing obstacles & other actions
+            
+            if //Weapon switch
+            02D8:   actor $INFANTRY[0@] current_weapon == 0
+            then
+            04DD: 1@ = actor $INFANTRY[0@] armour
+                if
+                1@ > 0
+                then
+                0AB1: call_scm_func @GiveRandomWeapon 1 $INFANTRY[0@]
+                end
+            end //Weapon switch
+            
+            if and
+            0818:  actor $INFANTRY[0@] in_air
+            0184:   actor $INFANTRY[0@] health >= 30
+            83CA: not  object $PARACHUTE[0@] exists
+            then
+            083D: get_actor $INFANTRY[0@] velocity_in_direction_XYZ 1@ 2@ 3@
+                if
+                3@ < -7.0
+                then
+                0AB1: call_scm_func @CreateCustomParachute 1 0@
+                end
+            end
+        end //Is alive and near?
+    else //Create an enemy
+        if
+        32@ > 3999
+        then
+        
+            while true
+            wait 0
+            0208: 1@ = random_float_in_ranges -130.0 130.0 
+            0208: 2@ = random_float_in_ranges -130.0 130.0
+            04C4: store_coords_to 1@ 2@ 3@ from_actor $PLAYER_ACTOR with_offset 1@ 2@ 0.0
+            02CE: 3@ = ground_z_at 1@ 2@ 3@
+            092E: get_water_height_at 1@ 2@ ignore_waves 1 store_to 4@
+            0208: 5@ = random_float_in_ranges 75.0 321.0
+                if and
+                4@ < -1.0
+                00FE:   actor $PLAYER_ACTOR sphere 0 in_sphere 1@ 2@ 3@ radius 140.0 140.0 5@
+                80FE: not  actor $PLAYER_ACTOR sphere 0 in_sphere 1@ 2@ 3@ radius 40.0 40.0 15.0
+                then
+                break
+                end                
+            end
+        
+        //0376: $INFANTRY[0@] = create_random_actor_at 1@ 2@ -100.0
+        0AB1: call_scm_func @GetRandomPedModel 0 4@        
+        actor.Create($INFANTRY[0@],4,4@,1@,2@,-100.0)
+        model.Destroy(4@)
+        $HATE_INFANTRY[0@] = 0 //Walk
+        0209: 1@ = random_int_in_ranges 2 5
+        077A: set_actor $INFANTRY[0@] acquaintance 1@ to_actors_pedtype 4 // see ped.dat
+        //077A: set_actor $INFANTRY[0@] acquaintance 1@ to_actors_pedtype 5 // see ped.dat        
+        077A: set_actor $INFANTRY[0@] acquaintance 4 to_actors_pedtype 0 // see ped.dat
+        077A: set_actor $INFANTRY[0@] acquaintance 4 to_actors_pedtype 7 // see ped.dat
+        0AB1: call_scm_func @GiveRandomWeapon 1 $INFANTRY[0@]
+        0209: 1@ = random_int_in_ranges 0 2
+        04D8: set_actor $INFANTRY[0@] drowns_in_water 1@
+            if
+            1@ == 0
+            then
+            0208: 1@ = random_float_in_ranges 0.7 2.4
+            0A28: set_actor $INFANTRY[0@] swimming_speed_to 1@
+            end
+        09B5: set_actor $INFANTRY[0@] signal_after_kill 0
+        0209: 1@ = random_int_in_ranges 0 101
+        actor.AddArmour($INFANTRY[0@],1@)
+        0209: 1@ = random_int_in_ranges 0 101
+        02E2: set_actor $INFANTRY[0@] weapon_accuracy_to 1@
+        0209: 1@ = random_int_in_ranges 0 16
+        03FE: set_actor $INFANTRY[0@] money 1@        
+        0209: 1@ = random_int_in_ranges 5 8
+        07FE: set_actor $INFANTRY[0@] fighting_style_to 1@ moves 6
+        0209: 1@ = random_int_in_ranges 0 3
+        081A: set_actor $INFANTRY[0@] weapon_skill_to 1@                        
+        060B: set_actor $INFANTRY[0@] decision_maker_to $BEHAVIOUR        
+        05DE: AS_actor $INFANTRY[0@] walk_around_ped_path
+        32@ = 0
+        end       
+    end 
+end
+jump @Infantry
+end_thread
+
+:GiveRandomWeapon //0@ - actor
+0209: 1@ = random_int_in_ranges 0 9 // [0;9] - 10
+    if
+    1@ > 0
+    then //Give a weapon (0 ó no weapon)
+        if
+        1@ < 5 //Firearm [0;4] - 5
+        then 
+        0209: 1@ = random_int_in_ranges 22 39 //Weapon ID
+        0209: 3@ = random_int_in_ranges 10 101 //Ammo
+        0209: 4@ = random_int_in_ranges 15 101 //Attack rate + melee accuracy 
+        else               
+            if
+            1@ < 7 
+            then //Melee weapon [5;7] - 2
+            0209: 1@ = random_int_in_ranges 2 10
+            0209: 4@ = random_int_in_ranges 40 101
+            3@ = 1
+            else //Grenades & Molotovs [8;9] - 3
+                repeat
+                wait 0
+                0209: 1@ = random_int_in_ranges 16 19
+                until 1@ <> 17 //Tear gas: rarely works  
+            0209: 3@ = random_int_in_ranges 1 11
+            0209: 4@ = random_int_in_ranges 10 31
+            end                                      
+        end
+    0781: get_weapon_with_ID 1@ model_to 2@
+    model.Load(2@)
+    //038B: load_requested_models
+        repeat
+        wait 0
+        until model.Available(2@)
+    actor.GiveWeaponAndAmmo(0@,1@,3@)    
+    07DD: set_actor 0@ attack_rate 4@ // previously known as temper_to
+    0093: 4@ = integer 4@ to_float
+    060F: set_actor 0@ melee_accuracy_to 4@
+    model.Destroy(2@)
+    end
+0AB2: ret 0
+
+:GetRandomPedModel
+0209: 0@ = random_int_in_ranges 0 5
+if
+0@ == 0
+then //Use ped pack 1: [274;288]
+0209: 0@ = random_int_in_ranges 274 289
+else //Use ped pack 2: [7;264] exclude: 8,65,74,86,87,119,149,178,208,244,246,256,257
+    while true
+    wait 0
+    0209: 0@ = random_int_in_ranges 9 264
+        if and
+        0@ <> 42
+        0@ <> 65
+        0@ <> 74
+        0@ <> 86
+        0@ <> 87
+        0@ <> 119
+        0@ <> 149 
+        0@ <> 178               
+        then
+            if and            
+            0@ <> 208
+            0@ <> 244
+            0@ <> 246
+            0@ <> 256
+            0@ <> 257
+            then
+            break
+            end
+        end
+    end
+end
+
+if
+not model.Available(0@)
+then
+model.Load(0@)
+//038B: load_requested_models
+    repeat
+    wait 0
+    until model.Available(0@)
+end
+0AB2: ret 1 0@
+
+:AS_Pack_Climb
+0615: define_AS_pack_begin 8@           
+07CD: AS_actor -1 walk_to 1@ 2@ 3@ stop_with_angle 4@ within_radius 2.1 //4@ 5@ 6@ 8@
+06BA: AS_actor -1 turn_to_and_look_at 1@ 2@ 3@
+078F: AS_actor -1 climb 1
+    if //Different climbing scenarios (depending on "hate" flag)
+    $HATE_INFANTRY[0@] == 0
+    then
+    05DE: AS_actor -1 walk_around_ped_path
+    else
+        if
+        $HATE_INFANTRY[0@] == 1 //Kill
+        then
+        05D3: AS_actor -1 goto_point 5@ 6@ 7@ mode 6 time -2 ms // versionA //1@ 2@ 3@
+        05DE: AS_actor -1 walk_around_ped_path
+        else //$HATE == 2 (Search)
+            if
+            $SEARCH_COOLDOWN[0@] > 0 
+            then //Search is active
+                if
+                80FE: not  actor $INFANTRY[0@] sphere 0 in_sphere $SEARCH_X[0@] $SEARCH_Y[0@] $SEARCH_Z[0@] radius 3.0 3.0 3.0
+                then            
+                05D3: AS_actor -1 goto_point $SEARCH_X[0@] $SEARCH_Y[0@] $SEARCH_Z[0@] mode 6 time -2 ms // versionA                            
+                end
+            05C8: AS_actor -1 look_around                        
+            05DE: AS_actor -1 walk_around_ped_path
+            else //Search is not active
+            $HATE_INFANTRY[0@] = 0 //Reset hate status
+            05DE: AS_actor -1 walk_around_ped_path
+            end
+        end
+    end
+0616: define_AS_pack_end 8@            
+0618: assign_actor $INFANTRY[0@] to_AS_pack 8@
+061B: remove_references_to_AS_pack 8@
+0AB2: ret 0
+
+:AS_Pack_Kill
+0615: define_AS_pack_begin 4@                    
+0639: AS_actor -1 rotate_to_actor $PLAYER_ACTOR
+05D3: AS_actor -1 goto_point 1@ 2@ 3@ mode 6 time -2 ms 
+0616: define_AS_pack_end 4@
+0618: assign_actor $INFANTRY[0@] to_AS_pack 4@
+061B: remove_references_to_AS_pack 4@
+0AB2: ret 0
+
+:AS_Pack_Search
+0615: define_AS_pack_begin 2@                    
+0639: AS_actor -1 rotate_to_actor $PLAYER_ACTOR
+05D3: AS_actor -1 goto_point $SEARCH_X[0@] $SEARCH_Y[0@] $SEARCH_Z[0@] mode 1@ time -2 ms // versionA
+05C8: AS_actor -1 look_around                                       
+05DE: AS_actor -1 walk_around_ped_path
+0616: define_AS_pack_end 2@
+0618: assign_actor $INFANTRY[0@] to_AS_pack 2@
+061B: remove_references_to_AS_pack 2@
+0AB2: ret 0
+
+:AS_Pack_Noise
+0615: define_AS_pack_begin 5@                            
+0667: AS_actor -1 aim_at 1@ 2@ 3@ 4@ ms //4@ 5@ 6@ 8@
+05DE: AS_actor -1 walk_around_ped_path
+0616: define_AS_pack_end 5@
+0618: assign_actor $INFANTRY[0@] to_AS_pack 5@
+061B: remove_references_to_AS_pack 5@
+0AB2: ret 0
+
+:Bikes //Enemy bikers
+thread 'madbike'
+wait 0
+if
+player.Defined(0)
+jf @Bikes
+for 0@ = 15 to 19
+    if and
+    $VEHICLE[0@] <> -1
+    056E:   car $VEHICLE[0@] defined
+    then //Bike is created
+        if or
+        actor.Dead($ENEMY[0@])                
+        not actor.InCar($ENEMY[0@],$VEHICLE[0@])
+        8205: not  actor $PLAYER_ACTOR near_car $VEHICLE[0@] radius 155.0 155.0 55.0 flag 0        
+        then //Delete
+            if or
+            actor.Dead($ENEMY[0@])
+            not actor.InCar($ENEMY[0@],$VEHICLE[0@])
+            car.Wrecked($VEHICLE[0@])
+            then
+                if or
+                051A:   actor $ENEMY[0@] damaged_by_actor $PLAYER_ACTOR
+                051C:   car $VEHICLE[0@] damaged_by_actor $PLAYER_ACTOR                
+                then
+                //0ACA: show_text_box "Biker killed"
+                $KILL_GENERAL ++
+                end
+            end
+        car.RemoveReferences($VEHICLE[0@])
+        actor.RemoveReferences($ENEMY[0@])
+        $VEHICLE[0@] = -1
+        $HATE_VEHICLES[0@] = 0 
+        else //Other behaviour
+            if
+            actor.InCar($ENEMY[0@],$VEHICLE[0@])
+            then
+            car.StorePos($VEHICLE[0@],1@,2@,3@)
+            0AE1: 4@ = random_actor_near_point 1@ 2@ 3@ in_radius 35.0 find_next 0 pass_deads 1            
+                if 
+                056D:   actor 4@ defined
+                then
+                    if and
+                    87D6: not  4@ == $ENEMY[0@] // @ == $ (int) 
+                    87D6: not  4@ == $PLAYER_ACTOR // @ == $ (int)
+                    $DRIVE_BY_COOLDOWN[0@] == 0
+                    $HATE_VEHICLES[0@] == 0
+                    09ED:   actor $ENEMY[0@] is_within_field_of_view_actor 4@
+                    then                    
+                    0713: actor $ENEMY[0@] driveby_actor 4@ car -1 point 0.0 0.0 0.0 radius 50.0 4 1 firing_rate 95
+                        if
+                        actor.Driving(4@)
+                        then
+                        car.SetMaxSpeed($VEHICLE[0@],15.0)
+                        else
+                        car.SetMaxSpeed($VEHICLE[0@],5.0)
+                        end
+                    $DRIVE_BY_COOLDOWN[0@] = 6000
+                    //0ACE: show_formatted_text_box "Biker [%i] attacks %i" 0@ 4@
+                    end
+                end            
+                                                     
+                if and //Check when to driveby                           
+                09ED:   actor $ENEMY[0@] is_within_field_of_view_actor $PLAYER_ACTOR
+                $HATE_VEHICLES[0@] == 0                
+                then                
+                car.SetDriverBehaviour($VEHICLE[0@],KillThePlayer)
+                0713: actor $ENEMY[0@] driveby_actor $PLAYER_ACTOR car -1 point 0.0 0.0 0.0 radius 50.0 4 1 firing_rate 65                                            
+                $HATE_VEHICLES[0@] = 1 
+                else
+                    if and
+                    8205: not  actor $PLAYER_ACTOR near_car $VEHICLE[0@] radius 10.0 10.0 10.0 flag 0
+                    89ED: not  actor $ENEMY[0@] is_within_field_of_view_actor $PLAYER_ACTOR
+                    $HATE_VEHICLES[0@] == 1
+                    then
+                    car.SetToPsychoDriver($VEHICLE[0@])                    
+                    00AE: set_car $VEHICLE[0@] traffic_behaviour_to 2
+                    car.SetMaxSpeed($VEHICLE[0@],20.0)                    
+                    $HATE_VEHICLES[0@] = 0
+                    end                                                   
+                end
+            else //When the biker is not on bike
+                if
+                056E:   car $VEHICLE[0@] defined                                
+                then
+                    if and
+                    not car.Wrecked($VEHICLE[0@])
+                    82BF: not  car $VEHICLE[0@] sunk
+                    0185:   car $VEHICLE[0@] health >= 250
+                    then                                                            
+                    car.Health($VEHICLE[0@]) = 249
+                    end
+                end
+            end           
+        end
+    else //Bike is not created
+        if
+        32@ > 9999
+        then
+        
+        repeat //Find appropriate spawn point
+        wait 0
+        0208: 4@ = random_float_in_ranges -100.0 100.0
+        0208: 5@ = random_float_in_ranges -100.0 100.0
+        04C4: store_coords_to 1@ 2@ 3@ from_actor $PLAYER_ACTOR with_offset 4@ 5@ 0.0
+        03D3: get_route_nearest_for 1@ 2@ 3@ store_to 1@ 2@ 3@ Z_angle_to 4@
+        until 80C2: not  sphere_onscreen 1@ 2@ 3@ radius 5.0
+                   
+            if and
+            80FE: not  actor $PLAYER_ACTOR sphere 0 in_sphere 1@ 2@ 3@ radius 15.0 15.0 10.0
+            00FE:   actor $PLAYER_ACTOR sphere 0 in_sphere 1@ 2@ 3@ radius 140.0 140.0 50.0            
+            then
+            0209: 5@ = random_int_in_ranges 9 20 // [9;19]
+            0209: 6@ = random_int_in_ranges 22 33
+                if or
+                6@ == 30
+                6@ == 31
+                then
+                6@ = 28
+                end
+            0781: get_weapon_with_ID 6@ model_to 7@
+            model.Load($MODELS[5@])            
+            model.Load(7@)
+            //038B: load_requested_models
+                while true
+                wait 0
+                    if and
+                    model.Available($MODELS[5@])
+                    model.Available(7@)
+                    then
+                    break
+                    end
+                end
+            car.Create($VEHICLE[0@],$MODELS[5@],1@,2@,3@)
+            car.Health($VEHICLE[0@]) = 800 
+            model.Destroy($MODELS[5@])            
+            car.Angle($VEHICLE[0@]) = 4@        
+            //0560: create_random_actor_in_car $VEHICLE[0@] handle_as $ENEMY[0@]
+            0AB1: call_scm_func @GetRandomPedModel 0 1@
+            actor.CreateAsDriver($ENEMY[0@],Gang1,1@,$VEHICLE[0@])            
+            model.Destroy(1@)            
+            actor.GiveWeaponAndAmmo($ENEMY[0@],6@,99999)            
+            model.Destroy(7@)
+            car.SetToPsychoDriver($VEHICLE[0@])
+            00AE: set_car $VEHICLE[0@] traffic_behaviour_to 2
+            car.SetMaxSpeed($VEHICLE[0@],20.0)
+            0209: 1@ = random_int_in_ranges 0 51
+            03FE: set_actor $ENEMY[0@] money 1@
+            /*0209: 1@ = random_int_in_ranges 2 5                
+            077A: set_actor $ENEMY[0@] acquaintance 1@ to_actors_pedtype 4 // see ped.dat
+            077A: set_actor $ENEMY[0@] acquaintance 1@ to_actors_pedtype 5 // see ped.dat
+            077A: set_actor $ENEMY[0@] acquaintance 4 to_actors_pedtype 0 // see ped.dat*/
+            060B: set_actor $ENEMY[0@] decision_maker_to $BEHAVIOUR            
+            $HATE_VEHICLES[0@] = 0                
+            32@ = 0
+            end
+        end
+    end
+end
+jump @Bikes
+end_thread
+
+/*:Helis //Enemy helicopters [they don't attack other actors ó script turned off]
+thread 'helicop'
+wait 0
+if
+player.Defined(0)
+jf @Helis
+for 0@ = 20 to 24
+    if and
+    $VEHICLE[0@] <> -1
+    056E:   car $VEHICLE[0@] defined
+    then //Helicopter exists
+        if or //Helicopter is wrecked or pilot is dead
+        actor.Dead($ENEMY[0@])
+        car.Wrecked($VEHICLE[0@])
+        02BF:   car $VEHICLE[0@] sunk
+        then //Destroy
+        marker.Disable($MARKS[0@])
+        03CD: disable_car $VEHICLE[0@] stuck_check
+        0564: heli $VEHICLE[0@] simulate_crash_landing
+        actor.RemoveReferences($ENEMY[0@])
+        car.RemoveReferences($VEHICLE[0@])
+        $VEHICLE[0@] = -1
+        else //Alive
+            if //Check "hate"
+            $HATE_VEHICLES[0@] == 0
+            then //Neutral, fly around
+                if //Reached destination
+                01AF:   car $VEHICLE[0@] sphere 0 in_sphere $HELI_DESTINATION_X[0@] $HELI_DESTINATION_Y[0@] $HELI_DESTINATION_Z[0@] radius 25.0 25.0 80.0
+                then //Set a new destination
+                0AB1: call_scm_func @GetRandomDestination 1 helicopter_index 0@ 
+                else //Hasn't reached destination
+                    if //Check if stuck
+                    03CE:   car $VEHICLE[0@] stuck
+                    then //Unstuck
+                    car.StorePos($VEHICLE[0@],1@,2@,3@)
+                    02C1: store_to 1@ 2@ 3@ car_path_coords_closest_to 1@ 2@ 3@
+                    car.PutAt($VEHICLE[0@],1@,2@,100.0)
+                    0AB1: call_scm_func @GetRandomDestination 1 helicopter_index 0@ 
+                    else //Not stuck
+                        if and //Sees player
+                        09ED:   actor $ENEMY[0@] is_within_field_of_view_actor $PLAYER_ACTOR
+                        $PEACEFUL[15] == 0
+                        then //Kill
+                        0ACE: show_formatted_text_box "Heli [%i] attacks player" 0@
+                        //0727: set_heli $VEHICLE[0@] behavior_to_police_heli_and_follow_actor $PLAYER_ACTOR follow_car -1 radius 50.0
+                        0724: heli $VEHICLE[0@] follow_and_attack_player 0 radius 50.0 
+                        0084: $HELI_TARGET[0@] = $PLAYER_ACTOR // (int)
+                        $HATE_VEHICLES[0@] = 1
+                        marker.SetColor($MARKS[0@],0xFF0000FF)
+                        else //Find another target
+                        car.StorePos($VEHICLE[0@],1@,2@,3@)
+                        0AE1: 4@ = random_actor_near_point 1@ 2@ 3@ in_radius 150.0 find_next 0 pass_deads 1
+                            if
+                            056D:   actor 4@ defined
+                            then
+                                if and
+                                803C: not  $ENEMY[0@] == 4@  // (int)
+                                09ED:   actor $ENEMY[0@] is_within_field_of_view_actor 4@
+                                then
+                                0ACE: show_formatted_text_box "Heli [%i] attacks ped" 0@
+                                0727: set_heli $VEHICLE[0@] behavior_to_police_heli_and_follow_actor 4@ follow_car -1 radius 40.0                                                                
+                                008A: $HELI_TARGET[0@] = 4@ // (int)
+                                $HATE_VEHICLES[0@] = 1
+                                marker.SetColor($MARKS[0@],0xFF0000FF)
+                                end
+                            end
+                        end //Sees player
+                    end //Check if stuck
+                end //Reached destination
+            else //Hostile - search & forget mechanism
+                if //Check heli's target
+                056D:   actor $HELI_TARGET[0@] defined
+                then //Target exists
+                    if and //If lost target
+                    89ED: not  actor $ENEMY[0@] is_within_field_of_view_actor $HELI_TARGET[0@]
+                    8205: not  actor $HELI_TARGET[0@] near_car $VEHICLE[0@] radius 320.0 320.0 380.0 flag 0
+                    then //Check last seen position
+                    actor.StorePos($HELI_TARGET[0@],1@,2@,3@)
+                    04A2: set_heli $VEHICLE[0@] fly_to 1@ 2@ 3@ altitude_between 30.0 and 75.0
+                    0046:   $HELI_DESTINATION_X[0@] == 1@  // (float)
+                    0046:   $HELI_DESTINATION_Y[0@] == 2@  // (float)
+                    0046:   $HELI_DESTINATION_Z[0@] == 3@  // (float)
+                    $HATE_VEHICLES[0@] = 0
+                    0ACE: show_formatted_text_box "Heli [%i] lost target" 0@
+                    marker.SetColor($MARKS[0@],0x0000FFFF)
+                    else //Switch firing mode
+                        if
+                        33@ > 10000
+                        then
+                        084E: flying_vehicle $VEHICLE[0@] use_primary_gun 0
+                        0841: flying_vehicle $VEHICLE[0@] use_secondary_gun 1
+                            if
+                            33@ > 15000
+                            then
+                            33@ = 0
+                            end
+                        else
+                        084E: flying_vehicle $VEHICLE[0@] use_primary_gun 1
+                        0841: flying_vehicle $VEHICLE[0@] use_secondary_gun 0
+                        end
+                    end //If lost target
+                else //Target doesn't exist, fly away
+                0ACE: show_formatted_text_box "Heli [%i]: target doesn't exist" 0@
+                0AB1: call_scm_func @GetRandomDestination 1 helicopter_index 0@                
+                $HATE_VEHICLES[0@] = 0                 
+                end //Check heli's target
+            end //Check "hate"
+        end //Helicopter is wrecked or pilot is dead
+    else //Create helicopter
+        if
+        32@ > 4999
+        then
+            while true //Find a spawn point
+            wait 0
+            0208: 1@ = random_float_in_ranges -2500.0 2500.0
+            0208: 2@ = random_float_in_ranges -2500.0 2500.0
+            02CE: 3@ = ground_z_at 1@ 2@ 0.0
+            092E: get_water_height_at 1@ 2@ ignore_waves 0 store_to 4@
+                if and
+                4@ < -1.0
+                80FE: not  actor $PLAYER_ACTOR sphere 0 in_sphere 1@ 2@ 3@ radius 100.0 100.0 15.0
+                then
+                3@ += 60.0
+                break
+                end
+            end //Find a spawn point        
+        0AB1: call_scm_func @GetRandomPedModel 0 4@
+        model.Load(#HUNTER)
+        038B: load_requested_models
+        car.Create($VEHICLE[0@],#HUNTER,1@,2@,3@)
+        actor.CreateAsDriver($ENEMY[0@],Gang1,4@,$VEHICLE[0@])
+        model.Destroy(#HUNTER)
+        model.Destroy(5@)
+        0825: set_helicopter $VEHICLE[0@] instant_rotor_start
+        car.Health($VEHICLE[0@]) = 1500
+        03CC: enable_car $VEHICLE[0@] stuck_check_distance_to 5.0 time_to 5000        
+        marker.CreateAboveCar($MARKS[0@],$VEHICLE[0@]) 
+        marker.SetIconSize($MARKS[0@],2)
+        marker.SetColor($MARKS[0@],0x000000FF)        
+        018B: set_marker $MARKS[0@] radar_mode 2 
+        0AB1: call_scm_func @GetRandomDestination 1 helicopter_index 0@      
+        $HATE_VEHICLES[0@] = 0
+        32@ = 0
+        end
+    end
+end
+jump @Helis
+end_thread
+
+:GetRandomDestination //For helicopters; takes a heli's index, returns nothing
+while true
+    wait 0
+    0208: $HELI_DESTINATION_X[0@] = random_float_in_ranges -2500.0 2500.0
+    0208: $HELI_DESTINATION_Y[0@] = random_float_in_ranges -2500.0 2500.0
+    02CE: $HELI_DESTINATION_Z[0@] = ground_z_at $HELI_DESTINATION_X[0@] $HELI_DESTINATION_Y[0@] 0.0
+    092E: get_water_height_at $HELI_DESTINATION_X[0@] $HELI_DESTINATION_Y[0@] ignore_waves 0 store_to 1@
+        if and
+        1@ < -1.0
+        80FE: not  actor $PLAYER_ACTOR sphere 0 in_sphere $HELI_DESTINATION_X[0@] $HELI_DESTINATION_Y[0@] $HELI_DESTINATION_Z[0@] radius 50.0 50.0 15.0
+        then
+        $HELI_DESTINATION_Z[0@] += 60.0
+        break
+        end
+    end
+    
+    if
+    075C:   marker $MARKS[0@] enabled
+    then
+    marker.SetColor($MARKS[0@],0x000000FF)
+    end
+    
+    if
+    056E:   car $VEHICLE[0@] defined
+    then
+    04A2: set_heli $VEHICLE[0@] fly_to $HELI_DESTINATION_X[0@] $HELI_DESTINATION_Y[0@] $HELI_DESTINATION_Z[0@] altitude_between 30.0 and 75.0
+    end
+0AB2: ret 0*/
+
+:Planes //Enemy pilots
+thread 'planes'
+wait 0
+if
+player.Defined(0)
+jf @Planes
+for 0@ = 0 to 14
+    if and
+    $VEHICLE[0@] <> -1
+    056E:   car $VEHICLE[0@] defined
+    then //The plane is created
+        if or //Shot down
+        actor.Dead($ENEMY[0@])
+        not actor.InCar($ENEMY[0@],$VEHICLE[0@])
+        car.Wrecked($VEHICLE[0@])
+        then
+            if or
+            actor.Dead($ENEMY[0@])
+            car.Wrecked($VEHICLE[0@])
+            then
+                if or
+                051C:   car $VEHICLE[0@] damaged_by_actor $PLAYER_ACTOR
+                051A:   actor $ENEMY[0@] damaged_by_actor $PLAYER_ACTOR
+                then
+                //0ACA: show_text_box "Plane killed"
+                $KILL_GENERAL ++
+                end
+            end
+        marker.Disable($MARKS[0@])
+            if //If "hate" status is on, subtract 1 from "hate" counter
+            $HATE_VEHICLES[0@] == 1
+            then
+            $HATE_VEHICLES[20] --
+            end  
+                  
+            if and //Check reward conditions
+            actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+            $PEACEFUL[0@] == 0
+            $OFF_THE_BORDER[0@] == 0
+            then            
+                if or //For "Ram" mutator
+                $RAMMED[0@] == 1                                
+                051C:   car $VEHICLE[0@] damaged_by_actor $PLAYER_ACTOR
+                then
+                    if //Give less money if the current plane is Hydra
+                    $MODEL == #HYDRA
+                    then
+                    2@ = 5
+                    else
+                        if
+                        $MODEL == #RUSTLER
+                        then
+                        2@ = 12
+                        end                    
+                    end
+                    
+                    if //If "Weak enemies" mutator is off, give bonus money
+                    $LESSMONEY == 0
+                    then                        
+                        for 1@ = 0 to 14
+                            if
+                            $HATE_VEHICLES[1@] == 1
+                            then
+                            2@ ++
+                            end
+                        end 
+                    end
+                                                 
+                player.Money(0) += 2@
+                
+                    if //If "hate" status is on, add 1 to kill counter
+                    $HATE_VEHICLES[0@] == 1
+                    then                                                        
+                    $KILL_PLANES ++
+                    end                                    
+                end
+            end
+            actor.RemoveReferences($ENEMY[0@])
+            car.RemoveReferences($VEHICLE[0@]) //Shot down
+                if
+                $DEBUG == 1
+                then
+                0A99: chdir 0
+                0AD9: write_formatted_text "Plane [%i] destroyed%c" in_file $LOG $VEHICLE[0@] 0xD
+                end
+            $VEHICLE[0@] = -1
+        else //Not shot down
+            if and //Check pursuit conditions
+            $PEACEFUL[15] == 0
+            $HATE_VEHICLES[0@] == 0
+            0207:   actor $PLAYER_ACTOR near_car $VEHICLE[0@] radius 30.0 30.0 30.0 flag 0 in_car
+            then //Start killing the player
+            $HATE_VEHICLES[0@] = 1
+            $HATE_VEHICLES[20] ++
+            marker.CreateAboveCar($MARKS[0@],$VEHICLE[0@])
+            marker.SetIconSize($MARKS[0@],2)
+            018B: set_marker $MARKS[0@] radar_mode 2            
+            0208: 17@ = random_float_in_ranges 1.0 15.1
+            1@ *= 5.0             
+            070E: hydra $VEHICLE[0@] attack_player_car 0 radius 1@                                
+            else //The plane is neutral
+                if
+                $HATE_VEHICLES[0@] == 0
+                then
+                0208: 1@ = random_float_in_ranges 1.0 20.1
+                1@ *= 5.0                
+                0710: plane $VEHICLE[0@] follow_actor $PLAYER_ACTOR follow_car -1 radius 1@
+                end
+            end //Check pursuit conditions
+            
+        car.StorePos($VEHICLE[0@],1@,2@,3@) //Map limits
+        
+            if or //Ckeck being off the map borders
+            3@ > 800.0
+            1@ > 3000.0
+            1@ < -3000.0
+            2@ > 3000.0
+            2@ < -3000.0
+            then //Destroy the plane
+            $OFF_THE_BORDER[0@] = 1
+            car.Health($VEHICLE[0@]) = 240
+            end //Ckeck being off the map borders
+            
+            if and //Shot down animation
+            not car.Wrecked($VEHICLE[0@])
+            8185: not  car $VEHICLE[0@] health >= 249            
+            then              
+                if
+                $TYPE_OF_DEATH[0@] == 0
+                then  
+                car.StorePos($VEHICLE[0@],1@,2@,3@)
+                    if
+                    00C2:   sphere_onscreen 1@ 2@ 3@ radius 150.0
+                    then
+                    095C: create_smoke_at 1@ 2@ 3@ velocity 0.0 0.0 0.0 RGBA 0.0 0.0 0.0 1.0 size 3.5 last_factor 0.3                    
+                    end                
+                else
+                    if
+                    $TYPE_OF_DEATH[0@] == 1
+                    then
+                    02D4: car $VEHICLE[0@] turn_off_engine
+                    else
+                        for 4@ = 0 to 4
+                        car.StorePos($VEHICLE[0@],1@,2@,3@)
+                        020C: create_explosion_with_radius 0 at 1@ 2@ 3@
+                        020B: explode_car $VEHICLE[0@]
+                        end
+                    $TYPE_OF_DEATH[0@] = 0
+                    end 
+                end
+            end //Shot down animation
+            
+            if and //Collision bonus
+            actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+            $RAMMED[0@] == 0
+            then
+            1@ = actor.CurrentCar($PLAYER_ACTOR)
+                if                
+                09CB:   vehicle $VEHICLE[0@] colliding_with_vehicle 1@
+                then
+                player.Money(0) += 10
+                $RAMMED[0@] = 1
+                end
+            end //Collision bonus
+            
+            if //Setting and killing plane's targets
+            $ROCKET_COOLDOWN[0@] == 0
+            then //Find a target to kill
+            0209: 1@ = random_int_in_ranges 0 20 //[0;19]
+                if and
+                803B: not  1@ == 0@  // (int)
+                056D:   actor $ENEMY[1@] defined
+                056E:   car $VEHICLE[1@] defined
+                then //Target found                               
+                5@ = car.Angle($VEHICLE[0@])
+                6@ = car.Angle($VEHICLE[1@])
+                0063: 5@ -= 6@  // (float)
+                0097: make 5@ absolute_float
+                    if and
+                    not car.Wrecked($VEHICLE[1@])  
+                    not actor.Dead($ENEMY[1@])                    
+                    0104:   actor $ENEMY[1@] near_actor $ENEMY[0@] radius 30.0 65.0 20.0 sphere 0
+                    8104: not  actor $ENEMY[1@] near_actor $ENEMY[0@] radius 25.0 25.0 20.0 sphere 0
+                    09ED:   actor $ENEMY[0@] is_within_field_of_view_actor $ENEMY[1@]
+                    5@ < 76.0                    
+                    then                    
+                    0A96: 2@ = actor $ENEMY[0@] struct //Attacking pilot struct
+                    0A97: 3@ = car $VEHICLE[1@] struct //Target struct
+                    0441: 4@ = car $VEHICLE[0@] model
+                    07E4: get_model 4@ dimensions_cornerA_to 4@ 5@ 6@ dimensions_cornerB_to 7@ 8@ 9@ //determining the model's size
+                    6@ *= 1.1 //add some distance to the size to find a better rocket spawn
+                    8@ *= 1.1 
+                    0407: store_coords_to 4@ 5@ 6@ from_car $VEHICLE[0@] with_offset 0.0 8@ 6@                    
+                    /*car.StorePos($VEHICLE[1@],7@,8@,9@)
+                    02E3: 10@ = car $VEHICLE[1@] speed
+                    0208: 11@ = random_float_in_ranges 0.4 0.7
+                    006B: 10@ *= 11@  // (float)
+                    car.SetSpeedInstantly($VEHICLE[1@],10@)
+                    0063: 7@ -= 4@  // (float)
+                    0063: 8@ -= 5@  // (float)
+                    0063: 9@ -= 6@  // (float)
+                    0208: 10@ = random_float_in_ranges 0.2 0.3
+                    006B: 7@ *= 10@  // (float)
+                    006B: 8@ *= 10@  // (float)
+                    006B: 9@ *= 10@  // (float)                    
+                    006B: 7@v *= 10@  // (float)*/
+                    0208: 7@ = random_float_in_ranges 0.9 1.5
+                    0209: 8@ = random_int_in_ranges 9000 13001
+                    0AB1: @CreateCustomRocket 7 spawn_x 4@ spawn_y 5@ spawn_z 6@ speed 7@ target $VEHICLE[1@] lifetime 8@ launching_vehicle $VEHICLE[0@]
+                        if
+                        $DEBUG == 1
+                        then
+                        0A99: chdir 0                      
+                        0AD9: write_formatted_text "Plane [%i] attacks vehicle [%i], rocket speed [%.2f], life [%i]%c" in_file $LOG $VEHICLE[0@] $VEHICLE[1@] 7@ 8@ 0xD
+                        end
+                    //0AA5: call 0x737C80 num_params 8 pop 8 target_struct 3@ direction 7@v force 50.0 src_z 6@ src_y 5@ src_x 4@ weapon_type 20 launcher_struct 2@ 
+                    //0x737C80 - rocket launch function found and commented by DK22Pac and, later and independently, by GoldFish                                       
+                    0209: 9@ = random_int_in_ranges 10000 20001
+                    008A: $ROCKET_COOLDOWN[0@] = 9@ // (int)                                        
+                    end
+                end
+            end //Setting and killing plane's targets                        
+        end
+    else //Create a plane
+        if
+        32@ > 249
+        then
+            repeat
+            wait 0
+            0208: 1@ = random_float_in_ranges -2100.0 2100.0
+            0208: 2@ = random_float_in_ranges -2100.0 2100.0
+            02C1: store_to 1@ 2@ 3@ car_path_coords_closest_to 1@ 2@ 0.0
+            02CE: 5@ = ground_z_at 1@ 2@ 3@
+            5@ += 200.0
+            until 80C2: not  sphere_onscreen 1@ 2@ 5@ radius 5.0
+        0209: 3@ = random_int_in_ranges 0 6
+            if //Random model
+            3@ == 0
+            then
+            3@ = #RUSTLER
+            else
+                if
+                3@ == 1
+                then
+                3@ = #HYDRA
+                else
+                0209: 4@ = random_int_in_ranges 0 9
+                008B: 3@ = $MODELS[4@] // (int)
+                end
+            end //Random model
+        model.Load(3@)
+            repeat
+            wait 0
+            until model.Available(3@)
+        //038B: load_requested_models
+        car.Create($VEHICLE[0@],3@,1@,2@,5@)
+        
+            if
+            $PEACEFUL[15] == 0
+            then
+            $PEACEFUL[0@] = 0
+            else
+            $PEACEFUL[0@] = 1
+            end
+            
+        $HATE_VEHICLES[0@] = 0
+        $OFF_THE_BORDER[0@] = 0
+        0209: $TYPE_OF_DEATH[0@] = random_int_in_ranges 0 3
+        car.Health($VEHICLE[0@]) = $ENEMY_HEALTH
+        model.Destroy(3@)                        
+        0AB1: call_scm_func @GetRandomPedModel 0 3@        
+        actor.CreateAsDriver($ENEMY[0@],Gang1,3@,$VEHICLE[0@])
+        model.Destroy(3@)
+        039E: set_actor $ENEMY[0@] locked 1 while_in_car
+        car.SetSpeedInstantly($VEHICLE[0@],70.0)
+        04D2: set_plane $VEHICLE[0@] fly_autopilot_around_point 0.0 0.0 0.0 altitude_between 70.0 and 175.0
+        08F2: set_car $VEHICLE[0@] targettable_by_heatseeker 1
+        0209: 1@ = random_int_in_ranges 7000 15001
+        008A: $ROCKET_COOLDOWN[0@] = 1@ // (int)
+        32@ = 0
+        end
+    end
+end
+jump @Planes
+end_thread
+
+:Slow //Slow motion in planes
+thread 'slowmot'
+wait 0
+if 
+player.Defined(0)
+jf @Slow
+if and
+$RESPRAY == 0
+actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+00E1:   player 0 pressed_key 18
+jf @Slow
+015D: set_gamespeed 0.4
+repeat
+wait 0
+until 80E1: not  player 0 pressed_key 18
+
+while true
+wait 0
+    if or
+    not player.Defined(0)
+    not actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+    00E1:   player 0 pressed_key 18
+    then
+    break 
+    else    
+    015D: set_gamespeed 0.4    
+    end
+end
+015D: set_gamespeed 1.0
+
+repeat
+wait 0
+until 80E1: not  player 0 pressed_key 18
+jump @Slow
+end_thread
+
+:Rep_Mut //Repair plane (press key) or switch mutators (hold key)
+thread 'repair'
+wait 0
+if
+player.Defined(0)
+jf @Rep_Mut
+if and
+actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+00E1:   player 0 pressed_key 11 
+jf @Rep_Mut
+32@ = 0
+while player.Defined(0)
+wait 0
+    if
+    actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+    then
+        if and
+        00E1:   player 0 pressed_key 11
+        32@ > 499
+        then
+            if
+            $MUTATORS == 1
+            then
+            gosub @Mut_Chg
+            break
+            else
+            break
+            end
+        else
+            if 
+            $MUTATORS == 0        
+            then            
+            gosub @Repair
+            break
+            else
+                if 
+                80E1: not  player 0 pressed_key 11
+                then
+                gosub @Repair
+                break
+                end
+            end
+        end
+    else
+    break
+    end
+end
+
+repeat
+wait 0
+until 80E1: not  player 0 pressed_key 11
+
+jump @Rep_Mut
+
+:Repair
+if and
+$RESPRAY == 0
+player.Money(0) > 149
+then
+0@ = actor.CurrentCar($PLAYER_ACTOR)
+1@ = car.Health(0@)
+    if and
+    1@ > 249
+    1@ < 2000
+    then
+    0A30: repair_car 0@
+    car.Health(0@) = 2000
+    if
+    $LANGUAGE == 0
+    then
+    0ACD: show_text_highpriority "Full Repair" time 2000
+    else
+    0ACD: show_text_highpriority "PeØoÆ¶" time 2000
+    end
+    018C: play_sound 1058 at 0.0 0.0 0.0
+    player.Money(0) += -150
+    end
+else
+    if
+    $LANGUAGE == 0
+    then
+    0ACD: show_text_highpriority "Not enough money!" time 2000
+    else
+    0ACD: show_text_highpriority "≠eöoc¶a¶o§Æo öeÆeô!" time 2000
+    end
+end
+return
+
+:Mut_Chg
+if
+$MUT_CURR > 4 
+then
+$MUT_CURR = 0
+else
+$MUT_CURR ++
+end
+0AF1: write_int $MUT_CURR to_ini_file "gta_sa_air.ini" section "AIR" key "CURMUT"
+return
+end_thread
+
+:Respray //Change Rustler's colour
+thread 'respray'
+wait 0
+if
+player.Defined(0)
+jf @Respray
+if and
+actor.DrivingVehicleType($PLAYER_ACTOR,#RUSTLER)
+00E1:   player 0 pressed_key 6
+jf @Respray 
+if
+player.Money(0) > 19
+then
+    0@ = actor.CurrentCar($PLAYER_ACTOR)
+    if and
+    not car.Wrecked(0@)
+    01C1:   car 0@ stopped
+    jf @Respray
+    $RESPRAY = 1
+    //02E3: 3@ = car 0@ speed
+    car.LockInCurrentPosition(0@,1)
+    07CC: set_player 0 button_15 0
+    car.SetImmunities(0@,1,1,1,1,1)
+    03F3: get_car 0@ primary_color_to 1@ secondary_color_to 2@
+    03F3: get_car 0@ primary_color_to 8@ secondary_color_to 9@
+    if
+    $LANGUAGE == 0
+    then
+    0ADF: add_dynamic_GXT_entry "CLR1" text "Colour ~1~"
+    0ADF: add_dynamic_GXT_entry "CLR2" text "~r~~k~~VEHICLE_HANDBRAKE~~s~ - Confirm~n~~r~~k~~VEHICLE_ENTER_EXIT~~s~ - Cancel"
+    else
+    0ADF: add_dynamic_GXT_entry "CLR1" text "â¢e¶ ~1~"  
+    0ADF: add_dynamic_GXT_entry "CLR2" text "~r~~k~~VEHICLE_HANDBRAKE~~s~ - ã®óop~n~~r~~k~~VEHICLE_ENTER_EXIT~~s~ - O¶ØeÆa"
+    end
+    0512: show_permanent_text_box 'CLR2'  
+        for 4@ = 1 to 2 //Choose Colour
+        08DA: remove_panel 5@
+            repeat
+            wait 0
+                if or
+                not player.Defined(0)
+                not actor.InCar($PLAYER_ACTOR,0@)
+                car.wrecked(0@)
+                then 
+                break
+                end
+            until 80E1:  not player 0 pressed_key 6
+            if and
+            not actor.Dead($PLAYER_ACTOR)
+            8741:  not actor $PLAYER_ACTOR busted
+            not car.Wrecked(0@)    
+            actor.InCar($PLAYER_ACTOR,0@)    
+            then      
+            0964: create_square_color_panel 'CARM1' position 15.0 130.0 width 25.7 columns 7 interactive 1 background 1 alignment 1 panelID 5@
+            
+                while true
+                wait 0
+                08D7: 6@ = panel 5@ active_row
+                0A22: set_car_color_to_panel_color_panelID 5@ car 0@ colorslot 4@ active_row 6@
+                01E5: show_text_1number_highpriority GXT 'CLR1' number 4@ time 100 flag 1
+                    if or
+                    not player.Defined(0)
+                    not actor.InCar($PLAYER_ACTOR,0@)
+                    car.Wrecked(0@)
+                    00E1:   player 0 pressed_key 6
+                    then
+                    break
+                    else            
+                        if
+                        00E1:   player 0 pressed_key 15
+                        then
+                            if
+                            4@ == 1
+                            then
+                            0229: set_car 0@ primary_color_to 1@ secondary_color_to 2@
+                            else
+                            03F3: get_car 0@ primary_color_to 1@ secondary_color_to 7@
+                            0229: set_car 0@ primary_color_to 1@ secondary_color_to 2@
+                            end
+                            
+                        while true
+                        wait 0
+                            if or
+                            not player.Defined(0)
+                            not actor.InCar($PLAYER_ACTOR,0@)
+                            car.Wrecked(0@)
+                            then
+                            break
+                            else
+                                if and
+                                80E1: not  player 0 pressed_key 15
+                                80E1: not  player 0 pressed_key 6
+                                then
+                                break
+                                end
+                            end
+                        end
+                        break
+                        end
+                        
+                    end
+                end
+            else
+            break
+            end
+        end
+        03F3: get_car 0@ primary_color_to 1@ secondary_color_to 2@
+        
+        if or
+        803B: not  8@ == 1@  // (int)
+        803B: not  9@ == 2@  // (int)
+        then
+        player.Money(0) += -20
+        end //Choose Colour
+        
+    0AE0: remove_dynamic_GXT_entry "CLR1"
+    0AE0: remove_dynamic_GXT_entry "CLR2"
+    03E6: remove_text_box
+    08DA: remove_panel 5@
+    car.LockInCurrentPosition(0@,0)
+    car.SetImmunities(0@,0,0,0,0,0)
+    //car.SetSpeedInstantly(0@,3@)
+     
+    while true
+    wait 0
+        if or
+        not player.Defined(0)
+        not actor.InCar($PLAYER_ACTOR,0@)
+        car.Wrecked(0@)
+        then
+        break
+        else
+            if and
+            80E1: not  player 0 pressed_key 15
+            80E1: not  player 0 pressed_key 6
+            then
+            break
+            end
+        end
+    end
+    
+    07CC: set_player 0 button_15 1
+    $RESPRAY = 0
+else
+    if
+    $LANGUAGE == 0
+    then
+    0ACD: show_text_highpriority "Not enough money!" time 2000
+    else
+    0ACD: show_text_highpriority "≠eöoc¶a¶o§Æo öeÆeô!" time 2000
+    end
+end    
+jump @Respray
+end_thread
+
+:Info //Air & Land menu & help
+thread 'air_inf'
+wait 0
+if
+player.Defined(0)
+jf @Info
+if and
+not actor.Driving($PLAYER_ACTOR) 
+8818: not actor $PLAYER_ACTOR in_air
+84AD:   actor $PLAYER_ACTOR in_water
+8A0C: not  player $PLAYER_CHAR on_jetpack
+00E1:   player 0 pressed_key 11
+$ACTIVE_INTERIOR == 0
+jf @Info
+if or
+actor.Animation($PLAYER_ACTOR) == "FALL_SkyDive"
+actor.Animation($PLAYER_ACTOR) == "FALL_SkyDive_Accel"
+actor.Animation($PLAYER_ACTOR) == "FALL_skyDive_DIE"
+actor.Animation($PLAYER_ACTOR) == "FALL_SkyDive_L"
+actor.Animation($PLAYER_ACTOR) == "FALL_SkyDive_R"
+actor.Animation($PLAYER_ACTOR) == "PARA_decel"
+actor.Animation($PLAYER_ACTOR) == "PARA_float"
+actor.Animation($PLAYER_ACTOR) == "PARA_Land"
+then
+jump @Info
+else
+    if or
+    actor.Animation($PLAYER_ACTOR) == "PARA_Land_Water"
+    actor.Animation($PLAYER_ACTOR) == "PARA_open"
+    actor.Animation($PLAYER_ACTOR) == "PARA_steerL"
+    actor.Animation($PLAYER_ACTOR) == "PARA_steerR"
+    actor.Animation($PLAYER_ACTOR) == "FALL_SkyDive_Accel"
+    then
+    jump @Info
+    end
+end
+
+:Info2
+$INFO = 1
+player.CanMove(0,0)
+actor.SetImmunities($PLAYER_ACTOR,1,1,1,1,1)
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Enjoy ~b~~h~Air & Land~s~!"
+    0ADF: add_dynamic_GXT_entry "HLP0" text "~y~Menu"
+    0ADF: add_dynamic_GXT_entry "HLP1" text "~<~ On foot ~>~"
+    0ADF: add_dynamic_GXT_entry "HLP2" text "Teleport to waypoint ~g~($50)"
+    0ADF: add_dynamic_GXT_entry "HLP3" text "Spawn the plane"
+    0ADF: add_dynamic_GXT_entry "HLP4" text "Change the plane type"
+    0ADF: add_dynamic_GXT_entry "HLP5" text "Buy rocket launcher ~g~($700)" 
+    0ADF: add_dynamic_GXT_entry "HLP6" text "Mutators"
+    0ADF: add_dynamic_GXT_entry "HLP7" text "~<~ In plane ~>~"
+    0ADF: add_dynamic_GXT_entry "HLP8" text "Slow motion~s~ - ~r~~k~~VEHICLE_HORN~~s~"
+    0ADF: add_dynamic_GXT_entry "HLP9" text "Full repair ~g~($150)~s~ - ~r~~k~~CONVERSATION_YES~~s~"
+    0ADF: add_dynamic_GXT_entry "HLP10" text "Peaceful mode~s~ - ~r~~k~~CONVERSATION_NO~~s~"
+    0ADF: add_dynamic_GXT_entry "HLP11" text "Respray ~g~($20)~s~ - ~r~~k~~VEHICLE_HANDBRAKE~~s~"
+    0ADF: add_dynamic_GXT_entry "HLP12" text "Speed boost~s~ - ~r~~k~~VEHICLE_FIREWEAPON~"
+    0ADF: add_dynamic_GXT_entry "HLP13" text "~y~Other"
+    0ADF: add_dynamic_GXT_entry "HLP14" text "Language~s~ - ~g~English" 
+    0ADF: add_dynamic_GXT_entry "HLP15" text "Switch language~s~ - ~r~~k~~CONVERSATION_NO~"
+    0ADF: add_dynamic_GXT_entry "HLP16" text "~h~Made by ~r~Vital"
+    0ADF: add_dynamic_GXT_entry "HLP17" text "Thanks to:"
+    0ADF: add_dynamic_GXT_entry "HLP18" text "~h~Seemann, DK22Pac, Maxim Chinkin,"
+    0ADF: add_dynamic_GXT_entry "HLP19" text "~h~Goldfish, wmysterio"
+    0ADF: add_dynamic_GXT_entry "HLP20" text "~r~~k~~CONVERSATION_YES~~s~ - Show the menu~n~~r~~k~~VEHICLE_ENTER_EXIT~~s~ - Exit"
+    else
+    0ACA: show_text_box "Ñeûa´ £pú¨¶Æoù úôp® ¢ ~b~~h~Air & Land~s~!"  
+    0ADF: add_dynamic_GXT_entry "HLP0" text "~y~ñeÆ´"  
+    0ADF: add_dynamic_GXT_entry "HLP1" text "~<~ åe•koØ ~>~"  
+    0ADF: add_dynamic_GXT_entry "HLP2" text "èeûe£op¶ Æa Øe¶ky ~g~($50)"  
+    0ADF: add_dynamic_GXT_entry "HLP3" text "Coüöa¶© caØoûe¶"  
+    0ADF: add_dynamic_GXT_entry "HLP4" text "CØeÆú¶© ¶ú£ caØoûe¶a"  
+    0ADF: add_dynamic_GXT_entry "HLP5" text "Ky£ú¶© ôpaÆa¶oØe¶ ~g~($700)"   
+    0ADF: add_dynamic_GXT_entry "HLP6" text "ñy¶a¶op®"  
+    0ADF: add_dynamic_GXT_entry "HLP7" text "~<~ ã caØoûe¶e ~>~"  
+    0ADF: add_dynamic_GXT_entry "HLP8" text "àaØeöûeÆúe~s~ - ~r~~k~~VEHICLE_HORN~~s~"  
+    0ADF: add_dynamic_GXT_entry "HLP9" text "PeØoÆ¶ ~g~($150)~s~ - ~r~~k~~CONVERSATION_YES~~s~"  
+    0ADF: add_dynamic_GXT_entry "HLP10" text "ñúpÆ®ù peõúØ~s~ - ~r~~k~~CONVERSATION_NO~~s~"  
+    0ADF: add_dynamic_GXT_entry "HLP11" text "åepekpacka ~g~($20)~s~ - ~r~~k~~VEHICLE_HANDBRAKE~~s~"  
+    0ADF: add_dynamic_GXT_entry "HLP12" text "YckopeÆúe~s~ - ~r~~k~~VEHICLE_FIREWEAPON~"
+    0ADF: add_dynamic_GXT_entry "HLP13" text "~y~Épyôoe"  
+    0ADF: add_dynamic_GXT_entry "HLP14" text "ïü®k~s~ - ~g~Pycckúù"   
+    0ADF: add_dynamic_GXT_entry "HLP15" text "ÖüØeÆú¶© ¨ü®k~s~ - ~r~~k~~CONVERSATION_NO~"
+    0ADF: add_dynamic_GXT_entry "HLP16" text "~h~A¢¶op~s~ - ~r~Vital"
+    0ADF: add_dynamic_GXT_entry "HLP17" text "C£acúóo:"
+    0ADF: add_dynamic_GXT_entry "HLP18" text "~h~Seemann, DK22Pac, ñakcúØ çúÆkúÆ,"
+    0ADF: add_dynamic_GXT_entry "HLP19" text "~h~Goldfish, wmysterio"
+    0ADF: add_dynamic_GXT_entry "HLP20" text "~r~~k~~CONVERSATION_YES~~s~ - O¶kp®¶© ØeÆ´~n~~r~~k~~VEHICLE_ENTER_EXIT~~s~ - ã®xoö"
+    end
+08D4: $HELP = create_panel_with_title 'HLP0' position 32.3 125.0 width 220.0 columns 1 interactive 1 background 1 alignment 1 
+08DB: set_panel $HELP column 0 header 'DUMMY' data 'HLP1' 'HLP2' 'HLP3' 'HLP4' 'HLP5' 'HLP6' 'HLP7' 'HLP8' 'HLP9' 'HLP10' 'HLP11' 'HLP12'
+08D4: $HELP1 = create_panel_with_title 'HLP13' position 390.0 125.0 width 200.0 columns 1 interactive 0 background 1 alignment 2
+08DB: set_panel $HELP1 column 0 header 'DUMMY' data 'HLP14' 'HLP15' 'DUMMY' 'HLP16' 'HLP17' 'HLP18' 'HLP19' 'DUMMY' 'DUMMY' 'DUMMY' 'DUMMY' 'DUMMY'  
+
+while gosub @DontExit
+wait 0
+
+    if and
+    88FE: not  text_box_displayed
+    8A2A: not  text_box 'HLP20' displayed
+    then
+    0512: show_permanent_text_box 'HLP20'  
+    end
+
+0581: enable_radar 0
+    if
+    00E1:   player 0 pressed_key 16
+    then
+    08D7: 0@ = panel $HELP active_row
+        if
+        0@ == 0 //On foot
+        then
+            if
+            $LANGUAGE == 0
+            then
+            0ACA: show_text_box "What you can do on foot."
+            else
+            0ACA: show_text_box "ç¶o ØoõÆo öeûa¶© £e•koØ."
+            end
+        else
+            if
+            0@ == 1 //Teleport to the waypoint
+            then
+                if
+                player.Money(0) > 49
+                then
+                    if
+                    0AB6: store_target_marker_coords_to 1@ 2@ 3@ // IF and SET
+                    then
+                        if
+                        80FE: not  actor $PLAYER_ACTOR sphere 0 in_sphere 1@ 2@ 3@ radius 3.0 3.0 3.0
+                        then
+                        04E4: refresh_game_renderer_at 1@ 2@ 3@
+                        03CB: set_rendering_origin_at 1@ 2@ -100.0
+                        actor.PutAt($PLAYER_ACTOR,1@,2@,-100.0)
+                        player.Money(0) += -50
+                        018C: play_sound 1058 at 0.0 0.0 0.0
+                        break 
+                        else
+                            if
+                            $LANGUAGE == 0
+                            then
+                            0ACA: show_text_box "You've already reached the waypoint!"
+                            else
+                            0ACA: show_text_box "ã® yõe Æa Øe¶ke!"
+                            end
+                        end
+                    else
+                        if
+                        $LANGUAGE == 0
+                        then
+                        0ACA: show_text_box "No waypoint found!"
+                        else
+                        0ACA: show_text_box "ñe¶ka Æe ÆaùöeÆa!"
+                        end
+                    end
+                else
+                    if
+                    $LANGUAGE == 0
+                    then
+                    0ACA: show_text_box "Not enough money!"
+                    else
+                    0ACA: show_text_box "≠eöoc¶a¶o§Æo öeÆeô!"
+                    end
+                end //Teleport
+            else
+                if
+                0@ == 2 //Spawn the plane
+                then
+                gosub @Spawn
+                else
+                    if
+                    0@ == 3 //Change the plane type
+                    then
+                    gosub @Change
+                    else
+                        if
+                        0@ == 4 //Buy rocket launcher ($700)
+                        then
+                        gosub @BuyRPG
+                        else
+                            if
+                            0@ == 5 //Mutators
+                            then
+                            gosub @MutOnOff
+                            else
+                                if
+                                0@ == 6 //In plane
+                                then
+                                    if
+                                    $LANGUAGE == 0
+                                    then
+                                    0ACA: show_text_box "What you can do in plane."
+                                    else
+                                    0ACA: show_text_box "ç¶o ØoõÆo öeûa¶© ¢ caØoûe¶e."
+                                    end
+                                else
+                                    if
+                                    0@ == 7 //Slow motion
+                                    then
+                                        if
+                                        $LANGUAGE == 0
+                                        then
+                                        0ACA: show_text_box "To see the magnificence of GTA SA Air & Land."
+                                        else
+                                        0ACA: show_text_box "Yüpú¶e ¢eûúkoûe£úe GTA SA Air & Land."
+                                        end
+                                    else
+                                        if
+                                        0@ == 8 //Full repair ($150)
+                                        then
+                                            if
+                                            $LANGUAGE == 0
+                                            then
+                                            0ACA: show_text_box "Pay and get your plane fully repaired."
+                                            else
+                                            0ACA: show_text_box "çúÆú¶e caØoûe¶ üa öeÆ©ôú."
+                                            end
+                                        else
+                                            if
+                                            0@ == 9 //Peaceful mode
+                                            then
+                                                if
+                                                $LANGUAGE == 0
+                                                then
+                                                0ACA: show_text_box "For pacifists and stuntmen."
+                                                else
+                                                0ACA: show_text_box "Éû¨ £a†úòúc¶o¢ ú ¶p´ka§eù."
+                                                end
+                                            else
+                                                if
+                                                0@ == 10 
+                                                then //Respray ($20)
+                                                    if
+                                                    $LANGUAGE == 0
+                                                    then
+                                                    0ACA: show_text_box "A better colour for your ~y~Rustler~s~."
+                                                    else
+                                                    0ACA: show_text_box "áy§•úù †¢e¶ öû¨ ãa•eôo ~y~Rustler~s~."
+                                                    end
+                                                else //Rustler's speed boost
+                                                    if
+                                                    $LANGUAGE == 0
+                                                    then
+                                                    0ACA: show_text_box "Speed up your ~y~Rustler~s~ by holding the button."
+                                                    else
+                                                    0ACA: show_text_box "Yckop©¶e ãa• ~y~Rustler~s~, yöepõú¢a¨ kÆo£ky."
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        
+        while gosub @DontExit
+        wait 0
+            if
+            80E1: not  player 0 pressed_key 16
+            then
+            break
+            end
+        end
+    else
+        if
+        00E1:   player 0 pressed_key 10
+        then
+            repeat
+            wait 0
+            until 80E1: not  player 0 pressed_key 10
+        03E6: remove_text_box
+        00BE: text_clear_all
+        08DA: remove_panel $HELP
+        08DA: remove_panel $HELP1
+            if
+            $LANGUAGE == 0
+            then
+            $LANGUAGE = 1
+            else
+            $LANGUAGE = 0
+            end
+        0A99: chdir 0
+        0AF1: write_int $LANGUAGE to_ini_file "gta_sa_air.ini" section "AIR" key "LANG"
+        gosub @Help_Del_Text
+        jump @Info2
+        end
+    end
+end
+$INFO = 0
+03E6: remove_text_box
+00BE: text_clear_all
+08DA: remove_panel $HELP
+08DA: remove_panel $HELP1
+0581: enable_radar 1
+player.CanMove(0,1)
+actor.SetImmunities($PLAYER_ACTOR,0,0,0,0,0)
+gosub @Help_Del_Text
+jump @Info
+
+:Help_Del_Text
+0AE0: remove_dynamic_GXT_entry "HLP0"
+0AE0: remove_dynamic_GXT_entry "HLP1"
+0AE0: remove_dynamic_GXT_entry "HLP2"
+0AE0: remove_dynamic_GXT_entry "HLP3"
+0AE0: remove_dynamic_GXT_entry "HLP4"
+0AE0: remove_dynamic_GXT_entry "HLP5"
+0AE0: remove_dynamic_GXT_entry "HLP6"
+0AE0: remove_dynamic_GXT_entry "HLP7"
+0AE0: remove_dynamic_GXT_entry "HLP8"
+0AE0: remove_dynamic_GXT_entry "HLP9"
+0AE0: remove_dynamic_GXT_entry "HLP10"
+0AE0: remove_dynamic_GXT_entry "HLP11"
+0AE0: remove_dynamic_GXT_entry "HLP12"
+0AE0: remove_dynamic_GXT_entry "HLP13"
+0AE0: remove_dynamic_GXT_entry "HLP14"
+0AE0: remove_dynamic_GXT_entry "HLP15"
+0AE0: remove_dynamic_GXT_entry "HLP16"
+0AE0: remove_dynamic_GXT_entry "HLP17"
+0AE0: remove_dynamic_GXT_entry "HLP18"
+0AE0: remove_dynamic_GXT_entry "HLP19"
+0AE0: remove_dynamic_GXT_entry "HLP20"
+return
+
+:DontExit
+if or
+not player.Defined(0)
+actor.Driving($PLAYER_ACTOR)
+04AD:   actor $PLAYER_ACTOR in_water
+0818:  actor $PLAYER_ACTOR in_air
+0A0C:   player $PLAYER_CHAR on_jetpack
+00E1:   player 0 pressed_key 15
+$ACTIVE_INTERIOR <> 0
+then
+059A:  return_false
+else 
+0485:  return_true
+end
+return 
+
+:Spawn
+while gosub @DontExit
+wait 0
+    if
+    80E1: not  player 0 pressed_key 16
+    then
+    actor.StorePos($PLAYER_ACTOR,0@,1@,2@)
+    02C1: store_to 0@ 1@ 2@ car_path_coords_closest_to 0@ 1@ 2@
+    model.Load($MODEL)
+        repeat
+        wait 0
+        until model.Available($MODEL)
+    //038B: load_requested_models
+    car.Create(3@,$MODEL,0@,1@,2@)
+    car.Health(3@) = $PLAYER_HEALTH
+        if
+        $MODEL == #HYDRA
+        then
+        0745: set_hydra 3@ thrust_to_horizontal
+        end
+    04E4: unknown_refresh_game_renderer_at 0@ 1@ 
+    03CB: set_rendering_origin_at 0@ 1@ 2@    
+    072A: put_actor $PLAYER_ACTOR into_car 3@ driverseat    
+    041E: set_radio_station 12 
+    //car.RemoveReferences(3@)
+    model.Destroy($MODEL)
+    break
+    end
+end
+return
+
+:Change
+if
+$MODEL == #RUSTLER
+then
+$MODEL = #HYDRA
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Current plane: ~y~Hydra"
+    else
+    0ACA: show_text_box "èeky°úù caØoûe¶: ~y~Hydra"
+    end
+else
+$MODEL = #RUSTLER
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Current plane: ~y~Rustler"
+    else
+    0ACA: show_text_box "èeky°úù caØoûe¶: ~y~Rustler"
+    end
+end
+0A99: chdir 0
+0AF1: write_int $MODEL to_ini_file "gta_sa_air.ini" section "AIR" key "MODL"
+return
+
+:BuyRPG
+if
+player.Money(0) > 699
+then
+041A: 0@ = actor $PLAYER_ACTOR weapon 36 ammo
+    if
+    0@ > 60
+    then
+        if
+        $LANGUAGE == 0
+        then
+        0ACA: show_text_box "Too many rockets!"
+        else
+        0ACA: show_text_box "Cûú•koØ ØÆoôo pake¶!"
+        end
+    else
+    model.Load(#HEATSEEK)
+        repeat
+        wait 0
+        until model.Available(#HEATSEEK)
+    //038B: load_requested_models
+    actor.GiveWeaponAndAmmo($PLAYER_ACTOR,HeatSeek,30)
+    model.Destroy(#HEATSEEK)
+        if
+        $LANGUAGE == 0
+        then
+        0ACA: show_text_box "Nice! Now you can shoot enemies down from the ground!"
+        else
+        0ACA: show_text_box "àöopo¢o! èe£ep© ¢paôo¢ ØoõÆo £oöóú¶© c üeØûú!"
+        end
+    player.Money(0) += -700
+    end
+else
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Not enough money!"
+    else
+    0ACA: show_text_box "≠eöoc¶a¶o§Æo öeÆeô!"
+    end
+end
+return
+
+:MutOnOff
+if
+$MUTATORS == 0
+then
+$MUTATORS = 1  
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Mutators: ~y~On~n~~s~Hold ~r~~k~~CONVERSATION_YES~~s~ to switch mutators."
+    else
+    0ACA: show_text_box "ñy¶a¶op®: ~y~ãkû~n~~s~Éepõú¶e ~r~~k~~CONVERSATION_YES~~s~ öû¨ cØeÆ® Øy¶a¶opa."
+    end
+else
+$MUTATORS = 0
+    if
+    $LANGUAGE == 0
+    then
+    0ACA: show_text_box "Mutators: ~y~Off"
+    else
+    0ACA: show_text_box "ñy¶a¶op®: ~y~ã®kû"
+    end
+end
+0A99: chdir 0
+0AF1: write_int $MUTATORS to_ini_file "gta_sa_air.ini" section "AIR" key "MUTS"
+return
+end_thread
+
+/* Standard Parachute Script */
+:STARTER
+thread 'air_par'
+0005: $1500 = 5.0 
+0005: $1501 = -5.0 
+0005: $1503 = -1.5 
+0005: $1504 = -30.0 
+0005: $1505 = 32.0 
+0005: $1506 = 0.0 
+0004: $1512 = 0 
+0004: $FREEFALL_STAGE = 0 
+0004: $PARACHUTE_CREATION_STAGE = 0 
+0213: $3063 = create_pickup #GUN_PARA type 15 at 2057.0 2434.0 166.0 
+0213: $3094 = create_pickup #GUN_PARA type 15 at 1528.222 -1357.985 330.0371 
+0213: $3156 = create_pickup #GUN_PARA type 15 at -2350.0 -1586.0 485.0 
+0213: $3163 = create_pickup #GUN_PARA type 15 at -2679.0 1933.0 217.0 
+0213: $3172 = create_pickup #GUN_PARA type 15 at -1542.857 698.4825 139.2658 
+0213: $3174 = create_pickup #GUN_PARA type 15 at -225.6758 1394.256 172.0143 
+0213: $3175 = create_pickup #GUN_PARA type 15 at -773.0379 2423.499 157.0856 
+0213: $3187 = create_pickup #GUN_PARA type 15 at -1753.418 885.3446 295.5166 
+
+:PARA1
+wait 200 
+if 
+   Player.Defined(0)
+else_jump @PARA1 
+
+:PARA2
+wait 0
+   Actor.HasWeapon($PLAYER_ACTOR, 46)
+else_jump @PARA1 
+create_thread_wb @PLCHUTE 
+
+:PARA3
+wait 200 
+if 
+   Player.Defined(0)
+else_jump @PARA4 
+
+:PARA4
+wait 0 
+   not Actor.HasWeapon($PLAYER_ACTOR, 46)
+else_jump @PARA3
+end_thread_named 'PLCHUTE'
+jump @PARA1 
+end_thread
+
+:PLCHUTE
+thread 'PLCHUTE' 
+/*Model.Load(#GUN_PARA)
+
+:PLCHUTE_16
+if 
+   not Model.Available(#GUN_PARA)
+else_jump @PLCHUTE_43 
+wait 0 
+jump @PLCHUTE_16 
+
+:PLCHUTE_43
+if 
+   not Actor.Dead($PLAYER_ACTOR)
+else_jump @PLCHUTE_59 
+
+:PLCHUTE_59*/
+$1498 = 0 
+$FREEFALL_STAGE = 0 
+$PARACHUTE_CREATION_STAGE = 0 
+if 
+  $1498 == 999 
+else_jump @PLCHUTE_118 
+//$PICKUP_PARACHUTE = Pickup.Create(#GUN_PARA, 3, $TEMPVAR_X_COORD, $TEMPVAR_Y_COORD, $TEMPVAR_Z_COORD)
+
+:PLCHUTE_118
+wait 0 
+if 
+   not Actor.Dead($PLAYER_ACTOR)
+else_jump @PLCHUTE_118 //@PLCHUTE_5455
+if 
+8800:   not in_two_players_mode 
+else_jump @PLCHUTE_118 //@PLCHUTE_5455 
+if 
+   not $FREEFALL_STAGE == 0 
+else_jump @PLCHUTE_176 
+0992: set_player $PLAYER_CHAR weapons_scrollable 0 
+
+:PLCHUTE_176
+if 
+  $PARACHUTE_CREATION_STAGE > 0 
+else_jump @PLCHUTE_219 
+if 
+   not Actor.HasWeapon($PLAYER_ACTOR, 46)
+else_jump @PLCHUTE_219 
+gosub @PLCHUTE_5521 
+
+:PLCHUTE_219
+if 
+  $PARACHUTE_CREATION_STAGE == 0 
+else_jump @PLCHUTE_274 
+if 
+   Actor.HasWeapon($PLAYER_ACTOR, 46)
+else_jump @PLCHUTE_274 
+Model.Load(#PARACHUTE)
+$PARACHUTE_CREATION_STAGE = 1 
+$1498 = 0 
+
+:PLCHUTE_274
+if 
+  $PARACHUTE_CREATION_STAGE == 1 
+else_jump @PLCHUTE_377 
+if 
+   Model.Available(#PARACHUTE)
+else_jump @PLCHUTE_377 
+17@ = Object.Create(#PARACHUTE, $TEMPVAR_X_COORD, $TEMPVAR_Y_COORD, $TEMPVAR_Z_COORD)
+069B: attach_object 17@ to_actor $PLAYER_ACTOR with_offset 0.0 0.0 0.0 rotation 0.0 0.0 0.0 
+0750: set_object 17@ visibility 0 
+$PARACHUTE_CREATION_STAGE = 2 
+
+:PLCHUTE_377
+if and
+  $PARACHUTE_CREATION_STAGE == 2 
+  $FREEFALL_STAGE == 1 
+else_jump @PLCHUTE_409 
+$PARACHUTE_CREATION_STAGE = 3 
+
+:PLCHUTE_409
+if and
+  $FREEFALL_STAGE == 0 
+  $PARACHUTE_CREATION_STAGE > 0 
+else_jump @PLCHUTE_565 
+if 
+0818:   actor $PLAYER_ACTOR in_air 
+else_jump @PLCHUTE_565 
+083D: get_actor $PLAYER_ACTOR velocity_in_direction_XYZ $1507 $1508 $1509 
+if 
+  -10.0 > $1509 
+else_jump @PLCHUTE_565 
+0819: 7@ = actor $PLAYER_ACTOR distance_from_ground 
+if 
+  7@ > 20.0 
+else_jump @PLCHUTE_565 
+097A: play_audio_at -1000.0 -1000.0 -1000.0 event 1037 
+$FREEFALL_STAGE = 1 
+01B9: set_actor $PLAYER_ACTOR armed_weapon_to 46 
+0@ = 0 
+$8268 = 0.0 
+
+:PLCHUTE_565
+if 
+  $FREEFALL_STAGE == 1 
+else_jump @PLCHUTE_2386 
+if 
+  0@ == 0 
+else_jump @PLCHUTE_608 
+0@ = 2 
+
+:PLCHUTE_608
+if 
+  0@ == 2 
+else_jump @PLCHUTE_729 
+062E: unknown_get_actor $PLAYER_ACTOR task 2066 status_store_to 27@ // ret 7 if not found 
+if 
+04A4:   27@ == 7 // @ == any 
+else_jump @PLCHUTE_729 
+0812: AS_actor $PLAYER_ACTOR perform_animation "FALL_SKYDIVE" IFP_file "PED" 1.0 loopA 1 lockX 0 lockY 0 lockF 0 time -1 // versionB 
+04ED: load_animation "PARACHUTE" 
+15@ = 1 
+1@ = Actor.Angle($PLAYER_ACTOR)
+0@ = 3 
+
+:PLCHUTE_729
+if 
+  0@ == 3 
+else_jump @PLCHUTE_2386 
+062E: unknown_get_actor $PLAYER_ACTOR task 2066 status_store_to 27@ // ret 7 if not found 
+if 
+04A4:   27@ == 7 // @ == any 
+else_jump @PLCHUTE_815 
+0812: AS_actor $PLAYER_ACTOR perform_animation "FALL_SKYDIVE" IFP_file "PED" 1.0 loopA 1 lockX 0 lockY 0 lockF 0 time -1 // versionB 
+
+:PLCHUTE_815
+0819: 7@ = actor $PLAYER_ACTOR distance_from_ground 
+if and
+  100.0 > 7@ 
+  7@ > 60.0 
+else_jump @PLCHUTE_912 
+if 
+04EE:   animation "PARACHUTE" loaded 
+else_jump @PLCHUTE_912 
+if 
+  $ONMISSION == 0 
+else_jump @PLCHUTE_912 
+00BC: show_text_highpriority GXT 'PARA_01' time 1000 flag 1  // ~s~O¶kp®¢aù £apa•´¶!
+
+:PLCHUTE_912
+0494: get_joystick 0 data_to 10@ 11@ 12@ 12@ 
+if 
+  $1511 == 1 
+else_jump @PLCHUTE_960 
+10@ = 0 
+11@ = 0 
+
+:PLCHUTE_960
+0093: 21@ = integer 10@ to_float 
+21@ /= 4.267 
+0063: 21@ -= 2@ // (float) 
+21@ /= 20.0 
+005B: 2@ += 21@ // (float) 
+0087: 21@ = 2@ // (float) 
+21@ /= 5.0 
+0063: 1@ -= 21@ // (float) 
+if 
+  1@ > 180.0 
+else_jump @PLCHUTE_1061 
+1@ -= 360.0 
+
+:PLCHUTE_1061
+if 
+  -180.0 > 1@ 
+else_jump @PLCHUTE_1092 
+1@ += 360.0 
+
+:PLCHUTE_1092
+0093: 22@ = integer 11@ to_float 
+22@ /= 4.267 
+0063: 22@ -= 3@ // (float) 
+22@ /= 20.0 
+005B: 3@ += 22@ // (float) 
+083D: get_actor $PLAYER_ACTOR velocity_in_direction_XYZ 8@ 9@ $1509 
+if 
+0024:   $1504 > $1509 // (float) 
+else_jump @PLCHUTE_1177 
+0086: $1509 = $1504 // (float) 
+
+:PLCHUTE_1177
+if 
+0024:   $8268 > $1509 // (float) 
+else_jump @PLCHUTE_1204 
+0086: $8268 = $1509 // (float) 
+
+:PLCHUTE_1204
+if 
+0024:   $1504 > $8268 // (float) 
+else_jump @PLCHUTE_1231 
+0086: $8268 = $1504 // (float) 
+
+:PLCHUTE_1231
+if and
+0024:   $1509 > $8268 // (float) 
+   not $1902 == 1 
+else_jump @PLCHUTE_1407 
+if 
+84AD:   not actor $PLAYER_ACTOR in_water 
+else_jump @PLCHUTE_1361 
+if 
+  -20.0 > $8268 
+else_jump @PLCHUTE_1308 
+$FREEFALL_STAGE = 2 
+jump @PLCHUTE_1354 
+
+:PLCHUTE_1308
+0812: AS_actor $PLAYER_ACTOR perform_animation "FALL_SKYDIVE" IFP_file "PED" 1.0 loopA 1 lockX 0 lockY 0 lockF 0 time 100 // versionB 
+$FREEFALL_STAGE = 7 
+
+:PLCHUTE_1354
+jump @PLCHUTE_1407 
+
+:PLCHUTE_1361
+0812: AS_actor $PLAYER_ACTOR perform_animation "FALL_SKYDIVE" IFP_file "PED" 1.0 loopA 1 lockX 0 lockY 0 lockF 0 time 100 // versionB 
+$FREEFALL_STAGE = 7 
+
+:PLCHUTE_1407
+0087: 4@ = 3@ // (float) 
+4@ /= 30.0 
+006F: 4@ *= $1505 // (float) 
+02F6: $1507 = cosine 1@ // (float) 
+02F7: $1508 = sine 1@ // (float) 
+006D: $1507 *= 4@ // (float) 
+006D: $1508 *= 4@ // (float) 
+$1508 *= -1.0 
+0059: $1508 += $1506 // (float) 
+0087: 21@ = 8@ // (float) 
+0065: 21@ -= $1507 // (float) 
+21@ *= 0.01 
+0088: $1507 = 8@ // (float) 
+0067: $1507 -= 21@ // (float) 
+0087: 21@ = 9@ // (float) 
+0065: 21@ -= $1508 // (float) 
+21@ *= 0.01 
+0088: $1508 = 9@ // (float) 
+0067: $1508 -= 21@ // (float) 
+0085: 12@ = 10@ // (int) 
+0085: 13@ = 11@ // (int) 
+0095: make 12@ absolute_integer 
+0095: make 13@ absolute_integer 
+if or
+  12@ > 40 
+  13@ > 40 
+else_jump @PLCHUTE_2109 
+if 
+001D:   12@ > 13@ // (int) 
+else_jump @PLCHUTE_1872 
+if 
+  10@ >= 0 
+else_jump @PLCHUTE_1751 
+if 
+   not 15@ == 2 
+else_jump @PLCHUTE_1751 
+if 
+04EE:   animation "PARACHUTE" loaded 
+else_jump @PLCHUTE_1744 
+0812: AS_actor $PLAYER_ACTOR perform_animation "FALL_SKYDIVE_R" IFP_file "PARACHUTE" 1.0 loopA 1 lockX 0 lockY 0 lockF 1 time -2 // versionB 
+
+:PLCHUTE_1744
+15@ = 2 
+
+:PLCHUTE_1751
+if 
+  0 > 10@ 
+else_jump @PLCHUTE_1865 
+if 
+   not 15@ == 3 
+else_jump @PLCHUTE_1865 
+if 
+04EE:   animation "PARACHUTE" loaded 
+else_jump @PLCHUTE_1858 
+0812: AS_actor $PLAYER_ACTOR perform_animation "FALL_SKYDIVE_L" IFP_file "PARACHUTE" 1.0 loopA 1 lockX 0 lockY 0 lockF 1 time -2 // versionB 
+
+:PLCHUTE_1858
+15@ = 3 
+
+:PLCHUTE_1865
+jump @PLCHUTE_2102 
+
+:PLCHUTE_1872
+if 
+  11@ >= 0 
+else_jump @PLCHUTE_1984 
+if 
+   not 15@ == 4 
+else_jump @PLCHUTE_1984 
+if 
+04EE:   animation "PARACHUTE" loaded 
+else_jump @PLCHUTE_1977 
+0812: AS_actor $PLAYER_ACTOR perform_animation "FALL_SKYDIVE" IFP_file "PARACHUTE" 1.0 loopA 1 lockX 0 lockY 0 lockF 1 time -2 // versionB 
+
+:PLCHUTE_1977
+15@ = 4 
+
+:PLCHUTE_1984
+if 
+  0 > 11@ 
+else_jump @PLCHUTE_2102 
+if 
+   not 15@ == 5 
+else_jump @PLCHUTE_2102 
+if 
+04EE:   animation "PARACHUTE" loaded 
+else_jump @PLCHUTE_2095 
+0812: AS_actor $PLAYER_ACTOR perform_animation "FALL_SKYDIVE_ACCEL" IFP_file "PARACHUTE" 1.0 loopA 1 lockX 0 lockY 0 lockF 1 time -2 // versionB 
+
+:PLCHUTE_2095
+15@ = 5 
+
+:PLCHUTE_2102
+jump @PLCHUTE_2203 
+
+:PLCHUTE_2109
+if 
+   not 15@ == 1 
+else_jump @PLCHUTE_2203 
+if 
+04EE:   animation "PARACHUTE" loaded 
+else_jump @PLCHUTE_2203 
+0812: AS_actor $PLAYER_ACTOR perform_animation "FALL_SKYDIVE" IFP_file "PARACHUTE" 1.0 loopA 1 lockX 0 lockY 0 lockF 1 time -2 // versionB 
+15@ = 1 
+
+:PLCHUTE_2203
+if or
+00E1:   player 0 pressed_key 17 
+  $1512 == 1 
+else_jump @PLCHUTE_2386 
+if 
+   not $1902 == 1 
+else_jump @PLCHUTE_2386 
+if 
+04EE:   animation "PARACHUTE" loaded 
+else_jump @PLCHUTE_2386 
+if and
+  $PARACHUTE_CREATION_STAGE == 3 
+  $1511 == 0 
+else_jump @PLCHUTE_2386 
+0812: AS_actor $PLAYER_ACTOR perform_animation "PARA_OPEN" IFP_file "PARACHUTE" 8.0 loopA 0 lockX 0 lockY 0 lockF 1 time -2 // versionB 
+097A: play_audio_at -1000.0 -1000.0 -1000.0 event 1038 
+008A: $8270 = 32@ // (int) 
+$8270 += 1100 
+$FREEFALL_STAGE = 3 
+0@ = 0 
+
+:PLCHUTE_2386
+if 
+  $FREEFALL_STAGE == 2 
+else_jump @PLCHUTE_2504 
+if 
+04EE:   animation "PARACHUTE" loaded 
+else_jump @PLCHUTE_2492 
+Actor.Angle($PLAYER_ACTOR) = 1@
+0829: actor $PLAYER_ACTOR perform_animation "FALL_SKYDIVE_DIE" IFP_file "PARACHUTE" 1000.0 time 0 and_dies 
+09F1: play_audio_at_actor $PLAYER_ACTOR event 1189 
+jump @PLCHUTE_2497 
+
+:PLCHUTE_2492
+05BE: AS_kill_actor $PLAYER_ACTOR 
+
+:PLCHUTE_2497
+gosub @PLCHUTE_5521 
+
+:PLCHUTE_2504
+if 
+  $FREEFALL_STAGE == 3 
+else_jump @PLCHUTE_4781 
+if 
+  $8270 > 0 
+else_jump @PLCHUTE_2586 
+if 
+001F:   32@ > $8270 // (int) 
+else_jump @PLCHUTE_2586 
+097A: play_audio_at -1000.0 -1000.0 -1000.0 event 1039 
+$8270 = 0 
+
+:PLCHUTE_2586
+if 
+  0@ == 0 
+else_jump @PLCHUTE_2689 
+0087: 25@ = 3@ // (float) 
+25@ /= 500.0 
+0087: 26@ = 2@ // (float) 
+26@ /= 500.0 
+0085: 18@ = 32@ // (int) 
+0085: 19@ = 32@ // (int) 
+0087: 5@ = 4@ // (float) 
+5@ *= -1.0 
+0089: 6@ = $1509 // (float) 
+0@ = 1 
+
+:PLCHUTE_2689
+if 
+  0@ == 1 
+else_jump @PLCHUTE_2856 
+0085: 10@ = 32@ // (int) 
+0062: 10@ -= 19@ // (int) 
+if 
+  500 > 10@ 
+else_jump @PLCHUTE_2829 
+0085: 10@ = 32@ // (int) 
+0062: 10@ -= 18@ // (int) 
+0085: 18@ = 32@ // (int) 
+0093: 21@ = integer 10@ to_float 
+0087: 22@ = 25@ // (float) 
+006B: 22@ *= 21@ // (float) 
+0087: 23@ = 26@ // (float) 
+006B: 23@ *= 21@ // (float) 
+0063: 3@ -= 22@ // (float) 
+0063: 2@ -= 23@ // (float) 
+jump @PLCHUTE_2856 
+
+:PLCHUTE_2829
+2@ = 0.0 
+3@ = 0.0 
+0@ = 2 
+
+:PLCHUTE_2856
+if 
+  0@ == 2 
+else_jump @PLCHUTE_2964 
+if 
+03CA:   object 17@ exists 
+else_jump @PLCHUTE_2964 
+0750: set_object 17@ visibility 1 
+08D2: object 17@ scale_model 0.0 
+0085: 19@ = 32@ // (int) 
+wait 0 
+075A: set_object 17@ animation "PARA_OPEN_O" IFP_file "PARACHUTE" 1000.0 lockF 0 loop 1 // IF AND SET 
+0@ = 3 
+
+:PLCHUTE_2964
+if 
+  0@ == 3 
+else_jump @PLCHUTE_3067 
+0085: 10@ = 32@ // (int) 
+0062: 10@ -= 19@ // (int) 
+if 
+  500 > 10@ 
+else_jump @PLCHUTE_3050 
+0093: 21@ = integer 10@ to_float 
+21@ /= 500.0 
+08D2: object 17@ scale_model 21@ 
+jump @PLCHUTE_3067 
+
+:PLCHUTE_3050
+08D2: object 17@ scale_model 1.0 
+0@ = 4 
+
+:PLCHUTE_3067
+if 
+  0@ == 5 
+else_jump @PLCHUTE_3136 
+20@ = Object.Create(#PARA_COLLISION, 0.0, 0.0, 0.0)
+0750: set_object 20@ visibility 0 
+Object.ToggleInMovingList(20@) = True
+04D9: object 20@ set_scripted_collision_check 1 
+0@ = 6 
+
+:PLCHUTE_3136
+if 
+  0@ == 6 
+else_jump @PLCHUTE_4354 
+0494: get_joystick 0 data_to 10@ 11@ 12@ 12@ 
+if 
+  $1511 == 1 
+else_jump @PLCHUTE_3202 
+10@ = 0 
+11@ = 0 
+
+:PLCHUTE_3202
+0093: 21@ = integer 10@ to_float 
+21@ /= 4.267 
+0063: 21@ -= 2@ // (float) 
+21@ /= 20.0 
+005B: 2@ += 21@ // (float) 
+0087: 21@ = 2@ // (float) 
+21@ /= 15.0 
+0063: 1@ -= 21@ // (float) 
+if 
+  1@ > 180.0 
+else_jump @PLCHUTE_3303 
+1@ -= 360.0 
+
+:PLCHUTE_3303
+if 
+  -180.0 > 1@ 
+else_jump @PLCHUTE_3334 
+1@ += 360.0 
+
+:PLCHUTE_3334
+02F6: $1507 = cosine 1@ // (float) 
+02F7: $1508 = sine 1@ // (float) 
+0069: $1507 *= $1500 // (float) 
+0069: $1508 *= $1500 // (float) 
+$1507 *= -1.0 
+0085: 12@ = 10@ // (int) 
+0085: 13@ = 11@ // (int) 
+0095: make 12@ absolute_integer 
+0095: make 13@ absolute_integer 
+if or
+  12@ > 40 
+  13@ > 40 
+else_jump @PLCHUTE_4066 
+if 
+001D:   12@ > 13@ // (int) 
+else_jump @PLCHUTE_3741 
+0089: 21@ = $1501 // (float) 
+0065: 21@ -= $1509 // (float) 
+21@ /= 20.0 
+005F: $1509 += 21@ // (float) 
+if 
+  10@ >= 0 
+else_jump @PLCHUTE_3607 
+if 
+   not 15@ == 2 
+else_jump @PLCHUTE_3607 
+0812: AS_actor $PLAYER_ACTOR perform_animation "PARA_STEERR" IFP_file "PARACHUTE" 1.0 loopA 1 lockX 0 lockY 0 lockF 1 time -2 // versionB 
+075A: set_object 17@ animation "PARA_STEERR_O" IFP_file "PARACHUTE" 1.0 lockF 1 loop 1 // IF AND SET 
+15@ = 2 
+
+:PLCHUTE_3607
+if 
+  0 > 10@ 
+else_jump @PLCHUTE_3734 
+if 
+   not 15@ == 3 
+else_jump @PLCHUTE_3734 
+0812: AS_actor $PLAYER_ACTOR perform_animation "PARA_STEERL" IFP_file "PARACHUTE" 1.0 loopA 1 lockX 0 lockY 0 lockF 1 time -2 // versionB 
+075A: set_object 17@ animation "PARA_STEERL_O" IFP_file "PARACHUTE" 1.0 lockF 1 loop 1 // IF AND SET 
+15@ = 3 
+
+:PLCHUTE_3734
+jump @PLCHUTE_4059 
+
+:PLCHUTE_3741
+if 
+  11@ >= 0 
+else_jump @PLCHUTE_3900 
+0089: 21@ = $1503 // (float) 
+0065: 21@ -= $1509 // (float) 
+21@ /= 20.0 
+005F: $1509 += 21@ // (float) 
+if 
+   not 15@ == 4 
+else_jump @PLCHUTE_3900 
+0812: AS_actor $PLAYER_ACTOR perform_animation "PARA_DECEL" IFP_file "PARACHUTE" 1.0 loopA 1 lockX 0 lockY 0 lockF 1 time -2 // versionB 
+075A: set_object 17@ animation "PARA_DECEL_O" IFP_file "PARACHUTE" 1.0 lockF 1 loop 1 // IF AND SET 
+15@ = 4 
+
+:PLCHUTE_3900
+if 
+  0 > 11@ 
+else_jump @PLCHUTE_4059 
+0089: 21@ = $1501 // (float) 
+0065: 21@ -= $1509 // (float) 
+21@ /= 20.0 
+005F: $1509 += 21@ // (float) 
+if 
+   not 15@ == 5 
+else_jump @PLCHUTE_4059 
+0812: AS_actor $PLAYER_ACTOR perform_animation "PARA_FLOAT" IFP_file "PARACHUTE" 1.0 loopA 1 lockX 0 lockY 0 lockF 1 time -2 // versionB 
+075A: set_object 17@ animation "PARA_FLOAT_O" IFP_file "PARACHUTE" 1.0 lockF 1 loop 1 // IF AND SET 
+15@ = 5 
+
+:PLCHUTE_4059
+jump @PLCHUTE_4225 
+
+:PLCHUTE_4066
+0089: 21@ = $1501 // (float) 
+0065: 21@ -= $1509 // (float) 
+21@ /= 20.0 
+005F: $1509 += 21@ // (float) 
+if 
+   not 15@ == 5 
+else_jump @PLCHUTE_4225 
+if 
+   not 15@ == 1 
+else_jump @PLCHUTE_4225 
+0812: AS_actor $PLAYER_ACTOR perform_animation "PARA_FLOAT" IFP_file "PARACHUTE" 1.0 loopA 1 lockX 0 lockY 0 lockF 1 time -2 // versionB 
+075A: set_object 17@ animation "PARA_FLOAT_O" IFP_file "PARACHUTE" 1.0 lockF 1 loop 1 // IF AND SET 
+15@ = 1 
+
+:PLCHUTE_4225
+Object.StorePos(17@, $TEMPVAR_FLOAT_1, $TEMPVAR_FLOAT_2, $TEMPVAR_FLOAT_3)
+0815: put_object 20@ at $TEMPVAR_FLOAT_1 $TEMPVAR_FLOAT_2 $TEMPVAR_FLOAT_3 and_keep_rotation 
+if 
+04DA:   has_object 20@ collided 
+else_jump @PLCHUTE_4318 
+075A: set_object 17@ animation "PARA_RIP_LOOP_O" IFP_file "PARACHUTE" 8.0 lockF 1 loop 1 // IF AND SET 
+0@ = 7 
+
+:PLCHUTE_4318
+if 
+00E1:   player 0 pressed_key 15 
+else_jump @PLCHUTE_4354 
+0792: disembark_instantly_actor $PLAYER_ACTOR 
+$FREEFALL_STAGE = 6 
+$1498 = 3 
+
+:PLCHUTE_4354
+if 
+03CA:   object 17@ exists 
+else_jump @PLCHUTE_4593 
+if 
+0837:   object 17@ animation == "PARA_OPEN_O" 
+else_jump @PLCHUTE_4593 
+0839: get_object 17@ animation "PARA_OPEN_O" progress_to 21@ 
+0087: 22@ = 6@ // (float) 
+0065: 22@ -= $1501 // (float) 
+0087: 23@ = 22@ // (float) 
+006B: 23@ *= 21@ // (float) 
+0088: $1509 = 6@ // (float) 
+0067: $1509 -= 23@ // (float) 
+0087: 22@ = 5@ // (float) 
+0065: 22@ -= $1500 // (float) 
+0087: 23@ = 22@ // (float) 
+006B: 23@ *= 21@ // (float) 
+0087: 4@ = 5@ // (float) 
+0063: 4@ -= 23@ // (float) 
+02F6: $1507 = cosine 1@ // (float) 
+02F7: $1508 = sine 1@ // (float) 
+006D: $1507 *= 4@ // (float) 
+006D: $1508 *= 4@ // (float) 
+$1507 *= -1.0 
+if and
+  21@ == 1.0 
+  0@ == 4 
+else_jump @PLCHUTE_4593 
+0@ = 5 
+
+:PLCHUTE_4593
+if 
+   not Actor.Dead($PLAYER_ACTOR)
+else_jump @PLCHUTE_4781 
+if 
+04AD:   actor $PLAYER_ACTOR in_water 
+else_jump @PLCHUTE_4732 
+0812: AS_actor $PLAYER_ACTOR perform_animation "PARA_LAND_WATER" IFP_file "PARACHUTE" 8.0 loopA 1 lockX 1 lockY 0 lockF 0 time 1000 // versionB 
+075A: set_object 17@ animation "PARA_LAND_WATER_O" IFP_file "PARACHUTE" 1000.0 lockF 0 loop 1 // IF AND SET 
+$FREEFALL_STAGE = 5 
+0@ = 0 
+
+:PLCHUTE_4732
+083D: get_actor $PLAYER_ACTOR velocity_in_direction_XYZ 21@ 21@ 23@ 
+if 
+  23@ > -0.1 
+else_jump @PLCHUTE_4781 
+$FREEFALL_STAGE = 4 
+0@ = 0 
+
+:PLCHUTE_4781
+if 
+  $FREEFALL_STAGE == 4 
+else_jump @PLCHUTE_5271 
+if 
+  0@ == 0 
+else_jump @PLCHUTE_5168 
+$1498 = 1 
+Actor.StorePos($PLAYER_ACTOR, $TEMPVAR_X_COORD, $TEMPVAR_Y_COORD, $TEMPVAR_Z_COORD)
+$TEMPVAR_Z_COORD -= 1.0 
+Actor.PutAt($PLAYER_ACTOR, $TEMPVAR_X_COORD, $TEMPVAR_Y_COORD, $TEMPVAR_Z_COORD)
+083E: set_actor $PLAYER_ACTOR rotation 0.0 0.0 1@ while_in_air 
+if 
+  -10.0 > $1509 
+else_jump @PLCHUTE_4922 
+$FREEFALL_STAGE = 2 
+0@ = 0 
+jump @PLCHUTE_5092 
+
+:PLCHUTE_4922
+if 
+  -4.0 > $1509 
+else_jump @PLCHUTE_5047 
+0615: define_AS_pack_begin 14@ 
+0812: AS_actor -1 perform_animation "FALL_FRONT" IFP_file "PED" 20.0 loopA 0 lockX 0 lockY 0 lockF 1 time 700 // versionB 
+0812: AS_actor -1 perform_animation "GETUP_FRONT" IFP_file "PED" 8.0 loopA 0 lockX 1 lockY 0 lockF 0 time -2 // versionB 
+0616: define_AS_pack_end 14@ 
+0618: assign_actor $PLAYER_ACTOR to_AS_pack 14@ 
+061B: remove_references_to_AS_pack 14@ 
+jump @PLCHUTE_5085 
+
+:PLCHUTE_5047
+0812: AS_actor $PLAYER_ACTOR perform_animation "RUN_PLAYER" IFP_file "PED" 8.0 loopA 1 lockX 1 lockY 0 lockF 0 time 1000 // versionB 
+
+:PLCHUTE_5085
+0@ = 1 
+
+:PLCHUTE_5092
+075A: set_object 17@ animation "PARA_LAND_O" IFP_file "PARACHUTE" 1000.0 lockF 0 loop 1 // IF AND SET 
+0682: detach_object 17@ 0.0 0.0 0.0 collision_detection 0 
+0085: 18@ = 32@ // (int) 
+18@ += 1000 
+
+:PLCHUTE_5168
+if 
+  0@ == 1 
+else_jump @PLCHUTE_5271 
+if 
+0837:   object 17@ animation == "PARA_LAND_O" 
+else_jump @PLCHUTE_5271 
+0839: get_object 17@ animation "PARA_LAND_O" progress_to 21@ 
+if 
+  21@ == 1.0 
+else_jump @PLCHUTE_5271 
+$1498 = 2 
+gosub @PLCHUTE_5521 
+
+:PLCHUTE_5271
+if 
+  $FREEFALL_STAGE == 5 
+else_jump @PLCHUTE_5328 
+$1498 = 1 
+if 
+  0@ == 0 
+else_jump @PLCHUTE_5328 
+$1498 = 2 
+gosub @PLCHUTE_5521 
+
+:PLCHUTE_5328
+if and
+  $FREEFALL_STAGE > 0 
+  4 > $FREEFALL_STAGE 
+else_jump @PLCHUTE_5405 
+if 
+   not Actor.Dead($PLAYER_ACTOR)
+else_jump @PLCHUTE_5405 
+083C: set_actor $PLAYER_ACTOR velocity_in_direction_XYZ $1507 $1508 $1509 
+Actor.Angle($PLAYER_ACTOR) = 1@
+083E: set_actor $PLAYER_ACTOR rotation 3@ 2@ 1@ while_in_air 
+
+:PLCHUTE_5405
+if 
+  $FREEFALL_STAGE == 6 
+else_jump @PLCHUTE_5430 
+gosub @PLCHUTE_5521 
+
+:PLCHUTE_5430
+if 
+  $FREEFALL_STAGE == 7 
+else_jump @PLCHUTE_118 //@PLCHUTE_5455
+gosub @PLCHUTE_5462 
+
+jump @PLCHUTE_118 
+
+:PLCHUTE_5462
+$FREEFALL_STAGE = 0 
+0@ = 0 
+Model.Destroy(#PARACHUTE)
+04EF: release_animation "PARACHUTE" 
+083E: set_actor $PLAYER_ACTOR rotation 0.0 0.0 1@ while_in_air 
+0992: set_player $PLAYER_CHAR weapons_scrollable 1 
+return 
+
+:PLCHUTE_5521
+0682: detach_object 17@ 0.0 0.0 0.0 collision_detection 0 
+09A2: destroy_object_with_fade 17@ 
+Object.Destroy(20@)
+0555: remove_weapon 46 from_actor $PLAYER_ACTOR 
+$FREEFALL_STAGE = 0 
+$PARACHUTE_CREATION_STAGE = 0 
+0@ = 0 
+Model.Destroy(#PARACHUTE)
+04EF: release_animation "PARACHUTE" 
+//Model.Destroy(#GUN_PARA)
+083E: set_actor $PLAYER_ACTOR rotation 0.0 0.0 1@ while_in_air 
+0992: set_player $PLAYER_CHAR weapons_scrollable 1
+return 
+end_thread
+
+// MISSIONS
+
+:SF_Tour //San Fierro Tour - Mission 0
+$ONMISSION = 1
+if
+$LANGUAGE == 0
+then
+0ADF: add_dynamic_GXT_entry "SFT01" text "San Fierro Tour"
+0ADF: add_dynamic_GXT_entry "SFT02" text "Fly through all checkpoints."
+00BA: show_text_styled GXT "SFT01" time 3000 style 2  // Beefy Baron
+00BC: show_text_highpriority GXT 'SFT02' time 6500 flag 1  // ~s~Come back between 9:00 and 17:00.
+else
+0ADF: add_dynamic_GXT_entry "SFT01" text "èyp £o CaÆ-Åúeppo"
+0ADF: add_dynamic_GXT_entry "SFT02" text "åpoûe¶ú¶e §epeü ¢ce koÆ¶poû©Æ®e ¶o§kú."
+00BA: show_text_styled GXT "SFT01" time 3000 style 2  // Beefy Baron
+00BC: show_text_highpriority GXT 'SFT02' time 6500 flag 1  // ~s~Come back between 9:00 and 17:00.
+end
+
+gosub @SF_Tour_2
+
+    if or
+    wasted_or_busted 
+    $TIMER < 1
+    not actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+    then
+    00BA: text_styled 'M_FAIL' 5000 ms 1
+    else
+    01E3: text_1number_styled 'M_PASS' 150 5000 ms 4    
+        if
+        2@ < 10
+        then
+        036D: show_text_2numbers_styled GXT "TIME_0" numbers 1@ 2@ time 3000 style 5 //~1~:0~1~
+        else
+        036D: show_text_2numbers_styled GXT "TIME" numbers 1@ 2@ time 3000 style 5 //~1~:~1~
+        end
+    player.Money(0) += 150
+    0595: mission_complete            
+    end
+    
+014F: stop_timer $TIMER
+06D6: disable_racing_checkpoint $RACE_CHK01
+marker.Disable($RACE_CHK02)
+0AE0: remove_dynamic_GXT_entry "SFT01"
+0AE0: remove_dynamic_GXT_entry "SFT02"
+0110: clear_player 0 wanted_level
+$ONMISSION = 0
+mission_cleanup
+end_thread 
+
+:SF_Tour_2
+$TIMER = 1
+03C0: 0@ = actor $PLAYER_ACTOR car
+04E4: refresh_game_renderer_at -1469.042 23.5768
+03CB: set_rendering_origin_at -1469.042 23.5768 15.0171
+car.PutAt(0@, -1469.042, 23.5768, 15.0171)
+car.Angle(0@) = 314.9496
+car.SetSpeedInstantly(0@,30.0)
+0AB1: create @Race_CheckPoint 7 at -1178.60 317.04 28.78 point_to -1253.60 734.22 17.51 type 4
+32@ = 0
+03C3: set_timer_to $TIMER type 1 GXT 'BB_19' // global_variable  // Time
+0890: enable_sound_when_timer $TIMER reach 5 seconds // global_variable
+0AB1: create @Race_CheckPoint 7 at -1253.60 734.22 17.51 point_to -1335.81 910.63 26.00 type 4
+0AB1: create @Race_CheckPoint 7 at -1335.81 910.63 26.00 point_to -1614.09 1228.08 70.25 type 4
+0AB1: create @Race_CheckPoint 7 at -1614.09 1228.08 70.25 point_to -1945.02 1340.50 85.62 type 4
+0AB1: create @Race_CheckPoint 7 at -1945.02 1340.50 85.62 point_to -2271.11 1399.52 79.85 type 4
+0AB1: create @Race_CheckPoint 7 at -2271.11 1399.52 79.85 point_to -2656.22 1490.68 33.98 type 4
+0AB1: create @Race_CheckPoint 7 at -2656.22 1490.68 33.98 point_to -2864.94 1299.29 41.75 type 4
+0AB1: create @Race_CheckPoint 7 at -2864.94 1299.29 41.75 point_to -2832.58 762.83 101.48 type 4
+0AB1: create @Race_CheckPoint 7 at -2832.58 762.83 101.48 point_to -2798.97 224.33 97.84 type 4
+0AB1: create @Race_CheckPoint 7 at -2798.97 224.33 97.84 point_to -2725.70 -303.48 123.83 type 4
+0AB1: create @Race_CheckPoint 7 at -2725.70 -303.48 123.83 point_to -2248.34 -370.36 130.11 type 4
+0AB1: create @Race_CheckPoint 7 at -2248.34 -370.36 130.11 point_to -1925.21 -90.78 117.26 type 4
+0AB1: create @Race_CheckPoint 7 at -1925.21 -90.78 117.26 point_to -1882.74 524.09 164.58 type 4
+0AB1: create @Race_CheckPoint 7 at -1882.74 524.09 164.58 point_to -1829.00 1035.42 166.65 type 4
+0AB1: create @Race_CheckPoint 7 at -1829.00 1035.42 166.65 point_to -2265.29 1381.80 159.95 type 4
+0AB1: create @Race_CheckPoint 7 at -2265.29 1381.80 159.95 point_to -2680.18 1932.32 193.10 type 4
+0AB1: create @Race_CheckPoint 7 at -2680.18 1932.32 193.10 point_to -2265.29 1381.80 153.95 type 7
+0AB1: convert @MS_to_M_and_S 1 ms_value 32@ store_min_to 1@ sec_to 2@
+return 
+
+
+//Converting milliseconds to minutes and seconds
+:MS_to_M_and_S //0@ - ms; return 1@ - minutes, 3@ - seconds; 150000 ms - step by step example
+thread 'MStoMnS'
+0093: 0@ = integer 0@ to_float //convert timer value to float
+{0@ = 150000 ms > 150000.0}
+0@ /= 60000.0 //divide msec by 60.0 sec
+{0@ = 150000.0 / 60000.0 = 2.5}
+0092: 1@ = float 0@ to_integer //convert float MINUTES to integer to display
+{1@ = 2.5 min > 2 min}
+0093: 2@ = integer 1@ to_float //convert this to float for calculations
+{2@ = 2 min > 2.0 min}
+0063: 0@ -= 2@  // float minutes ñ integer minutes to find the fractional part
+{0@ = 2.5 min ñ 2.0 min = 0.5 min}
+0@ *= 60.0 //multiply the fraction by 60.0 to get seconds in float
+{0@ = 0.5 * 60.0 = 30.0 sec}
+0092: 3@ = float 0@ to_integer //convert float SECONDS to integer to display
+{3@ = 30.0 sec > 30 sec}
+0AB2: ret 2 min 1@ sec 3@
+
+//Function for race missions
+:Race_CheckPoint
+06D5: $RACE_CHK01 = create_racing_checkpoint_at 0@ 1@ 2@ point_to 3@ 4@ 5@ type 6@ radius 10.0
+018A: $RACE_CHK02 = create_checkpoint_at 0@ 1@ 2@
+08FB: set_checkpoint $RACE_CHK02 type_to 1
+marker.SetIconSize($RACE_CHK02,3)
+    while true
+    wait 0
+        if and
+        not wasted_or_busted
+        actor.DrivingVehicleType($PLAYER_ACTOR,$MODEL)
+        $TIMER > 0
+        then
+            if
+            0100:   actor $PLAYER_ACTOR in_sphere 0@ 1@ 2@ radius 10.0 10.0 10.0 sphere 0 in_car
+            then
+            018C: play_sound 1058 at 0.0 0.0 0.0
+            050A: 7@ = distance_between_XYZ 0@ 1@ 2@ and_XYZ 3@ 4@ 5@                        
+            03C0: 8@ = actor $PLAYER_ACTOR car            
+            02E3: 9@ = car 8@ speed                       
+            0073: 7@ /= 9@ // (float) 
+            7@ *= 1450.0           
+            0092: 7@ = float 7@ to_integer            
+            0085: 10@ = 7@ // (int)
+            0064: 10@ -= $TIMER // (int)
+                if
+                10@ > 2500
+                then
+                008A: $TIMER = 7@ // (int)
+                else
+                005E: $TIMER += 7@  // (int)
+                end
+                            
+                if
+                86BD:   obstacles_between 0@ 1@ 2@ and 3@ 4@ 5@ solid 1 car 0 actor 0 object 1 particle 0
+                then                
+                $TIMER += 2000
+                end            
+            break
+            end
+        else
+        06D6: disable_racing_checkpoint $RACE_CHK01
+        marker.Disable($RACE_CHK02)                        
+        045C: abort_mission        
+        end        
+    end
+06D6: disable_racing_checkpoint $RACE_CHK01
+marker.Disable($RACE_CHK02) 
+0AB2: ret 0

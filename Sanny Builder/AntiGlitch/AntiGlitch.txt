@@ -1,0 +1,149 @@
+/* Made by Vital */
+//$PLAYER_ACTOR $PLAYER_GROUP $ONMISSION
+{$CLEO}
+0000:
+var
+0@ : Integer = 0
+4@ : Array 11 of Integer
+end
+4@[0@] = @Clr
+0@ ++
+4@[0@] = @Ign
+0@ ++
+4@[0@] = @Keys
+0@ ++
+4@[0@] = @MovLock
+0@ ++
+4@[0@] = @Wide
+0@ ++
+4@[0@] = @Cam
+0@ ++
+4@[0@] = @Wanted
+0@ ++
+4@[0@] = @HudRad
+0@ ++
+4@[0@] = @TrafPed
+0@ ++
+4@[0@] = @Weath
+0@ ++
+4@[0@] = @Tel
+while true
+wait 0
+    if
+    player.Defined(0)
+    then
+        if and
+        not actor.Driving($PLAYER_ACTOR)
+        0ADC:   test_cheat "ANT"
+        then
+        player.CanMove(0,0)
+        0ADF: add_dynamic_GXT_entry "ANTG00" text "AntiGlitch"
+        0ADF: add_dynamic_GXT_entry "ANTG11" text "Clear current area"
+        0ADF: add_dynamic_GXT_entry "ANTG01" text "Disable being ignored by peds & cops"  
+        0ADF: add_dynamic_GXT_entry "ANTG02" text "Disable game keys lock"  
+        0ADF: add_dynamic_GXT_entry "ANTG03" text "Disable movement lock"  
+        0ADF: add_dynamic_GXT_entry "ANTG04" text "Disable widescreen" 
+        0ADF: add_dynamic_GXT_entry "ANTG05" text "Reset camera" 
+        0ADF: add_dynamic_GXT_entry "ANTG06" text "Reset max wanted level" 
+        0ADF: add_dynamic_GXT_entry "ANTG07" text "Reset radar & hud"
+        0ADF: add_dynamic_GXT_entry "ANTG08" text "Reset traffic & pedestrians"
+        0ADF: add_dynamic_GXT_entry "ANTG09" text "Reset weather"
+        0ADF: add_dynamic_GXT_entry "ANTG10" text "Teleport to the street"
+        03E6: remove_text_box
+        08D4: 0@ = create_panel_with_title 'ANTG00' position 40.0 33.0 width 270.0 columns 1 interactive 1 background 1 alignment 1  // Imports
+        08DB: set_panel 0@ column 0 header 'DUMMY' data 'ANTG11' 'ANTG01' 'ANTG02' 'ANTG03' 'ANTG04' 'ANTG05' 'ANTG06' 'ANTG07' 'ANTG08' 'ANTG09' 'ANTG10' 'DUMMY'  // Sunday // Monday // Tuesday // Wednesday // Thursday // Friday // Saturday
+            while true
+            wait 0
+                if or
+                not player.Defined(0)
+                actor.Driving($PLAYER_ACTOR)
+                00E1:   player 0 pressed_key 15
+                then
+                break
+                else
+                    if
+                    00E1:   player 0 pressed_key 16
+                    then
+                    08D7: 1@ = panel 0@ active_row                    
+                    gosub 4@[1@]
+                    break
+                    end
+                end
+            end
+        08DA: remove_panel 0@
+        0AE0: remove_dynamic_GXT_entry "ANTG00"
+        0AE0: remove_dynamic_GXT_entry "ANTG01"
+        0AE0: remove_dynamic_GXT_entry "ANTG02"
+        0AE0: remove_dynamic_GXT_entry "ANTG03"
+        0AE0: remove_dynamic_GXT_entry "ANTG04"
+        0AE0: remove_dynamic_GXT_entry "ANTG05"
+        0AE0: remove_dynamic_GXT_entry "ANTG06"
+        0AE0: remove_dynamic_GXT_entry "ANTG07"
+        0AE0: remove_dynamic_GXT_entry "ANTG08"
+        0AE0: remove_dynamic_GXT_entry "ANTG09"
+        0AE0: remove_dynamic_GXT_entry "ANTG10"
+        0AE0: remove_dynamic_GXT_entry "ANTG11"
+        player.CanMove(0,1)
+        end
+    end
+end
+
+:Cam
+camera.Restore()
+return
+
+:Clr
+actor.StorePos($PLAYER_ACTOR,1@,2@,3@)
+0395: clear_area 1 at 1@ 2@ 3@ radius 250.0
+return
+
+:HudRad
+0826: enable_hud 1
+0581: enable_radar 1
+return
+
+:Ign
+01F7: set_player 0 ignored_by_cops 0
+03BF: set_player 0 ignored_by_everyone 0
+return
+
+:Keys
+07CC: set_player 0 button_15 1
+082A: set_player 0 able_to_use_crouch_button 1
+0901: enable_player 0 jump_key 1
+0992: set_player 0 weapons_scrollable 1
+0881: set_player 0 able_to_shoot_weapons 1
+return
+
+:MovLock
+039E: set_actor $PLAYER_ACTOR locked 0 while_in_car
+actor.LockInCurrentPosition($PLAYER_ACTOR,0)
+return
+
+:Tel
+actor.StorePos($PLAYER_ACTOR,1@,2@,3@)
+02C1: store_to 1@ 2@ 3@ car_path_coords_closest_to 1@ 2@ 3@
+select_interior 0
+0860: link_actor $PLAYER_ACTOR to_interior 0
+04E4: unknown_refresh_game_renderer_at 1@ 2@ 
+03CB: set_rendering_origin_at 1@ 2@ 3@
+actor.PutAt($PLAYER_ACTOR,1@,2@,-100.0)
+return
+
+:TrafPed
+01EB: set_traffic_density_multiplier_to 1.0
+03DE: set_pedestrians_density_multiplier_to 1.0
+return
+
+:Wanted
+01F0: set_max_wanted_level_to 6
+return
+
+:Weath
+0915: sync_weather_with_time_and_location_instantly
+01B7: release_weather
+return
+
+:Wide
+02A3: enable_widescreen 0
+return

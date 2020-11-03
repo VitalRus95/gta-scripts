@@ -1,0 +1,283 @@
+/* Made by Vital */
+//$PLAYER_ACTOR $PLAYER_GROUP $ONMISSION
+//Byte, Char – 1; Short, Word – 2; Long, DWord, Float – 4
+{$CLEO}
+0000:
+
+const
+ TEXT_FONT = 3 //0 (Gothic),1 (Standard),2 (Menu),3 (Pricedown) 
+ LETTER_H = 1.8 //letter height
+ LETTER_W = 0.45 //letter width
+ OUTLINE_R = 0 //outline red colour (0–255)
+ OUTLINE_G = 0 //outline green colour (0–255)
+ OUTLINE_B = 0 //outline blue colour (0–255)
+ OUTLINE_A = 200 //outline alpha (0–255)
+ OUTLINE_W = 1 //outline width (1 & 2 are optimal values)
+ GXT_TIME = 'TIME'
+ GXT_TIME_0 = 'TIME_0'
+ GXT_VAR = 'BJ_0'
+ GXT_MONEY = 'DOLLAR'
+end // const
+
+while true
+wait 0
+0A8D: 0@ = read_memory 0xBA6769 size 1 virtual_protect 0 //Hud Mode (menu)
+0A8D: 1@ = read_memory 0xB6F065 size 1 virtual_protect 0 //Widescreen (scripted)
+    if
+    player.Defined(0)
+    then
+        if and    
+        09E7:   player 0 not_frozen
+        not fading
+        0@ == 1
+        1@ == 0
+        then
+        0826: enable_hud 0        
+        
+        //drawing new HUD
+        03F0: enable_text_draw 1
+        
+        //armour
+        04DD: 0@ = actor $PLAYER_ACTOR armour 
+        if
+        0@ > 0
+        then
+        03E4: set_text_draw_align_right 1
+        0340: set_text_draw_RGBA 150 150 150 255
+        081C: draw_text_outline OUTLINE_W RGBA OUTLINE_R OUTLINE_G OUTLINE_B OUTLINE_A
+        0349: set_text_draw_font TEXT_FONT
+        033F: set_text_draw_letter_size LETTER_W LETTER_H
+        0AB1: call_scm_func @Offset 2 633.0 7.0 1@ 2@ //max X 640.0 max Y 448.0
+        045A: draw_text_1number 1@ 2@ GXT GXT_VAR number 0@  // ALL RACES WON!~n~~w~$~1~
+        end
+            
+        //health
+        1@ = actor.Health($PLAYER_ACTOR)   
+        if
+        1@ > 0
+        then
+        03E4: set_text_draw_align_right 1    
+        0340: set_text_draw_RGBA 255 0 0 255
+        081C: draw_text_outline OUTLINE_W RGBA OUTLINE_R OUTLINE_G OUTLINE_B OUTLINE_A
+        0349: set_text_draw_font TEXT_FONT
+        033F: set_text_draw_letter_size LETTER_W LETTER_H
+            if
+            0@ > 0 //armour
+            then
+            0A08: get_gxt_string_1number GXT_VAR number 0@ width_to 2@  // ~1~ 
+            0AB1: call_scm_func @Offset 2 2.0 7.0 3@ 4@       
+            0093: 2@ = integer 2@ to_float              
+            2@ -= 625.0
+            0097: make 2@ absolute_float
+            005B: 2@ += 3@  // (float)
+            045A: draw_text_1number 2@ 4@ GXT GXT_VAR number 1@  // ALL RACES WON!~n~~w~$~1~
+            else
+            0AB1: call_scm_func @Offset 2 633.0 7.0 2@ 3@
+            045A: draw_text_1number 2@ 3@ GXT GXT_VAR number 1@  // ALL RACES WON!~n~~w~$~1~
+            end
+        end      
+        
+        //ammo
+        0AB1: call_scm_func @GetAmmo_2 0 0@ 1@ //in clip; remaining
+        if
+        0@ > 0 //ammo in clip    
+        then
+        03E4: set_text_draw_align_right 1 
+        081C: draw_text_outline OUTLINE_W RGBA OUTLINE_R OUTLINE_G OUTLINE_B OUTLINE_A
+        0349: set_text_draw_font TEXT_FONT
+        0093: 5@ = integer 0@ to_float
+        5@ /= 0.5
+        0092: 5@ = float 5@ to_integer
+            if
+            5@ > 200
+            then
+            5@ = 200        
+            end    
+        0340: set_text_draw_RGBA 50 200 5@ 255
+        033F: set_text_draw_letter_size LETTER_W LETTER_H
+            if and
+            1@ > 0 //remaining ammo
+            not 1@ > 9999 //max displated ammo
+            then
+            0A08: get_gxt_string_1number GXT_VAR number 1@ width_to 2@  // ~1~
+            0AB1: call_scm_func @Offset 2 2.0 25.0 3@ 4@    
+            0093: 2@ = integer 2@ to_float        
+            2@ -= 625.0
+            0097: make 2@ absolute_float
+            005B: 2@ += 3@  // (float)
+            045A: draw_text_1number 2@ 4@ GXT GXT_VAR number 0@  // ALL RACES WON!~n~~w~$~1~
+            else
+            0AB1: call_scm_func @Offset 2 633.0 25.0 1@ 2@
+            045A: draw_text_1number 1@ 2@ GXT GXT_VAR number 0@  // ALL RACES WON!~n~~w~$~1~
+            end
+        end
+        
+        if and
+        1@ > 0 //remaining ammo
+        not 1@ > 9999 //max displated ammo
+        then
+        03E4: set_text_draw_align_right 1 
+        081C: draw_text_outline OUTLINE_W RGBA OUTLINE_R OUTLINE_G OUTLINE_B OUTLINE_A
+        0349: set_text_draw_font TEXT_FONT    
+        033F: set_text_draw_letter_size LETTER_W LETTER_H
+        0340: set_text_draw_RGBA 255 180 180 255
+        0AB1: call_scm_func @Offset 2 633.0 25.0 2@ 3@            
+        045A: draw_text_1number 2@ 3@ GXT GXT_VAR number 1@  // ALL RACES WON!~n~~w~$~1~
+        end
+                   
+        //time 
+        00BF: 0@ = current_time_hours, 1@ = current_time_minutes
+        0342: set_text_draw_centered 1
+        0093: 2@ = integer 0@ to_float
+        0093: 3@ = integer 1@ to_float
+        3@ /= 60.0 //convert minutes: 60 min is 1
+        005B: 2@ += 3@  // (float) add converted minutes to hours
+        2@ *= 7.5 //convert to angle: 12:00 is 90°, whose sine is 1
+        02F6: 2@ = sine 2@ // (float) get sine
+        2@ *= 170.0 //max is 1, multiply by 170, which is max added colour value   
+        0092: 2@ = float 2@ to_integer
+        2@ += 70 //70 is min colour value in order not to make the text too dark
+        0340: set_text_draw_RGBA 2@ 2@ 255 255    
+        081C: draw_text_outline OUTLINE_W RGBA OUTLINE_R OUTLINE_G OUTLINE_B OUTLINE_A
+        0349: set_text_draw_font TEXT_FONT
+        033F: set_text_draw_letter_size LETTER_W LETTER_H
+        0AB1: call_scm_func @Offset 2 320.0 7.0 3@ 4@
+        if
+        1@ > 9
+        then    
+        045B: draw_text_2numbers 3@ 4@ GXT GXT_TIME numbers 0@ 1@  // ~1~:~1~
+        else    
+        045B: draw_text_2numbers 3@ 4@ GXT GXT_TIME_0 numbers 0@ 1@  // ~1~:0~1~
+        end
+        
+        //oxygen
+        if
+        0965:   actor $PLAYER_ACTOR swimming
+        then
+        0AB1: call_scm_func @GetOxygen_1 0 0@ //2652.0 max
+        0087: 1@ = 0@ // (float)
+        1@ /= 25.0
+            if
+            1@ > 100.0
+            then
+            1@ = 100.0
+            end    
+        0092: 1@ = float 1@ to_integer  
+        0085: 0@ = 1@ // (int)
+        0@ += 125
+        0AB1: call_scm_func @Offset 2 320.0 25.0 2@ 3@
+        0342: set_text_draw_centered 1    
+        0340: set_text_draw_RGBA 0 255 255 0@    
+        081C: draw_text_outline OUTLINE_W RGBA OUTLINE_R OUTLINE_G OUTLINE_B 0@
+        0349: set_text_draw_font TEXT_FONT
+        033F: set_text_draw_letter_size LETTER_W LETTER_H
+        045A: draw_text_1number 2@ 3@ GXT GXT_VAR number 1@  // ALL RACES WON!~n~~w~$~1~
+        end
+            
+        //money 
+        0@ = player.Money(0)    
+        081C: draw_text_outline OUTLINE_W RGBA OUTLINE_R OUTLINE_G OUTLINE_B OUTLINE_A
+        0349: set_text_draw_font TEXT_FONT
+        033F: set_text_draw_letter_size LETTER_W LETTER_H    
+        if
+        0@ > 0
+        then
+        0340: set_text_draw_RGBA 72 140 62 255
+        else
+            if
+            0@ == 0
+            then
+            0340: set_text_draw_RGBA 200 200 200 255
+            else
+            0340: set_text_draw_RGBA 255 0 0 255
+            end
+        end
+        0AB1: call_scm_func @Offset 2 7.0 7.0 1@ 2@
+        045A: draw_text_1number 1@ 2@ GXT GXT_MONEY number 0@  // ALL RACES WON!~n~~w~$~1~
+        
+        //wanted level
+        0@ = player.WantedLevel(0)    
+        0A8D: 1@ = read_memory 0xB7CD9C size 4 virtual_protect 0 //CWanted
+        0A8D: 1@ = read_memory 1@ size 4 virtual_protect 0 //cop rage: 6900 max
+        if 
+        0@ > 0    
+        then     
+        0093: 1@ = integer 1@ to_float
+        1@ /= 44.5 //convert: 6900 — 155
+        0092: 1@ = float 1@ to_integer
+        1@ += 100        
+        0340: set_text_draw_RGBA 1@ 215 100 255
+        081C: draw_text_outline OUTLINE_W RGBA OUTLINE_R OUTLINE_G OUTLINE_B OUTLINE_A
+        0349: set_text_draw_font TEXT_FONT
+        033F: set_text_draw_letter_size LETTER_W LETTER_H
+        0AB1: call_scm_func @Offset 2 7.0 25.0 2@ 3@
+        045A: draw_text_1number 2@ 3@ GXT GXT_VAR number 0@  // ALL RACES WON!~n~~w~$~1~
+        end        
+        
+        //turn drawing mode off
+        03F0: enable_text_draw 0
+        end 
+    end
+end
+
+:GetAmmo_2
+0A96: 0@ = actor $PLAYER_ACTOR struct    
+0@ += 0x718
+0A8D: 1@ = read_memory 0@ size 1 virtual_protect 0 //weapon slot
+    if and
+    1@ > 1 //not melee
+    1@ <> 10 //not gifts
+    1@ <> 11 //not goggles or parachute
+    1@ <> 12 //not detonator
+    then
+    1@ *= 28 //each slot has 28 bytes of info 
+    0A96: 0@ = actor $PLAYER_ACTOR struct
+    0@ += 0x5A0 //CWeaponSlot
+    005A: 0@ += 1@  // (int)
+    0@ += 8 //get ammo in clip
+    0A8D: 1@ = read_memory 0@ size 4 virtual_protect 0
+    0@ += 4 //get all ammo
+    0A8D: 2@ = read_memory 0@ size 4 virtual_protect 0
+    0062: 2@ -= 1@  // (int) get remaining ammo
+    else
+    1@ = -1
+    2@ = -1
+    end
+0AB2: ret 2 1@ 2@
+
+:GetOxygen_1 //0xB7CDB4 - sprinting time left, just in case
+0A8D: 0@ = read_memory 0xB7CDE0 size 4 virtual_protect 0
+0AB2: ret 1 0@
+
+:Offset //0@ - X, 1@ - Y
+0A4A: store_joystick_X_offset_to 2@ Y_offset_to 3@
+2@ *= 0.05
+3@ *= -0.05
+0079: 2@ += frame_delta_time * 0.02 // (float)
+0079: 3@ += frame_delta_time * 0.02 // (float)
+    if
+    2@ > 5.0
+    then
+    2@ = 5.0
+    else
+        if
+        2@ < -5.0
+        then
+        2@ = -5.0
+        end
+    end
+    
+    if
+    3@ > 5.0
+    then
+    3@ = 5.0
+    else
+        if
+        3@ < -5.0
+        then
+        3@ = -5.0
+        end
+    end
+005B: 0@ += 2@  // (float)
+005B: 1@ += 3@  // (float)
+0AB2: ret 2 0@ 1@

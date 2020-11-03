@@ -1,0 +1,30 @@
+/* Made by Vital */
+//$PLAYER_ACTOR $PLAYER_GROUP
+{$CLEO}
+0000:
+var
+3@ : Array 3 of Float
+end
+while true
+wait 0
+    if
+    player.Defined(0)
+    then
+        for 0@ = 0xC88740 to 0xC88874 step 0x2C //44 byte; 8 elements
+        0085: 1@ = 0@ // (int)
+        0085: 2@ = 0@ // (int)
+        1@ += 12
+        2@ += 16
+        0A8D: 1@ = read_memory 1@ size 1 virtual_protect 0 //byte
+            if
+            1@ == 1
+            then            
+                for 1@ = 0 to 2
+                0A8D: 3@[1@] = read_memory 2@ size 4 virtual_protect 0
+                2@ += 4
+                end  
+            095C: create_smoke_at 3@ 4@ 5@ velocity 0.0 0.0 0.1 RGBA 0.0 0.0 0.0 0.5 size 0.05 last_factor 0.2      
+            end
+        end        
+    end
+end

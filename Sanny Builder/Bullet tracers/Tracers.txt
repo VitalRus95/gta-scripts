@@ -1,0 +1,55 @@
+/* Made by Vital */
+//$PLAYER_ACTOR $PLAYER_GROUP $ONMISSION
+//Byte, Char – 1; Short, Word – 2; Long, DWord, Float – 4
+{$CLEO}
+0000:
+while true
+wait 0
+    if
+    player.Defined(0)
+    then
+        for 0@ = 0xC7C748 to 0xC7C9DC step 0x2C
+        0085: 1@ = 0@ // (int)
+        1@ += 0x18
+        0A8D: 1@ = read_memory 1@ size 1 virtual_protect 0        
+            if
+            1@ == 1
+            then
+            0085: 2@ = 0@ // (int)
+            0085: 3@ = 0@ // (int)
+            0085: 4@ = 0@ // (int)
+            2@ += 0x28 //alpha
+            3@ += 0x24 //radius
+            4@ += 0x20 //disappear time
+            0A8C: write_memory 2@ size 1 value 255 virtual_protect 0
+            0A8C: write_memory 3@ size 4 value 0.03 virtual_protect 0
+            0A8C: write_memory 4@ size 4 value 400 virtual_protect 0
+            0085: 2@ = 0@ // (int)
+            0085: 3@ = 0@ // (int)
+            0085: 4@ = 0@ // (int)
+            0085: 5@ = 0@ // (int)
+            0085: 6@ = 0@ // (int)
+            0085: 7@ = 0@ // (int)
+            3@ += 0x04
+            4@ += 0x08
+            5@ += 0x0C
+            6@ += 0x10
+            7@ += 0x14
+            0A8D: 8@ = read_memory 2@ size 4 virtual_protect 0 //Float Trans Side X
+            0A8D: 9@ = read_memory 3@ size 4 virtual_protect 0 //Float Trans Side Y
+            0A8D: 10@ = read_memory 4@ size 4 virtual_protect 0 //Float Trans Side Z
+            0A8D: 11@ = read_memory 5@ size 4 virtual_protect 0 //Float Yellow Side X
+            0A8D: 12@ = read_memory 6@ size 4 virtual_protect 0 //Float Yellow Side Y
+            0A8D: 13@ = read_memory 7@ size 4 virtual_protect 0 //Float Yellow Side Z
+            0063: 8@ -= 11@  // (float)
+            0063: 9@ -= 12@  // (float)
+            0063: 10@ -= 13@  // (float)
+            8@ /= 1.5
+            9@ /= 1.5
+            10@ /= 1.5
+            095C: create_smoke_at 11@ 12@ 13@ velocity 8@ 9@ 10@ RGBA 0.0 0.0 0.0 0.8 size 0.01 last_factor 0.1
+            024F: create_corona_with_radius 0.03 type 1 lensflares 0 with_color 125 125 125 at 11@ 12@ 13@            
+            end 
+        end
+    end
+end

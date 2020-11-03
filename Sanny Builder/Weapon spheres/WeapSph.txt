@@ -1,0 +1,91 @@
+// $PLAYER_ACTOR $PLAYER_GROUP $ONMISSION
+{$CLEO}
+0000:
+if
+0AAB:   file_exists "CLEO\weapl.ini"
+then
+0AF0: 9@ = get_int_from_ini_file "cleo\weapl.ini" section "SETT" key "usecor"
+0AF0: 11@ = get_int_from_ini_file "cleo\weapl.ini" section "SETT" key "usepar"
+0AF0: 12@ = get_int_from_ini_file "cleo\weapl.ini" section "CORONA" key "R"
+0AF0: 13@ = get_int_from_ini_file "cleo\weapl.ini" section "CORONA" key "G"
+0AF0: 14@ = get_int_from_ini_file "cleo\weapl.ini" section "CORONA" key "B"
+0AF0: 15@ = get_int_from_ini_file "cleo\weapl.ini" section "PARTICLE" key "R"
+0AF0: 16@ = get_int_from_ini_file "cleo\weapl.ini" section "PARTICLE" key "G"
+0AF0: 17@ = get_int_from_ini_file "cleo\weapl.ini" section "PARTICLE" key "B"
+else
+9@ = 1
+11@ = 1
+12@ = 200
+13@ = 0
+14@ = 0
+15@ = 0
+16@ = 0
+17@ = 200
+end
+while true //1
+wait 0
+    if //2
+    player.Defined(0)
+    then
+        if //3
+        not actor.Dead($PLAYER_ACTOR)
+        then
+            for 0@ = 0 to 619 //4
+            0A90: 1@ = 32 * 0@ // int
+            1@ += 0x9788C0
+            0085: 2@ = 1@ // (int)
+            0085: 3@ = 1@ // (int) X
+            0085: 4@ = 1@ // (int) Y
+            0085: 5@ = 1@ // (int) Z
+            1@ += 4
+            0A8D: 10@ = read_memory 1@ size 4 virtual_protect 0
+                if //5
+                10@ > 0
+                then
+                2@ += 28
+                0A8D: 10@ = read_memory 2@ size 1 virtual_protect 0
+                    if //6
+                    10@ == 4
+                    then                    
+                    3@ += 16
+                    0A8D: 6@ = read_memory 3@ size 2 virtual_protect 0
+                    4@ += 18
+                    0A8D: 7@ = read_memory 4@ size 2 virtual_protect 0
+                    5@ += 20
+                    0A8D: 8@ = read_memory 5@ size 2 virtual_protect 0
+                    0AB1: call_scm_func @GETCOORD 3 6@ 7@ 8@ 6@ 7@ 8@
+                        if //7
+                        00C2:   sphere_onscreen 6@ 7@ 8@ radius 7.0
+                        then
+                            if //8
+                            9@ == 1
+                            then
+                            024F: create_corona_with_radius 0.35 type 9 lensflares 0 with_color 12@ 13@ 14@ at 6@ 7@ 8@
+                            end //8
+                            if //9
+                            11@ == 1
+                            then
+                            016F: create_particle 3 rotation_factor 0.0 size 0.75 intensity 100 flags 15@ 16@ 17@ at 6@ 7@ 8@
+                            end //9
+                        end //7
+                    end //6
+                end //5
+            end //4
+        end //3
+    end //2
+end //1
+
+:GETCOORD
+for 3@ = 0 to 2
+    if // переводим word в dword 
+    0@(3@,3i) >= 0x8000 // negative word 
+    then 
+    0@(3@,3i) += 0xFFFF0000 // convert to negative dword 
+    end   
+    0093: 0@(3@,3f) = integer 0@(3@,3i) to_float // переводим dword в float 
+    0@(3@,3f) /= 8.0 
+end 
+0AB2: ret 3 0@ 1@ 2@
+
+/*Made by Vital
+Thanks to Den_spb, DK22Pac*/

@@ -1,0 +1,32 @@
+/* Made by Vital */
+//$PLAYER_ACTOR $PLAYER_GROUP $ONMISSION
+//Byte, Char – 1; Short, Word – 2; Long, DWord, Float – 4
+{$CLEO}
+0000:
+while true
+wait 0
+    if    
+    player.Defined(0)    
+    then 
+    0470: 0@ = actor $PLAYER_ACTOR current_weapon
+        if and
+        not actor.Driving($PLAYER_ACTOR) 
+        00E1:   player 0 pressed_key 6
+        0@ >= 0 //melee weapons start
+        0@ <= 15 //melee weapons end
+        then
+        0AB1: call_scm_func @Change 1 0 //joypad
+        else
+        0AB1: call_scm_func @Change 1 1 //mouse & keyboard
+        end            
+    end
+end
+
+:Change
+0A8D: 1@ = read_memory 0xB6EC2E size 1 virtual_protect 0
+if
+803B: not  1@ == 0@  // (int)
+then
+0A8C: write_memory 0xB6EC2E size 1 value 0@ virtual_protect 0
+end
+0AB2: ret 0

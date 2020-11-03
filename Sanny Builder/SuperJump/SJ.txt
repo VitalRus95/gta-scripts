@@ -1,0 +1,42 @@
+{$CLEO}
+thread "SJ"
+
+:SJ
+wait 0
+if
+player.Defined($PLAYER_CHAR)
+jf @SJ
+if and
+not actor.Dead($PLAYER_ACTOR)
+not actor.Driving($PLAYER_ACTOR)
+0ADC: test_cheat "SJE"
+jf @SJ
+0ACA: show_text_box "Super Jump"
+0AF2: 1@ = get_float_from_ini_file "cleo\SJ.ini" section "SJE" key "x"
+0AF2: 2@ = get_float_from_ini_file "cleo\SJ.ini" section "SJE" key "y"
+0AF2: 3@ = get_float_from_ini_file "cleo\SJ.ini" section "SJE" key "z"
+jump @SJ2
+
+:SJ2 
+wait 125 
+if and 
+not actor.Dead($PLAYER_ACTOR) 
+0818:   actor $PLAYER_ACTOR in_air  
+00E1:   player 0 pressed_key 18 
+jf @SJ3   
+04C4: store_coords_to 4@ 5@ 6@ from_actor $PLAYER_ACTOR with_offset 0.0 0.0 0.0  
+04C4: store_coords_to 7@ 8@ 9@ from_actor $PLAYER_ACTOR with_offset 1@ 2@ 3@  
+0063: 7@ -= 4@ // (float) 
+0063: 8@ -= 5@ // (float) 
+0063: 9@ -= 6@ // (float)  
+083C: set_actor $PLAYER_ACTOR velocity_in_direction_XYZ 7@ 8@ 9@  
+jump @SJ2 
+
+:SJ3
+wait 0
+if
+0ADC: test_cheat "SJE"
+jf @SJ2
+0ACA: show_text_box "Super Jump deactivated"
+wait 500
+jump @SJ

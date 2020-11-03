@@ -1,0 +1,164 @@
+{$CLEO}
+thread "P2"
+
+:P2
+wait 0
+if
+player.Defined(0)
+jf @P2
+if and
+not actor.Dead($PLAYER_ACTOR)
+not actor.Driving($PLAYER_ACTOR)
+0ADC: test_cheat "PLAY"
+$ONMISSION == 0
+jf @P2
+04C4: store_coords_to 1@ 2@ 3@ from_actor $PLAYER_ACTOR with_offset 0.0 3.0 1.0
+02C0: store_to 1@ 2@ 3@ ped_path_coords_closest_to 1@ 2@ 3@
+actor.Create(4@,15,0,1@,2@,3@) //Actor
+077A: set_actor 4@ acquaintance 1 to_actors_pedtype 0
+077A: set_actor 4@ acquaintance 4 to_actors_pedtype 7
+077A: set_actor 4@ acquaintance 4 to_actors_pedtype 6
+077A: set_actor 4@ acquaintance 1 to_actors_pedtype 8 
+0746: set_acquaintance 4 of_actors_pedtype 7 to_actors_pedtype 15
+0746: set_acquaintance 1 of_actors_pedtype 8 to_actors_pedtype 15 
+081A: set_actor 4@ weapon_skill_to 2 
+01B9: set_actor 4@ armed_weapon_to 0
+actor.Health(4@) = 125
+actor.WeaponAccuracy(4@) = 87
+0446: set_actor 4@ immune_to_headshots 0
+060A: create_decision_maker_type 2 store_to 20@ //AI
+0708: reset_decision_maker 20@ event 9
+0709: set_decision_maker 20@ on_event 9 taskID 1000 respect 0.0 hate 100.0 like 0.0 dislike 100.0 in_car 0 on_foot 1
+060B: set_actor 4@ decision_maker_to 20@ //AI_End
+marker.CreateAboveActor(7@,4@) //Marker
+marker.SetColor(7@,0x33FF00FF)
+jump @P2_2
+
+:P2_2                                                
+wait 0
+if and
+002D:   32@ >= 10@ // (int) 
+not actor.Dead(4@)
+then
+if  //If second player helped player
+17@ == 1
+then
+06C9: remove_actor 4@ from_group
+0ACA: show_text_box "Second player leaves you"
+end
+17@ = 0 
+048F: actor 4@ remove_weapons 
+0209: 5@ = random_int_in_ranges 2 10 //Weapon 1
+0209: 6@ = random_int_in_ranges 22 39 //Weapon 2
+0781: get_weapon_with_ID 5@ model_to 8@
+0781: get_weapon_with_ID 6@ model_to 9@
+model.Load(8@)
+model.Load(9@)
+038B: load_requested_models
+01B2: give_actor 4@ weapon 5@ ammo 9999 
+01B2: give_actor 4@ weapon 6@ ammo 9999
+model.Destroy(8@)
+model.Destroy(9@)
+0209: 8@ = random_int_in_ranges 0 6
+01B9: set_actor 4@ armed_weapon_to 0 
+077B: clear_actor 4@ acquaintance 4 to_actors_pedtype 4
+077B: clear_actor 4@ acquaintance 4 to_actors_pedtype 5
+0871: init_jump_table 8@ total_jumps 6 default_jump 0 @P2_2 jumps 0 @KillAll 1 @Walk 2 @DesCar 3 @Wave 4 @Dance 5 @JoinPl -1 @P2_2
+else
+    if
+    actor.Dead(4@)
+    then
+    marker.Disable(7@)
+    065C: release_decision_maker 20@ 
+    actor.RemoveReferences(4@)
+    jump @P2
+    end
+end
+jump @P2_2
+
+:Waiting //Random waiting time
+32@ = 0
+10@ *= 20000 //20 sec
+return
+
+:KillAll                          
+wait 0
+0209: 9@ = random_int_in_ranges 0 2
+if
+9@ == 0
+then
+01B9: set_actor 4@ armed_weapon_to 5@
+else
+01B9: set_actor 4@ armed_weapon_to 6@
+end 
+077A: set_actor 4@ acquaintance 4 to_actors_pedtype 4 
+077A: set_actor 4@ acquaintance 4 to_actors_pedtype 5    
+05DE: AS_actor 4@ walk_around_ped_path
+0209: 10@ = random_int_in_ranges 2 5
+gosub @Waiting 
+jump @P2_2
+
+:Walk
+wait 0
+05DE: AS_actor 4@ walk_around_ped_path
+10@ = 1
+gosub @Waiting
+jump @P2_2
+
+:DesCar                        
+wait 0
+04C4: store_coords_to 12@ 13@ 14@ from_actor 4@ with_offset 30.0 30.0 0.0 
+04C4: store_coords_to 15@ 16@ 14@ from_actor 4@ with_offset -30.0 -30.0 0.0
+053E: 11@ = get_random_car_with_model -1 in_rectangle_cornerA 12@ 13@ cornerB 15@ 16@
+if
+car.Defined(11@)
+then
+    if
+    not car.Wrecked(11@)
+    then
+    01B9: set_actor 4@ armed_weapon_to 6@ 
+    0672: AS_actor 4@ attack_car 11@
+    10@ = 1
+    gosub @Waiting 
+    end
+end
+wait 750
+car.RemoveReferences(11@)    
+jump @P2_2
+
+:Wave
+wait 0
+if
+00F2:   actor 4@ near_actor $PLAYER_ACTOR radius 25.0 25.0 0
+then
+0639: AS_actor 4@ rotate_to_actor $PLAYER_ACTOR
+0605: actor 4@ perform_animation_sequence "endchat_03" IFP_file "PED" 4.0 loop 0 1 0 0 time -1
+end
+wait 2000
+jump @P2_2
+
+:Dance
+wait 0
+04ED: load_animation "DANCING"
+repeat
+wait 0
+until 04EE:   animation "DANCING" loaded
+0605: actor 4@ perform_animation_sequence "dance_loop" IFP_file "DANCING" 4.0 loop 1 1 0 0 time 10000
+04EF: release_animation "LOWRIDER"
+32@ = 0
+10@ = 10250
+jump @P2_2 
+
+:JoinPl
+wait 0
+if                                       
+00F2:   actor 4@ near_actor $PLAYER_ACTOR radius 25.0 25.0 0
+then
+0ACA: show_text_box "Second player wants to help you"
+01B9: set_actor 4@ armed_weapon_to 6@ 
+0631: put_actor 4@ in_group $PLAYER_GROUP
+0209: 10@ = random_int_in_ranges 3 7
+17@ = 1
+gosub @Waiting
+end
+jump @P2_2

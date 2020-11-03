@@ -1,0 +1,25 @@
+{$CLEO .cs}
+thread "HEIGHT" 
+
+:Height
+wait 0 
+if 
+Player.Defined($PLAYER_CHAR)
+jf @Height 
+while true
+wait 0
+ if and
+not Actor.Driving($PLAYER_ACTOR)
+00E1:   player 0 pressed_key 4 
+ then 
+0819: 1@ = actor $PLAYER_ACTOR distance_from_ground 
+0092: 2@ = float 1@ to_integer 
+03F0: enable_text_draw 1 
+081C: draw_text_outline 2 RGBA 0 0 255 200
+033F: set_text_draw_letter_size 0.7 1.2 
+0349: set_text_draw_font 3 
+0343: set_text_draw_linewidth 150.0 
+045A: draw_text_1number 60.0 225.0 GXT 'HEIGH' number 2@
+ end
+end
+jump @Height

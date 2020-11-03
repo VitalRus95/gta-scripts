@@ -1,0 +1,16 @@
+/* Made by Vital */
+//$PLAYER_ACTOR $PLAYER_GROUP $ONMISSION
+//Byte, Char – 1; Short, Word – 2; Long, DWord, Float – 4
+{$CLEO}
+0000:
+while true
+wait 0
+    if
+    player.Defined(0)
+    then
+    0209: 0@ = random_int_in_ranges 4 8 // [4;7]
+    0209: 1@ = random_int_in_ranges 200 1001 //[200;1000] ms
+    07FE: set_actor $PLAYER_ACTOR fighting_style_to 0@ moves 6
+    wait 1@ 
+    end
+end
