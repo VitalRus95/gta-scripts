@@ -1,0 +1,99 @@
+{
+    "window.zoomLevel": 2,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 120000,
+    "editor.cursorStyle": "line",
+    "telemetry.enableTelemetry": false,
+    
+    "gta3script.compiler": "D:/Games/gta3sc compiler/gta3sc.exe", 
+    "gta3script.gamebin": {
+        "gta3": ["D:/Games/GTA III/gta3.exe"],
+        "gtavc": ["D:/Games/GTA VC/gta-vc.exe"],
+        "gtasa": ["D:/Games/GTA SA/gta_sa.exe"]
+    },
+    "gta3script.buildflags": {
+        "gta3": [
+            "-fcleo",
+            "-fconst",
+            "--guesser",
+            "--cs"
+        ],
+        "gtavc": [
+            "-fconst",
+            "--guesser",
+            "--cs"
+        ],
+        "gtasa": [
+            "--guesser",
+            "--cs",
+            "-fno-entity-tracking"
+        ]
+    },
+    "gta3script.config": "gtasa",
+    "breadcrumbs.enabled": true,
+    "editor.renderControlCharacters": false,
+    "editor.renderWhitespace": "none",
+    "editor.minimap.enabled": true,
+    "[gta3script]": {},
+    "workbench.colorTheme": "Monokai Dimmed",
+
+    "editor.tokenColorCustomizations": {
+        "[Monokai Dimmed]": {
+            "textMateRules": [
+                {
+                    "scope": "source.gta3script",
+                    "settings": {
+                    "foreground": "#7dc270"
+                    }
+                },
+
+                {
+                    "scope": "keyword.other.command.gta3script",
+                    "settings": {
+                    "foreground": "#7e6f6f"
+                    }
+                },
+                
+                {
+                    "scope": "keyword.other.contro.gta3script",
+                    "settings": {
+                    "foreground": "#a6a883",
+                    "fontStyle": "bold"
+                    }
+                },
+
+                {
+                    "scope": "keyword.other.operato.andornot.gta3script",
+                    "settings": {
+                    "foreground": "#797958",
+                    "fontStyle": "bold"
+                    }
+                },
+
+                {
+                    "scope": "constant.numeric.gta3script",
+                    "settings": {
+                    "foreground": "#37b9ec",
+                    "fontStyle": "underline"
+                    }
+                },
+
+                {
+                    "scope": "constant.language.gta3script",
+                    "settings": {
+                        "foreground": "#bb1616",
+                        "fontStyle": "bold"
+                    }
+                },
+
+                {
+                    "scope": "comment.line.double-slash.gta3script",
+                    "settings": {
+                        "foreground": "#bebebe",
+                        "fontStyle": "italic"
+                    }
+                },
+            ],
+        },
+    },
+}
