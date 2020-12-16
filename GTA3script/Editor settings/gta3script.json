@@ -79,10 +79,16 @@
 		"description": "Integer type constant"
 	},
 
+	"ConstantFLOAT": {
+		"prefix": "constfloat",
+		"body": "CONST_FLOAT ",
+		"description": "Float type constant"
+	},
+
 	"IfThenElseEnd": {
 		"prefix": "fullif",
 		"body": ["IF ",
-        "",       
+        "",
 		"ELSE",
 		"",
 		"ENDIF"],
@@ -91,9 +97,9 @@
 
 	"CLEO Template": {
 		"prefix": "cleotemplate",
-		"body": ["//Script by . Template by Vital (https://www.youtube.com/c/VitalRUS13/featured)",
+		"body": ["//Made by Vital",
 			"SCRIPT_START",
-			"SCRIPT_NAME $1", 
+			"SCRIPT_NAME $1",
 			"",
 			"{",
 			"	LVAR_INT player_actor",
