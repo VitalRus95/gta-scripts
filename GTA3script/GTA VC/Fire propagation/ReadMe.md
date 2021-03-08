@@ -1,4 +1,4 @@
-# Fiery explosions (CLEO; GTA Vice City)
+# Fire propagation (CLEO; GTA Vice City)
 
 ## ENGLISH
 * Author: Vital
