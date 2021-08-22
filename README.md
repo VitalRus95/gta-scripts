@@ -18,9 +18,9 @@ Files extensions:
 
 Расширения файлов:
 * _Скрипты_
-  * .cs — CLEO-скрипты
-  * .cm — CLEO-миссии
-  * .scm — SCM-скрипты и Mission Pack’и (MPACK)
+  * .cs — скрипты на CLEO
+  * .cm — миссии на CLEO
+  * .scm — скрипты и Mission Pack’и (MPACK) на SCM
 * _Исходные коды_ (и где их редактировать)
   * .txt — Sanny Builder
   * .sc — Visual Studio Code с расширением GTA3script
