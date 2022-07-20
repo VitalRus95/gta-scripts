@@ -315,7 +315,7 @@ const HudBars = {
 var defWidth = 0.45,
     defHeight = 1.8,
     defYOffset = 21,
-    defXOffset = 36,
+    defXOffset = 12,
     defFont = 3,
     defOutlineWidth = 1,
     defBarBgTransparency = 175,
@@ -356,6 +356,11 @@ defBarSeparatorColour.g = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepG');
 defBarSeparatorColour.b = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepB');
 defBarSeparatorColour.a = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepA');
 //#endregion
+
+// Fix radar
+const radarWidth = 0x866B78,
+      radarHeight = 0x866B74;
+Memory.WriteFloat(radarWidth, Memory.ReadFloat(radarHeight, false), false);
 
 while (true) {
     wait(0);
@@ -477,11 +482,15 @@ while (true) {
         Text.UseCommands(true);
 
         //#region Right side
+        var money = plr.storeScore(),
+            health = plc.getHealth(),
+            armour = plc.getArmor(),
+            checkInWater = (plc.isSwimming() || (plc.isInAnyCar() && plc.storeCarIsInNoSave().isInWater()));
+
         var initialX = 630,
             initialY = 7;
 
         //#region Money
-        var money = plr.storeScore();
         if (money != 0) {
             var moneyColour = (money > 0) ? Colours.Money : Colours.Debt;
             HudElements.Money.draw([money], initialX, initialY, moneyColour);
@@ -490,7 +499,7 @@ while (true) {
             } else {
                 initialY += defYOffset * defMult;
             }
-        } else if (defBars) {
+        } else if (defBars && (health < 176 || armour > 0 || checkInWater)) {
             initialY += 7 * defMult;
         }
         //#endregion
@@ -498,7 +507,6 @@ while (true) {
         var nextLine = false; // Numeric health, armour and oxygen are on the same line, so we need to know when to switch to the next line for drawing other values
 
         //#region Health
-        var health = plc.getHealth()
         if (health < 176) {
             if (defBars) {
                 HudBars.Health.draw(initialX, initialY, health, 175);
@@ -513,7 +521,6 @@ while (true) {
         //#endregion
 
         //#region Armour
-        var armour = plc.getArmor();
         if (armour > 0) {
             if (defBars) {
                 HudBars.Armour.draw(initialX, initialY, armour, 100);
