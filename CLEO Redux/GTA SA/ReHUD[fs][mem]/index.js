@@ -361,10 +361,10 @@ defBarSeparatorColour.a = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepA');
 // It used to be 0x866B78, but Bloodriver taught me a better way to fix the radar width
 const radarWidth = [0x5834C2, 0x58A7E9, 0x58A840, 0x58A943, 0x58A99D],
       radarHeight = 0x866B74;
-var currentHeight = Memory.ReadI32(radarHeight, true),
+var currentHeight = Memory.ReadFloat(radarHeight, true),
     curHeightPointer = Memory.Allocate(4);
 
-Memory.WriteI32(curHeightPointer, currentHeight, true);
+Memory.WriteFloat(curHeightPointer, currentHeight, true);
 
 radarWidth.forEach(rw => {
     Memory.WriteI32(rw, curHeightPointer, true);
