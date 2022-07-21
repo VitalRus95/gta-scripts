@@ -358,9 +358,17 @@ defBarSeparatorColour.a = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepA');
 //#endregion
 
 // Fix radar
-const radarWidth = 0x866B78,
+// It used to be 0x866B78, but Bloodriver taught me a better way to fix the radar width
+const radarWidth = [0x5834C2, 0x58A7E9, 0x58A840, 0x58A943, 0x58A99D],
       radarHeight = 0x866B74;
-Memory.WriteFloat(radarWidth, Memory.ReadFloat(radarHeight, false), false);
+var currentHeight = Memory.ReadI32(radarHeight, true),
+    curHeightPointer = Memory.Allocate(4);
+
+Memory.WriteI32(curHeightPointer, currentHeight, true);
+
+radarWidth.forEach(rw => {
+    Memory.WriteI32(rw, curHeightPointer, true);
+});
 
 while (true) {
     wait(0);
@@ -535,7 +543,7 @@ while (true) {
         //#endregion
 
         //#region Oxygen
-        if (plc.isSwimming() || (plc.isInAnyCar() && plc.storeCarIsInNoSave().isInWater())) {
+        if (checkInWater) {
             var oxygen = Memory.ReadFloat(Addresses.Oxygen.adr, Addresses.Oxygen.size, 0);
             oxygen = (100 * oxygen) / 2650; // 2650 max
             if (oxygen < 100) {
@@ -623,7 +631,7 @@ while (true) {
 
         //#region Left side
         var initialX = 37 * defMult,
-            initialY = 25 * defMult;
+            initialY = 30 * defMult;
 
         //#region Clock (alternative)
         if (!defClock && !Text.IsHelpMessageBeingDisplayed()) {

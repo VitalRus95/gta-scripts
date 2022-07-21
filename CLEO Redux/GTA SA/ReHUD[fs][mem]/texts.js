@@ -23,6 +23,6 @@ export const ReHud = {
     'OutlineSize': 'Outline size',
     'About': 'About',
     'Authors': 'Authors:\n- Mod by Vital (Vitaly Ulyanov)\n- CLEO Redux by Seemann\n- ImGui support by Grinch',
-    'Help': 'Thanks for help to: Seemann, Grinch, Alexander Lukhnovich',
+    'Help': 'Thanks for help to: Seemann, Grinch, Alexander Lukhnovich, Bloodriver',
     'Ideas': 'Thanks for ideas to: Seemann, Bloodriver'
 };
