@@ -27,7 +27,7 @@ const Texts = {
     'CloudySf': [7, 'WEATH13'],
     'RainySf': [8, 'WEATH14'],
     'FoggySf': [9, 'WEATH10'],
-    'SunnyVegas': [0, 'WEATH18'],
+    'SunnyVegas': [10, 'WEATH18'],
     'ExtraSunnyVegas': [11, 'WEATH19'],
     'CloudyVegas': [12, 'WEATH20'],
     'ExtraSunnyCountryside': [13, 'WEATH9'],
