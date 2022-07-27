@@ -39,7 +39,8 @@ const Addresses = {
     'HudMode': {adr: 0xBA6769, size: 1},
     'Widescreen': {adr: 0xB6F065, size: 1},
     'HudScript': {adr: 0xA444A0, size: 1},
-    'Oxygen': {adr: 0xB7CDE0, size: 4}
+    'Oxygen': {adr: 0xB7CDE0, size: 4},
+    'MenuOpen': {adr: 0xBA67A4, size: 1}
 };
 
 const AlignType = {
@@ -358,16 +359,16 @@ defBarSeparatorColour.a = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepA');
 //#endregion
 
 // Fix radar
-// It used to be 0x866B78, but Bloodriver taught me a better way to fix the radar width
-const radarWidth = [0x5834C2, 0x58A7E9, 0x58A840, 0x58A943, 0x58A99D],
+// It used to be 0x866B78, but Bloodriver taught me a better way to fix the radar width;
+const radarWidth = [0x5834C2, 0x58A7E9, 0x58A840, 0x58A943, 0x58A99D, 0x58A449, 0x58781B],
       radarHeight = 0x866B74;
-var currentHeight = Memory.ReadFloat(radarHeight, true),
+var currentHeight = Memory.ReadFloat(radarHeight, false),
     curHeightPointer = Memory.Allocate(4);
 
-Memory.WriteFloat(curHeightPointer, currentHeight, true);
+Memory.WriteFloat(curHeightPointer, currentHeight, false);
 
 radarWidth.forEach(rw => {
-    Memory.WriteI32(rw, curHeightPointer, true);
+    Memory.WriteI32(rw, curHeightPointer, false);
 });
 
 while (true) {
@@ -486,7 +487,8 @@ while (true) {
     if (plr.isPlaying() && !Camera.GetFadingStatus()
         && Memory.ReadU8(Addresses.HudMode.adr, false) == 0
         && Memory.ReadU8(Addresses.Widescreen.adr, false) == 0
-        && Memory.ReadU8(Addresses.HudScript.adr, false) == 1) {
+        && Memory.ReadU8(Addresses.HudScript.adr, false) == 1
+        && Memory.ReadU8(Addresses.MenuOpen.adr, false) == 0) {
         Text.UseCommands(true);
 
         //#region Right side
