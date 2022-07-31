@@ -358,11 +358,11 @@ defBarSeparatorColour.b = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepB');
 defBarSeparatorColour.a = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepA');
 //#endregion
 
-// Fix radar
+//#region Fix radar
 // It used to be 0x866B78, but Bloodriver taught me a better way to fix the radar width;
 const radarWidth = [0x5834C2, 0x58A7E9, 0x58A840, 0x58A943, 0x58A99D, 0x58A449, 0x58781B],
-      radarHeight = 0x866B74;
-var currentHeight = Memory.ReadFloat(radarHeight, false),
+      radarHeight = [0x5834F6, 0x58A47D, 0x58A801, 0x58A8AB, 0x58A921, 0x58A9D5];
+var currentHeight = Memory.ReadFloat(0x866B74, false) * 1.1,
     curHeightPointer = Memory.Allocate(4);
 
 Memory.WriteFloat(curHeightPointer, currentHeight, false);
@@ -370,6 +370,11 @@ Memory.WriteFloat(curHeightPointer, currentHeight, false);
 radarWidth.forEach(rw => {
     Memory.WriteI32(rw, curHeightPointer, false);
 });
+
+radarHeight.forEach(rh => {
+    Memory.WriteI32(rh, curHeightPointer, false);
+});
+//#endregion
 
 while (true) {
     wait(0);
@@ -632,7 +637,7 @@ while (true) {
         //#endregion
 
         //#region Left side
-        var initialX = 37 * defMult,
+        var initialX = 38 * defMult,
             initialY = 30 * defMult;
 
         //#region Clock (alternative)
