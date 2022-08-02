@@ -24,7 +24,7 @@
 + Russian translation added! The mod defaults to English, other languages can be found in Localisation folder, just copy the texts.js from the desired language subfolder into the main directory.
 ```
 
-## RUSSIAN
+## РУССКИЙ
 * Автор: Vital (Виталий Павлович Ульянов)
 * Описание: Альтернативный HUD (интерфейс) для GTA: SA. Для его включения отключите стандартную игровую панель в настройках дисплея в меню игры или введите чит-код 'HUD' для показа меню мода, где Вы сможете не только переключаться между разными HUD’ами, но и настроить параметры скрипта, такие как шрифт, размер HUD’а, разновидности часов и многое другое.
 * Требования: CLEO Redux (идёт вместе со скриптом), желательна полная установка. Если плагины CLEO не устанавливаются автоматически, скопируйте папку CLEO_PLUGINS в папку GTA SA\CLEO из архива.

@@ -2,10 +2,11 @@
 /// <reference path=".config/sa.d.ts"/>
 
 import { KeyCode } from ".config/enums.js";
-import { Panel, Option } from "./Panels";
+import { Panel, Option, dummyText, PanelAlignment } from "./Panels";
 
 // Make a constant for menu activation button
 const activation = KeyCode.X;
+
 // Let's keep all the GXT entries from the original game in another constant
 const Texts = {
     'Title': 'FEM_MM',
@@ -16,6 +17,8 @@ const Texts = {
     'Weather': 'CHEAT7',
     'Backward': 'FEC_BAC',
     'Forward': 'FEC_FOR',
+    'Variable': 'BJ_0',
+    'Dollar': 'DOLLAR',
     // Weather constants are arrays with weather type and its corresponding name
     'ExtraSunnyLa': [0, 'WEATH3'],
     'SunnyLa': [1, 'WEATH1'],
@@ -49,25 +52,29 @@ while (true) {
     if (plr.isPlaying() && !plc.isInAnyCar() && Pad.IsKeyDown(activation)) {
         pageMain(); // Call the function which creates the main page of our menu panel
 
+        if (Hud.IsRadarVisible()) {
+            Hud.DisplayRadar(false);
+        }
+
         // Panel module automatically checks exit conditions (pressing 'Enter car' button, death, or arrest)
         while (panel.exists) {
-            plr.setControl(false);
             panel.processChoice(); // Just call this built-in function for choice processing
             wait(0);
         }
-        plr.setControl(true);
+
+        Hud.DisplayRadar(true);
     }
 }
 
 // If your menu consists of pages (12 options max per page), you can manage each in its own function
 function pageMain() {
     // Create the panel. The only obligatory argument is the title.
-    panel = new Panel(Texts.Title, undefined, 150);
+    panel = new Panel(Texts.Title, 0, 335, 320, 2);
     // Set up the panel's options that the player will be able to choose
-    panel.setUpOptions(0, 'DUMMY', [
+    panel.addColumn(0, dummyText, [
         // Health
         new Option(Texts.Health, function(){
-            plc.setHealth(plc.getHealth() + 20);
+            plc.setHealth(plc.getHealth() + 25);
             showTextBox('Some health');
         }),
         // Armour
@@ -91,11 +98,17 @@ function pageMain() {
             pageWeather1();
         }, [], true)
     ]);
+
+    panel.addColumn(1, dummyText, [
+        new Option(Texts.Variable, undefined, [], false, [25]),
+        new Option(Texts.Variable, undefined, [], false, [20]),
+        new Option(Texts.Dollar, undefined, [], false, [100])
+    ]);
 }
 
 function pageWeather1() {
-    panel = new Panel(Texts.Weather, undefined, 100, 250);
-    panel.setUpOptions(0, 'DUMMY', [
+    panel = new Panel(Texts.Weather, 0, 225, 640);
+    panel.addColumn(0, dummyText, [
         // Back (highlighted)
         new Option(Texts.Backward, function(){
             panel.delete();
@@ -141,8 +154,8 @@ function pageWeather1() {
 }
 
 function pageWeather2() {
-    panel = new Panel(Texts.Weather, undefined, 100, 250);
-    panel.setUpOptions(0, 'DUMMY', [
+    panel = new Panel(Texts.Weather, 0, 225, 640);
+    panel.addColumn(0, dummyText, [
         // Back (highlighted)
         new Option(Texts.Backward, function(){
             panel.delete();
