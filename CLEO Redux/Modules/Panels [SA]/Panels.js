@@ -1,4 +1,4 @@
-/// <reference path=".config/sa.d.ts"/>
+/// <reference path="../.config/sa.d.ts"/>
 //	Script by Vital (Vitaly Pavlovich Ulyanov)
 
 var player = new Player(0);

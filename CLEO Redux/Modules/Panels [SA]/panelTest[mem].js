@@ -2,10 +2,10 @@
 /// <reference path=".config/sa.d.ts"/>
 
 import { KeyCode } from ".config/enums.js";
-import { Panel, Option, dummyText, PanelAlignment } from "./Panels";
+import { Panel, Option, dummyText } from "./Modules/Panels";
 
 // Make a constant for menu activation button
-const activation = KeyCode.X;
+const activation = KeyCode.Z;
 
 // Let's keep all the GXT entries from the original game in another constant
 const Texts = {

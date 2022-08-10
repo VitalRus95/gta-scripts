@@ -1,5 +1,5 @@
 //	Module by Vital (Vitaly Pavlovich Ulyanov). Thanks for help to Seemann.
-/// <reference path=".config/sa.d.ts"/>
+/// <reference path="../.config/sa.d.ts"/>
 
 export const AlignType = {
     'Left': 0,
@@ -8,8 +8,6 @@ export const AlignType = {
 };
 
 export const MenuSounds = {
-    'BuyWeapon': 1052,
-    'BuyWeaponDenied': 1053,
     'ShopBuy': 1054,
     'ShopBuyDenied': 1055,
     'Race321': 1056,
@@ -48,7 +46,7 @@ var player = new Player(0),
 
 /**
  * @typedef {Object} Style
- * @property {int} font Font=3
+ * @property {int} font Font
  * @property {float} scaling Text scaling
  * @property {RGBA} colour Colour
  * @property {AlignType} alignment Alignment
@@ -120,34 +118,48 @@ export class ScrollMenu {
     }
 
     /**
+     * @typedef {Object} DrawSettings
+     * @property {int} x X coordinate
+     * @property {int} y Y coordinate
+     * @property {boolean} hideHud Whether to hide the HUD
+     * @property {boolean} playerLock Whether to lock the player
+     * @property {int|MenuSounds} scrollSound Menu scroll sound
+     * @property {int|MenuSounds} confirmSound Menu confirm sound
+     * @property {int|MenuSounds} exitSound Menu exit sound
+     */
+    /** @type DrawSettings */
+    idealSettings = {
+        x: 320,
+        y: 224,
+        hideHud: false,
+        playerLock: true,
+        scrollSound: MenuSounds.GunCollision,
+        confirmSound: MenuSounds.ShopBuy,
+        exitSound: MenuSounds.MenuBack
+    };
+    /**
      * Draws the menu.
-     * @param {int|Function} x X coordinate
-     * @param {int|Function} y Y coordinate
-     * @param {boolean} hideHud Whether to hide the HUD
-     * @param {boolean} playerLock Whether to lock the player
+     * @param {DrawSettings} settings
      * @returns Drawing status
      */
-    draw(x = 320, y = 224, hideHud = false, playerLock = true) {
+    draw(settings = this.idealSettings) {
+        settings = {...this.idealSettings, ...settings};
+
         //#region Exit
         if (!player.isPlaying() || Pad.IsButtonPressed(0, 15) || Pad.IsButtonPressed(0, 6)) {
-            Sound.AddOneOffSound(0, 0, 0, 1085);
-            if (hideHud) {
-                Hud.SwitchWidescreen(false);
+            Sound.AddOneOffSound(0, 0, 0, funcOrValue(settings.exitSound));
+            while (Pad.IsButtonPressed(0, 15) || Pad.IsButtonPressed(0, 6)) {
+                wait(0);
             }
-            if (playerLock) {
-                player.setControl(true);
-            }
+            Hud.SwitchWidescreen(false);
+            player.setControl(true);
             return false;
         }
         //#endregion
 
         //#region HUD & player control
-        if (hideHud) {
-            Hud.SwitchWidescreen(true);
-        }
-        if (playerLock) {
-            player.setControl(false);
-        }
+        Hud.SwitchWidescreen(funcOrValue(settings.hideHud));
+        player.setControl(!funcOrValue(settings.playerLock));
         //#endregion
 
         //#region Scrolling
@@ -158,14 +170,18 @@ export class ScrollMenu {
             this.selection = clamp(this.selection + 1, 0, this.options.length - 1);
         } else if ((Pad.IsButtonPressed(0, 5) || Pad.GetState(0, 1) < 0) && TIMERA > scrollSpeed) {
             this.selection = clamp(this.selection - 1, 0, this.options.length - 1);
-        } else if (Pad.IsKeyDown(0x24)) { // Home button
+        } else if (Pad.IsKeyDown(0x22)) { // Page down button (+5)
+            this.selection = clamp(this.selection + 5, 0, this.options.length - 1);
+        } else if (Pad.IsKeyDown(0x21)) { // Page up button (-5)
+            this.selection = clamp(this.selection - 5, 0, this.options.length - 1);
+        } else if (Pad.IsKeyDown(0x24)) { // Home button (last)
             this.selection = 0;
-        } else if (Pad.IsKeyDown(0x23)) { // End button
+        } else if (Pad.IsKeyDown(0x23)) { // End button (first)
             this.selection = this.options.length - 1;
         }
 
         if (this.selection != oldSelection) {
-            Sound.AddOneOffSound(0, 0, 0, MenuSounds.GunCollision);
+            Sound.AddOneOffSound(0, 0, 0, funcOrValue(settings.scrollSound));
             TIMERA = 0;
         }
         //#endregion
@@ -174,18 +190,18 @@ export class ScrollMenu {
         var selectSpeed = (Pad.IsButtonPressed(0, 16) && !Pad.IsButtonPressed(0, 17)) ? 399 : 199;
         if ((Pad.IsButtonPressed(0, 16) || Pad.IsButtonPressed(0, 17)) && TIMERB > selectSpeed) {
             if (this.options[this.selection].func) {
-                Sound.AddOneOffSound(0, 0, 0, 1055);
+                TIMERB = 0;
+                Sound.AddOneOffSound(0, 0, 0, funcOrValue(settings.confirmSound));
                 this.options[this.selection].func.apply(
                     this.options[this.selection].caller ?? undefined,
                     this.options[this.selection].args ?? undefined);
             }
-            TIMERB = 0;
         }
         //#endregion
 
         //#region Drawing
-        x = (typeof x == 'function') ? x.apply(undefined, undefined) : x;
-        y = (typeof y == 'function') ? y.apply(undefined, undefined) : y;
+        var x = funcOrValue(settings.x),
+            y = funcOrValue(settings.y);
 
         var iMin, iMax;
 
@@ -252,7 +268,9 @@ export class ScrollMenu {
                 var textScale = 1;
                 if (i == this.selection) { // Item is selected
                     textScale = 1.1;
-                    var tempCol = funcOrValue(curStyle.selectedColour);
+                    var tempCol = funcOrValue( // Allow to retain selected option colour
+                        curStyle.selectedColour ? curStyle.selectedColour : curStyle.colour
+                    );
                     Text.SetColor(
                         tempCol.r,
                         tempCol.g,
@@ -312,48 +330,9 @@ function clamp(value, min, max) {
  * Determines if the given variable is a function, returning its result if true and its value if false.
  * @param {Function|any} variable Variable
  * @param {any} caller Caller of the function
- * @param {any[]} argus Function arguments
+ * @param {any[]} args Function arguments
  * @returns The value of the variable or the result of the function
  */
 function funcOrValue(variable, caller = undefined, args = undefined) {
     return (typeof variable == 'function') ? variable.apply(caller, args) : variable;
-}
-
-var plc = player.getChar(),
-    menu = new ScrollMenu([
-        {   // Header
-            name: 'FEM_MM',
-            func: () => showTextBox('Scroll Menu module by Vital (Vitaly Pavlovich Ulyanov).~n~Thanks for help to Seemann.'),
-            style: DefaultStyles.PricedownHeader
-        },
-        {   // Health
-            name: 'CHEAT3',
-            func: () => plc.setHealth(plc.getHealth() + 25),
-            style: { colour: new RGBA(170, 170, 255) }
-        },
-        {   // Amour
-            name: 'CHEAT4',
-            func: () => plc.addArmor(20),
-            style: { colour: new RGBA(150, 150, 255) }
-        },
-        {   // Money
-            name: 'CHEAT6',
-            func: () => player.addScore(100),
-            style: { colour: new RGBA(130, 130, 255) }
-        },
-        {   // Wanted level
-            name: 'CHEAT5',
-            func: () => player.clearWantedLevel(),
-            style: { colour: new RGBA(110, 110, 255) }
-        }
-    ]);
-
-while (true) {
-    wait(0);
-
-    if (Pad.IsButtonPressed(0, 4)) {
-        while (menu.draw()) {
-            wait(0);
-        }
-    }
 }
