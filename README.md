@@ -1,4 +1,6 @@
 # GTA Scripts by Vital
+### [📺YouTube](https://www.youtube.com/c/VitalRUS13/featured) | [💬Discord](https://discord.com/invite/saFJVhF)
+---
 ## ENGLISH
 Script modifications for Grand Theft Auto 3, Vice City, and San Andreas made by Vital¹.
 

@@ -1,4 +1,4 @@
-# Scroll Menu (module for CLEO Redux)
+# Scroll Menu (CLEO Redux)
 ## ENGLISH
 * Author: Vital (Vitaly Pavlovich Ulyanov)
 * Description: A module for CLEO Redux library that aims to simplify creating custom menus with no limitations on options number and provide a lot of new features such as instantly associating a menu item with its action (function), changing the style of the overall menu or individual options, using functions to set or update any of the menu parameters, and much more.
@@ -20,7 +20,7 @@ To be done...
 
 ## RUSSIAN
 * Автор: Vital (Виталий Павлович Ульянов)
-* Описание: Модуль для CLEO Redux, призванный упростить создание собственных меню без ограничения на число пунктов в нём, а также дать множество новых возможностей, таких как мгновенную привязку к пункту его действия (функции), смена стиля целого меню или отдельных строк, использование функций для установки и изменения любых параметров меню и многое другое.
+* Описание: Модуль для CLEO Redux, призванный упростить создание собственных меню без ограничения на число пунктов в нём, а также дать множество новых возможностей, таких как мгновенная привязка к пункту его действия (функции), смена стиля целого меню или отдельных строк, использование функций для установки и изменения любых параметров меню и многое другое.
 * Требования: CLEO Redux.
 * Установка: Поместите файл ScrollMenu.js в папку CLEO\Modules. Если Вы хотите опробовать мой собственный пример, положите scrollMenuTest.js в папку CLEO и нажмите в игре (San Andreas) кнопку 'X'. Управление в меню следующее:
   * Кнопки игровых действий:
