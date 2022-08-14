@@ -23,6 +23,11 @@
 ```diff
 + Russian translation added! The mod defaults to English, other languages can be found in Localisation folder, just copy the texts.js from the desired language subfolder into the main directory.
 ```
+#### 1.4
+```diff
++ minor optimisation
++ fixed showing oxygen level when in a boat
+```
 
 ## РУССКИЙ
 * Автор: Vital (Виталий Павлович Ульянов)
@@ -47,4 +52,9 @@
 #### 1.3
 ```diff
 + Добавлен русский перевод! По умолчанию используется английский язык, переводы лежат в папке Localisation: выбрав подпапку с нужным языком, скопируйте из неё файл texts.js в основной каталог скрипта.
+```
+#### 1.4
+```diff
++ небольшая оптимизация
++ уровень кислорода больше не показывается в лодках
 ```

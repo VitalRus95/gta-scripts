@@ -1,7 +1,7 @@
 /// <reference path="../.config/sa.d.ts"/>
 //	Script by Vital (Vitaly Pavlovich Ulyanov)
 
-import { Font, ImGuiCond, KeyCode, WeaponType } from "../.config/enums";
+import { Font, ImGuiCond, WeaponType } from "../.config/enums";
 import { ReHud } from "./texts";
 
 var plr = new Player(0),
@@ -317,21 +317,9 @@ var defWidth = 0.45,
     defHeight = 1.8,
     defYOffset = 21,
     defXOffset = 12,
-    defFont = 3,
-    defOutlineWidth = 1,
-    defBarBgTransparency = 175,
-    defBarFgTransparency = 225,
-    defBarMdTransparency = 225,
     defBarYOffset = 10,
     defBarHeight = 4,
-    defBarSeparatorColour = new RGBA(0, 0, 0, 255),
-    defShadow = false,
-    defMult = 10,
-    defClock = true,
-    defHrsInCentre = true,
-    defStars = true,
-    defBars = false,
-    defBarSeparator = true;
+    defBarSeparatorColour = new RGBA(0, 0, 0, 255);
 
 // Math constants (thanks to Alexander Lukhnovich for help with trigonometry)
 const hrsToRad = Math.PI * 1/12, // 360° / 24 hours
@@ -339,18 +327,18 @@ const hrsToRad = Math.PI * 1/12, // 360° / 24 hours
       deg90ToRad = Math.PI * 0.5;
 
 //#region Load settings
-var defFont = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'Font'),
-    defOutlineWidth = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'OutlineWidth'),
-    defShadow = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'Shadow'),
-    defMult = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'Size') / 10,
-    defClock = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'Clock'),
-    defHrsInCentre = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'HrsCentre'),
-    defStars = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'WantedStars'),
-    defBars = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'UseBars'),
-    defBarFgTransparency = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarFgAlpha'),
-    defBarBgTransparency = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarBgAlpha'),
-    defBarMdTransparency = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarMdAlpha'),
-    defBarSeparator = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSeparator');
+var defFont = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'Font') ?? 3,
+    defOutlineWidth = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'OutlineWidth') ?? 1,
+    defShadow = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'Shadow') ?? false,
+    defMult = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'Size') / 10 ?? 1,
+    defClock = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'Clock') ?? true,
+    defHrsInCentre = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'HrsCentre') ?? true,
+    defStars = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'WantedStars') ?? true,
+    defBars = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'UseBars') ?? true,
+    defBarFgTransparency = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarFgAlpha') ?? 225,
+    defBarBgTransparency = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarBgAlpha') ?? 175,
+    defBarMdTransparency = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarMdAlpha') ?? 225,
+    defBarSeparator = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSeparator') ?? true;
 
 defBarSeparatorColour.r = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepR');
 defBarSeparatorColour.g = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepG');
@@ -500,7 +488,7 @@ while (true) {
         var money = plr.storeScore(),
             health = plc.getHealth(),
             armour = plc.getArmor(),
-            checkInWater = (plc.isSwimming() || (plc.isInAnyCar() && plc.storeCarIsInNoSave().isInWater()));
+            checkInWater = (plc.isSwimming() || (plc.isInAnyCar() && !plc.isInAnyBoat() && plc.storeCarIsInNoSave().isInWater()));
 
         var initialX = 630,
             initialY = 7;
