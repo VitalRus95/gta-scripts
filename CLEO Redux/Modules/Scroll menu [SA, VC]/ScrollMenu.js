@@ -8,21 +8,39 @@ export const AlignType = {
 };
 
 export const MenuSounds = {
-    'ShopBuy': 1054,
-    'ShopBuyDenied': 1055,
-    'Race321': 1056,
-    'RaceGo': 1057,
-    'PartMissionComplete': 1058,
-    'MenuScroll': 1083,
-    'MenuBack': 1084,
-    'MenuUnavailable': 1085,
-    'Punch': 1130,
-    'GunCollision': 1131,
-    'Camera': 1132,
-    'CarMod': 1133,
-    'BaseballBatHit': 1135,
-    'Pickup': 1150,
-    'Collapse': 1163
+    'SA': {
+        'ShopBuy': 1054,
+        'ShopBuyDenied': 1055,
+        'Race321': 1056,
+        'RaceGo': 1057,
+        'PartMissionComplete': 1058,
+        'MenuScroll': 1083,
+        'MenuBack': 1084,
+        'MenuUnavailable': 1085,
+        'Punch': 1130,
+        'GunCollision': 1131,
+        'Camera': 1132,
+        'CarMod': 1133,
+        'BaseballBatHit': 1135,
+        'Pickup': 1150,
+        'Collapse': 1163
+    },
+    'VC': {
+        'RaceStart321': 9,
+        'RaceStartGo': 10,
+        'ShootingRangeHit': 12,
+        'ShopBuy': 13,
+        'ShopBuyDenied': 14,
+        'ArmBomb': 16,
+        'CardSwipe': 18,
+        'SeaplaneLowFuel': 35,
+        'PhoneRing': 56,
+        'BoxDestroy1': 61,
+        'BoxDestroy2': 62,
+        'TyreHitGround': 64,
+        'BeachBall': 65,
+        'GunShellDrop': 66
+    }
 };
 
 export class RGBA {
@@ -42,27 +60,28 @@ export class RGBA {
 }
 
 var player = new Player(0),
+    playerChar = player.getChar(),
     headerColour = new RGBA(135, 255, 135);
 
 /**
  * @typedef {Object} Style
- * @property {int} font Font
+ * @property {int} font Font (VC requires CLEO, reVC requires a change in source code)
  * @property {float} scaling Text scaling
  * @property {RGBA} colour Colour
  * @property {AlignType} alignment Alignment
- * @property {boolean} shadow Whether to draw the shadow
+ * @property {boolean} shadow Whether to draw the shadow (SA only)
  * @property {boolean} background Whether to draw the background
- * @property {RGBA} outlineOrShadowColour Outline colour
- * @property {int} outlineOrShadowWidth Outline/shadow width
+ * @property {RGBA} outlineOrShadowColour Outline colour (SA only)
+ * @property {int} outlineOrShadowWidth Outline/shadow width (SA only)
  * @property {float} width Width
  * @property {float} height Height
  * @property {RGBA} selectedColour Text colour if this option is selected
- * @property {RGBA} selectedOutlineColour Outline/Shadow colour if this option is selected
+ * @property {RGBA} selectedOutlineColour Outline/Shadow colour if this option is selected (SA only)
  * @property {boolean} selectedBackground Whether to draw the background if this option is selected
  */
 /** @type Style */
 var idealStyle = {
-    font: (HOST == "sa") ? 3 : 0,
+    font: (HOST == 'sa') ? 3 : 2,
     scaling: 0.85,
     colour: new RGBA(255, 255, 255),
     alignment: AlignType.Centre,
@@ -71,7 +90,7 @@ var idealStyle = {
     outlineOrShadowColour: new RGBA(),
     outlineOrShadowWidth: 1,
     width: 0.45,
-    height: 1.8,
+    height: (HOST == 'sa') ? 1.8 : 1.5,
     selectedColour: new RGBA(255, 65, 35),
     selectedOutlineColour: new RGBA(),
     selectedBackground: false
@@ -81,14 +100,24 @@ var idealStyle = {
  * @type {Object.<string, Style>}
  */
 export const DefaultStyles = {
-    'Gothic': {font: 0, scaling: 1.15},
-    'Subtitles': {font: 1},
-    'Menu': {font: 2, scaling: 0.8},
-    'Pricedown': {font: 3, scaling: 0.85},
-    'GothicHeader': {font: 0, scaling: 1.4, colour: headerColour, background: true},
-    'SubtitlesHeader': {font: 1, scaling: 1.3, colour: headerColour, background: true},
-    'MenuHeader': {font: 2, scaling: 0.9, colour: headerColour, background: true},
-    'PricedownHeader': {font: 3, scaling: 1.1, colour: headerColour, background: true}
+    'SA': {
+        'Gothic': {font: 0, scaling: 1.15},
+        'Subtitles': {font: 1},
+        'Menu': {font: 2, scaling: 0.8},
+        'Pricedown': {font: 3, scaling: 0.85},
+        'GothicHeader': {font: 0, scaling: 1.4, colour: headerColour, background: true},
+        'SubtitlesHeader': {font: 1, scaling: 1.3, colour: headerColour, background: true},
+        'MenuHeader': {font: 2, scaling: 0.9, colour: headerColour, background: true},
+        'PricedownHeader': {font: 3, scaling: 1.1, colour: headerColour, background: true}
+    },
+    'VC': {
+        'Bank': {font: 0, scaling: 1.3, height: 1.5},
+        'Standard': {font: 1, scaling: 1.15, height: 1.5},
+        'Heading': {font: 2, scaling: 1.2, height: 1.5},
+        'BankHeader': {font: 0, scaling: 1.45, height: 1.5, background: true},
+        'StandardHeader': {font: 1, scaling: 1.35, height: 1.5, background: true},
+        'HeadingHeader': {font: 2, scaling: 1.35, height: 1.5, background: true}
+    }
 };
 
 /**
@@ -133,9 +162,12 @@ export class ScrollMenu {
         y: 224,
         hideHud: false,
         playerLock: true,
-        scrollSound: MenuSounds.GunCollision,
-        confirmSound: MenuSounds.ShopBuy,
-        exitSound: MenuSounds.MenuBack
+        scrollSound: (HOST == 'sa') ? MenuSounds.SA.GunCollision :
+            (HOST == 'vc' || HOST == 'reVC') ? MenuSounds.VC.TyreHitGround : 0,
+        confirmSound: (HOST == 'sa') ? MenuSounds.SA.ShopBuy :
+            (HOST == 'vc' || HOST == 'reVC') ? MenuSounds.VC.ShopBuy : 0,
+        exitSound: (HOST == 'sa') ? MenuSounds.SA.MenuBack :
+            (HOST == 'vc' || HOST == 'reVC') ? MenuSounds.VC.ShopBuyDenied : 0
     };
     /**
      * Draws the menu.
@@ -147,7 +179,8 @@ export class ScrollMenu {
 
         //#region Exit
         if (!player.isPlaying() || Pad.IsButtonPressed(0, 15) || Pad.IsButtonPressed(0, 6)) {
-            Sound.AddOneOffSound(0, 0, 0, funcOrValue(settings.exitSound));
+            var pos = playerChar.getCoordinates();
+            Sound.AddOneOffSound(pos.x, pos.y, pos.z, funcOrValue(settings.exitSound));
             while (Pad.IsButtonPressed(0, 15) || Pad.IsButtonPressed(0, 6)) {
                 wait(0);
             }
@@ -164,24 +197,39 @@ export class ScrollMenu {
 
         //#region Scrolling
         var oldSelection = this.selection,
-            scrollSpeed = (Pad.IsButtonPressed(0, 1) && !Pad.IsButtonPressed(0, 5) && !Pad.IsButtonPressed(0, 7)) ? 249 : 79;
+            scrollSpeed = (
+                (Pad.IsButtonPressed(0, 1) || Pad.IsButtonPressed(0, 8) || Pad.IsButtonPressed(0, 9))
+                && !Pad.IsButtonPressed(0, 5) && !Pad.IsButtonPressed(0, 7)) ? 249 : 79,
+            checkForward = (
+                HOST == 'sa' ?
+                    (Pad.IsButtonPressed(0, 7) || Pad.GetState(0, 1) > 0) :
+                    (Pad.IsButtonPressed(0, 7) || Pad.IsButtonPressed(0, 9))
+                && TIMERA > scrollSpeed
+            ),
+            checkBackward = (
+                HOST == 'sa' ?
+                    (Pad.IsButtonPressed(0, 5) || Pad.GetState(0, 1) < 0) :
+                    (Pad.IsButtonPressed(0, 5) || Pad.IsButtonPressed(0, 8))
+                && TIMERA > scrollSpeed
+            );
 
-        if ((Pad.IsButtonPressed(0, 7) || Pad.GetState(0, 1) > 0) && TIMERA > scrollSpeed) {
+        if (checkForward) {
             this.selection = clamp(this.selection + 1, 0, this.options.length - 1);
-        } else if ((Pad.IsButtonPressed(0, 5) || Pad.GetState(0, 1) < 0) && TIMERA > scrollSpeed) {
+        } else if (checkBackward) {
             this.selection = clamp(this.selection - 1, 0, this.options.length - 1);
         } else if (Pad.IsKeyDown(0x22)) { // Page down button (+5)
             this.selection = clamp(this.selection + 5, 0, this.options.length - 1);
         } else if (Pad.IsKeyDown(0x21)) { // Page up button (-5)
             this.selection = clamp(this.selection - 5, 0, this.options.length - 1);
-        } else if (Pad.IsKeyDown(0x24)) { // Home button (last)
+        } else if (Pad.IsKeyDown(0x24)) { // Home button (first)
             this.selection = 0;
-        } else if (Pad.IsKeyDown(0x23)) { // End button (first)
+        } else if (Pad.IsKeyDown(0x23)) { // End button (last)
             this.selection = this.options.length - 1;
         }
 
         if (this.selection != oldSelection) {
-            Sound.AddOneOffSound(0, 0, 0, funcOrValue(settings.scrollSound));
+            var pos = playerChar.getCoordinates();
+            Sound.AddOneOffSound(pos.x, pos.y, pos.z, funcOrValue(settings.scrollSound));
             TIMERA = 0;
         }
         //#endregion
@@ -191,7 +239,8 @@ export class ScrollMenu {
         if ((Pad.IsButtonPressed(0, 16) || Pad.IsButtonPressed(0, 17)) && TIMERB > selectSpeed) {
             if (this.options[this.selection].func) {
                 TIMERB = 0;
-                Sound.AddOneOffSound(0, 0, 0, funcOrValue(settings.confirmSound));
+                var pos = playerChar.getCoordinates();
+                Sound.AddOneOffSound(pos.x, pos.y, pos.z, funcOrValue(settings.confirmSound));
                 this.options[this.selection].func.apply(
                     this.options[this.selection].caller ?? undefined,
                     this.options[this.selection].args ?? undefined);
@@ -227,7 +276,11 @@ export class ScrollMenu {
                 const curStyle = curOption.style;
 
                 // Font
-                Text.SetFont(funcOrValue(curStyle.font));
+                if (HOST == 'reVC') {
+                    native('SET_TEXT_FONT', funcOrValue(curStyle.font));
+                } else {
+                    Text.SetFont(funcOrValue(curStyle.font));
+                }
 
                 // Alignment
                 switch (funcOrValue(curStyle.alignment)) {
@@ -243,22 +296,24 @@ export class ScrollMenu {
                 // Shadow or outline
                 var tempCol = (i == this.selection) ? funcOrValue(curStyle.selectedOutlineColour) : funcOrValue(curStyle.outlineOrShadowColour);
 
-                if (funcOrValue(curStyle.shadow)) {
-                    Text.SetDropshadow(
-                        funcOrValue(curStyle.outlineOrShadowWidth),
-                        tempCol.r,
-                        tempCol.g,
-                        tempCol.b,
-                        tempCol.a
-                    );
-                } else {
-                    Text.SetEdge(
-                        funcOrValue(curStyle.outlineOrShadowWidth),
-                        tempCol.r,
-                        tempCol.g,
-                        tempCol.b,
-                        tempCol.a
-                    );
+                if (HOST == 'sa') {
+                    if (funcOrValue(curStyle.shadow)) {
+                        Text.SetDropshadow(
+                            funcOrValue(curStyle.outlineOrShadowWidth),
+                            tempCol.r,
+                            tempCol.g,
+                            tempCol.b,
+                            tempCol.a
+                        );
+                    } else {
+                        Text.SetEdge(
+                            funcOrValue(curStyle.outlineOrShadowWidth),
+                            tempCol.r,
+                            tempCol.g,
+                            tempCol.b,
+                            tempCol.a
+                        );
+                    }
                 }
 
                 // Colour and scale depending on being selected
