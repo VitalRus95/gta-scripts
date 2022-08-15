@@ -1,5 +1,5 @@
 //	Module by Vital (Vitaly Pavlovich Ulyanov). Thanks for help to Seemann.
-/// <reference path="../.config/sa.d.ts"/>
+/// <reference path="../../.config/sa.d.ts"/>
 
 export const AlignType = {
     'Left': 0,
@@ -114,9 +114,9 @@ export const DefaultStyles = {
         'Bank': {font: 0, scaling: 1.3, height: 1.5},
         'Standard': {font: 1, scaling: 1.15, height: 1.5},
         'Heading': {font: 2, scaling: 1.2, height: 1.5},
-        'BankHeader': {font: 0, scaling: 1.45, height: 1.5, background: true},
-        'StandardHeader': {font: 1, scaling: 1.35, height: 1.5, background: true},
-        'HeadingHeader': {font: 2, scaling: 1.35, height: 1.5, background: true}
+        'BankHeader': {font: 0, scaling: 1.45, height: 1.5, colour: headerColour, background: true},
+        'StandardHeader': {font: 1, scaling: 1.35, height: 1.5, colour: headerColour, background: true},
+        'HeadingHeader': {font: 2, scaling: 1.35, height: 1.5, colour: headerColour, background: true}
     }
 };
 
@@ -131,6 +131,9 @@ export class ScrollMenu {
      * @property {Function} func Function to call when this option is selected
      * @property {any[]} args Array of arguments for the callback function
      * @property {any} caller Caller of the function (i.e. `this`)
+     * @property {Function} previewFunc Function to call when this option is highlighted
+     * @property {any[]} previewArgs Array of arguments for the preview callback function
+     * @property {any} previewCaller Caller of the preview function (i.e. `this`)
      * @property {any[]} displayedValues Values to display in the text instead of `~1~` keyword (max 2)
      */
     /**
@@ -144,6 +147,7 @@ export class ScrollMenu {
             o.style = {...idealStyle, ...menuStyle, ...o.style};
         });
         this.selection = 0;
+        this.oldSelection = -1;
     }
 
     /**
@@ -155,6 +159,9 @@ export class ScrollMenu {
      * @property {int|MenuSounds} scrollSound Menu scroll sound
      * @property {int|MenuSounds} confirmSound Menu confirm sound
      * @property {int|MenuSounds} exitSound Menu exit sound
+     * @property {Function} exitFunc Function to call on exiting the menu
+     * @property {any[]} exitArgs Array of arguments for the preview callback function
+     * @property {any} exitCaller Caller of the preview function (i.e. `this`)
      */
     /** @type DrawSettings */
     idealSettings = {
@@ -181,9 +188,18 @@ export class ScrollMenu {
         if (!player.isPlaying() || Pad.IsButtonPressed(0, 15) || Pad.IsButtonPressed(0, 6)) {
             var pos = playerChar.getCoordinates();
             Sound.AddOneOffSound(pos.x, pos.y, pos.z, funcOrValue(settings.exitSound));
+            this.oldSelection = -1;
+
+            if (settings.exitFunc) {
+                settings.exitFunc.apply(
+                    settings.exitCaller ?? undefined,
+                    settings.exitArgs ?? undefined);
+            }
+
             while (Pad.IsButtonPressed(0, 15) || Pad.IsButtonPressed(0, 6)) {
                 wait(0);
             }
+
             Hud.SwitchWidescreen(false);
             player.setControl(true);
             return false;
@@ -196,26 +212,22 @@ export class ScrollMenu {
         //#endregion
 
         //#region Scrolling
-        var oldSelection = this.selection,
-            scrollSpeed = (
-                (Pad.IsButtonPressed(0, 1) || Pad.IsButtonPressed(0, 8) || Pad.IsButtonPressed(0, 9))
+        var scrollSpeed = ((Pad.IsButtonPressed(0, 1) || Pad.IsButtonPressed(0, 8) || Pad.IsButtonPressed(0, 9))
                 && !Pad.IsButtonPressed(0, 5) && !Pad.IsButtonPressed(0, 7)) ? 249 : 79,
             checkForward = (
                 HOST == 'sa' ?
                     (Pad.IsButtonPressed(0, 7) || Pad.GetState(0, 1) > 0) :
                     (Pad.IsButtonPressed(0, 7) || Pad.IsButtonPressed(0, 9))
-                && TIMERA > scrollSpeed
             ),
             checkBackward = (
                 HOST == 'sa' ?
                     (Pad.IsButtonPressed(0, 5) || Pad.GetState(0, 1) < 0) :
                     (Pad.IsButtonPressed(0, 5) || Pad.IsButtonPressed(0, 8))
-                && TIMERA > scrollSpeed
             );
 
-        if (checkForward) {
+        if (checkForward && TIMERA > scrollSpeed) {
             this.selection = clamp(this.selection + 1, 0, this.options.length - 1);
-        } else if (checkBackward) {
+        } else if (checkBackward && TIMERA > scrollSpeed) {
             this.selection = clamp(this.selection - 1, 0, this.options.length - 1);
         } else if (Pad.IsKeyDown(0x22)) { // Page down button (+5)
             this.selection = clamp(this.selection + 5, 0, this.options.length - 1);
@@ -227,10 +239,16 @@ export class ScrollMenu {
             this.selection = this.options.length - 1;
         }
 
-        if (this.selection != oldSelection) {
+        if (this.selection != this.oldSelection) {
             var pos = playerChar.getCoordinates();
             Sound.AddOneOffSound(pos.x, pos.y, pos.z, funcOrValue(settings.scrollSound));
+            if (this.options[this.selection].previewFunc) {
+                this.options[this.selection].previewFunc.apply(
+                    this.options[this.selection].previewCaller ?? undefined,
+                    this.options[this.selection].previewArgs ?? undefined);
+            }
             TIMERA = 0;
+            this.oldSelection = this.selection;
         }
         //#endregion
 
