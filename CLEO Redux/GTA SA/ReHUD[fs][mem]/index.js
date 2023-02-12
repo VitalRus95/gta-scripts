@@ -312,6 +312,17 @@ const HudBars = {
     Oxygen: new BarDraw(Colours.Oxygen, Colours.Black, true, Colours.OxygenDim)
 };
 
+// Radar and map colours' addresses. Thanks to Bloodriver!
+const radarRAddresses = [0x005864CC, 0x005865BD, 0x005865DB, 0x005865F9, 0x00586617];
+const radarGAddresses = [0x005864C7, 0x005865B8, 0x005865D6, 0x005865F4, 0x00586612];
+const radarBAddresses = [0x005864C2, 0x005865B3, 0x005865D1, 0x005865EF, 0x0058660D];
+
+// Crosshair colour's addresses. Thanks to Bloodriver!
+const crosshairRAddresses = [0x0058E47C, 0x0058E433, 0x0058E3DA, 0x0058E301];
+const crosshairGAddresses = [0x0058E473, 0x0058E42A, 0x0058E3D1, 0x0058E2F6];
+const crosshairBAddresses = [0x0058E466, 0x0058E425, 0x0058E3C8, 0x0058E2F1];
+const crosshairAAddresses = [0x0058E461, 0x0058E420, 0x0058E3BF, 0x0058E2EC];
+
 // Default settings
 var defWidth = 0.45,
     defHeight = 1.8,
@@ -319,7 +330,9 @@ var defWidth = 0.45,
     defXOffset = 12,
     defBarYOffset = 10,
     defBarHeight = 4,
-    defBarSeparatorColour = new RGBA(0, 0, 0, 255);
+    defBarSeparatorColour = new RGBA(0, 0, 0, 255),
+    radarColour = new RGBA(255, 255, 255, 255),
+    crosshairColour = new RGBA(255, 255, 255, 255);
 
 // Math constants (thanks to Alexander Lukhnovich for help with trigonometry)
 const hrsToRad = Math.PI * 1/12, // 360° / 24 hours
@@ -340,28 +353,42 @@ var defFont = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'Font') ?? 3,
     defBarMdTransparency = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarMdAlpha') ?? 225,
     defBarSeparator = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSeparator') ?? true;
 
-defBarSeparatorColour.r = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepR');
-defBarSeparatorColour.g = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepG');
-defBarSeparatorColour.b = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepB');
-defBarSeparatorColour.a = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepA');
+defBarSeparatorColour.r = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepR') ?? 0;
+defBarSeparatorColour.g = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepG') ?? 0;
+defBarSeparatorColour.b = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepB') ?? 0;
+defBarSeparatorColour.a = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepA') ?? 255;
+
+crosshairColour.r = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairR') ?? 255;
+crosshairColour.g = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairG') ?? 255;
+crosshairColour.b = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairB') ?? 255;
+crosshairColour.a = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairA') ?? 255;
+
+radarColour.r = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'RadarR') ?? 255;
+radarColour.g = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'RadarG') ?? 255;
+radarColour.b = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'RadarB') ?? 255;
+
+changeRadarMapColour();
+changeCrosshairColour();
 //#endregion
 
 //#region Fix radar
 // It used to be 0x866B78, but Bloodriver taught me a better way to fix the radar width;
-const radarWidth = [0x5834C2, 0x58A7E9, 0x58A840, 0x58A943, 0x58A99D, 0x58A449, 0x58781B],
-      radarHeight = [0x5834F6, 0x58A47D, 0x58A801, 0x58A8AB, 0x58A921, 0x58A9D5];
-var currentHeight = Memory.ReadFloat(0x866B74, false) * 1.1,
-    curHeightPointer = Memory.Allocate(4);
+if (!Fs.DoesFileExist('GTASA.WidescreenFix.asi')) {
+    const radarWidth = [0x5834C2, 0x58A7E9, 0x58A840, 0x58A943, 0x58A99D, 0x58A449, 0x58781B],
+          radarHeight = [0x5834F6, 0x58A47D, 0x58A801, 0x58A8AB, 0x58A921, 0x58A9D5];
+    var currentHeight = Memory.ReadFloat(0x866B74, false) * 1.1,
+        curHeightPointer = Memory.Allocate(4);
 
-Memory.WriteFloat(curHeightPointer, currentHeight, false);
+    Memory.WriteFloat(curHeightPointer, currentHeight, false);
 
-radarWidth.forEach(rw => {
-    Memory.WriteI32(rw, curHeightPointer, false);
-});
+    radarWidth.forEach(rw => {
+        Memory.WriteI32(rw, curHeightPointer, false);
+    });
 
-radarHeight.forEach(rh => {
-    Memory.WriteI32(rh, curHeightPointer, false);
-});
+    radarHeight.forEach(rh => {
+        Memory.WriteI32(rh, curHeightPointer, false);
+    });
+}
 //#endregion
 
 while (true) {
@@ -398,6 +425,13 @@ while (true) {
             IniFile.WriteInt(defBarSeparatorColour.g, './rehud.ini', 'SETTINGS', 'BarSepG');
             IniFile.WriteInt(defBarSeparatorColour.b, './rehud.ini', 'SETTINGS', 'BarSepB');
             IniFile.WriteInt(defBarSeparatorColour.a, './rehud.ini', 'SETTINGS', 'BarSepA');
+            IniFile.WriteInt(crosshairColour.r, './rehud.ini', 'SETTINGS', 'CrosshairR');
+            IniFile.WriteInt(crosshairColour.g, './rehud.ini', 'SETTINGS', 'CrosshairG');
+            IniFile.WriteInt(crosshairColour.b, './rehud.ini', 'SETTINGS', 'CrosshairB');
+            IniFile.WriteInt(crosshairColour.a, './rehud.ini', 'SETTINGS', 'CrosshairA');
+            IniFile.WriteInt(radarColour.r, './rehud.ini', 'SETTINGS', 'RadarR');
+            IniFile.WriteInt(radarColour.g, './rehud.ini', 'SETTINGS', 'RadarG');
+            IniFile.WriteInt(radarColour.b, './rehud.ini', 'SETTINGS', 'RadarB');
             Sound.AddOneOffSound(.0, .0, .0, 1052);
         }
         ImGui.Separator();
@@ -459,6 +493,21 @@ while (true) {
             defOutlineWidth = ImGui.SliderInt(ReHud.OutlineSize, defOutlineWidth, 0, 5);
         }
         ImGui.Separator();
+
+        if (ImGui.CollapsingHeader(ReHud.RadarMapColour)) {
+            radarColour.r = ImGui.SliderInt('R#RadarMap', radarColour.r, 0, 255);
+            radarColour.g = ImGui.SliderInt('G#RadarMap', radarColour.g, 0, 255);
+            radarColour.b = ImGui.SliderInt('B#RadarMap', radarColour.b, 0, 255);
+            changeRadarMapColour();
+        }
+
+        if (ImGui.CollapsingHeader(ReHud.CrosshairColour)) {
+            crosshairColour.r = ImGui.SliderInt('R#Crosshair', crosshairColour.r, 0, 255);
+            crosshairColour.g = ImGui.SliderInt('G#Crosshair', crosshairColour.g, 0, 255);
+            crosshairColour.b = ImGui.SliderInt('B#Crosshair', crosshairColour.b, 0, 255);
+            crosshairColour.a = ImGui.SliderInt('A#Crosshair', crosshairColour.a, 0, 255);
+            changeCrosshairColour();
+        }
 
         if (ImGui.CollapsingHeader(ReHud.About)) {
                 ImGui.Bullet();
@@ -695,4 +744,37 @@ function timerSin(period, maxValue, isAbsolute = false) {
  */
  function IsGuiButtonPressed(buttonText, itemsNum = 1) {
     return ImGui.Button(buttonText, ImGui.GetScalingSize('ReHudScaling', itemsNum, false).x, 30.0);
+}
+
+/**
+ * Changes the colour of the radar and map.
+ */
+function changeRadarMapColour() {
+    radarRAddresses.forEach(adr => {
+        Memory.WriteU32(adr, radarColour.r, true);
+    });
+    radarGAddresses.forEach(adr => {
+        Memory.WriteU32(adr, radarColour.g, true);
+    });
+    radarBAddresses.forEach(adr => {
+        Memory.WriteU32(adr, radarColour.b, true);
+    });
+}
+
+/**
+ * Changes the colour of the crosshair.
+ */
+function changeCrosshairColour() {
+    crosshairRAddresses.forEach(adr => {
+        Memory.WriteU32(adr, crosshairColour.r, true);
+    });
+    crosshairGAddresses.forEach(adr => {
+        Memory.WriteU32(adr, crosshairColour.g, true);
+    });
+    crosshairBAddresses.forEach(adr => {
+        Memory.WriteU32(adr, crosshairColour.b, true);
+    });
+    crosshairAAddresses.forEach(adr => {
+        Memory.WriteU32(adr, crosshairColour.a, true);
+    });
 }

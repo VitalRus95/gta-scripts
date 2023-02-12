@@ -21,6 +21,8 @@ export const ReHud = {
     'Scale': 'HUD size',
     'ShadowSize': 'Shadow size',
     'OutlineSize': 'Outline size',
+    'RadarMapColour': 'Radar & map colour',
+    'CrosshairColour': 'Crosshair colour',
     'About': 'About',
     'Authors': 'Authors:\n- Mod by Vital (Vitaly Ulyanov)\n- CLEO Redux by Seemann\n- ImGui support by Grinch',
     'Help': 'Thanks for help to: Seemann, Grinch, Alexander Lukhnovich, Bloodriver',

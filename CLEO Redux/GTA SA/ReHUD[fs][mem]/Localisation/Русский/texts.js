@@ -21,6 +21,8 @@ export const ReHud = {
     'Scale': 'Размер HUD’а',
     'ShadowSize': 'Размер тени',
     'OutlineSize': 'Размер обводки',
+    'RadarMapColour': 'Цвет карты и радара',
+    'CrosshairColour': 'Цвет прицела',
     'About': 'О модификации',
     'Authors': 'Авторы:\n- Мод — Vital (Виталий Ульянов)\n- CLEO Redux — Seemann\n- Поддержка ImGui — Grinch',
     'Help': 'Помогали: Seemann, Grinch, Александр Лухнович, Bloodriver',

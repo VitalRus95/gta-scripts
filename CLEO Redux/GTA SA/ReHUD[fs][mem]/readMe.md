@@ -13,7 +13,7 @@
 + minor fixes
 + radar width fix
 
-! Do not replace rehud.ini if you want to keep the old mod settings when updating to this version.
+! Do not replace rehud.ini if you want to keep the old mod settings when updating.
 ```
 #### 1.2
 ```diff
@@ -27,6 +27,11 @@
 ```diff
 + minor optimisation
 + fixed showing oxygen level when in a boat
+```
+#### 1.5
+```diff
++ added radar and map colour choice (thanks to Bloodriver!)
++ added crosshair colour choice (thanks to Bloodriver!)
 ```
 
 ## РУССКИЙ
@@ -57,4 +62,10 @@
 ```diff
 + небольшая оптимизация
 + уровень кислорода больше не показывается в лодках
+```
+
+#### 1.5
+```diff
++ добавлен выбор цвета карты и радара (спасибо Bloodriver!)
++ добавлен выбор цвета прицела (спасибо Bloodriver!)
 ```
