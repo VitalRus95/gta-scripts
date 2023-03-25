@@ -10,7 +10,7 @@ const plc: Char = plr.getChar();
 let isRagdoll: boolean = false;
 
 while (true) {
-    wait(15);
+    wait(0);
 
     if (!plr.isPlaying()) continue;
 
@@ -29,16 +29,16 @@ while (true) {
 
 function getRagdollStatus(): ragdollStatus {
     if (
-        !plc.isInAnyCar() &&
-        plc.getCurrentWeapon() < 6 &&
-        !Pad.IsControlPressed(0, buttonAim) &&
-        Pad.IsControlJustPressed(0, buttonReload)
+        !plc.isInAnyCar()
+        && plc.getCurrentWeapon() < 6 // Allowed: unarmed, baseball bat, knife, grenade, Molotov
+        && !Pad.IsControlPressed(0, buttonAim)
+        && Pad.IsControlJustPressed(0, buttonReload)
     ) return 'switch';
 
     if (isRagdoll) {
         if (
-            plc.isInAnyCar() ||
-            plc.getCurrentWeapon() === undefined // When switching weapons
+            plc.isInAnyCar()
+            || plc.getCurrentWeapon() === undefined // When switching weapons
         ) return 'disable';
 
         if (
