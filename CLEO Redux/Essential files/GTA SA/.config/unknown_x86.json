@@ -1,7 +1,7 @@
 {
   "meta": {
-    "last_update": 1655928624899,
-    "version": "0.211",
+    "last_update": 1671114840746,
+    "version": "0.222",
     "url": "https://library.sannybuilder.com/#/unknown_x86"
   },
   "extensions": [
@@ -161,6 +161,517 @@
           "attrs": {
             "is_static": true
           }
+        },
+        {
+          "input": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "image",
+              "type": "int"
+            },
+            {
+              "name": "width",
+              "type": "float"
+            },
+            {
+              "name": "height",
+              "type": "float"
+            }
+          ],
+          "id": "0C3D",
+          "name": "IMGUI_IMAGE_BUTTON",
+          "num_params": 4,
+          "class": "ImGui",
+          "member": "ButtonImage",
+          "short_desc": "Creates a ImGui button with specified image",
+          "attrs": {
+            "is_static": true,
+            "is_condition": true
+          },
+          "platforms": [
+            "pc"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "path",
+              "type": "string"
+            }
+          ],
+          "output": [
+            {
+              "name": "image",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C3E",
+          "name": "IMGUI_LOAD_IMAGE",
+          "num_params": 2,
+          "class": "ImGui",
+          "member": "LoadImage",
+          "short_desc": "Loads a image file from disk. Relative to CLEO directory",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "image",
+              "type": "int"
+            }
+          ],
+          "id": "0C3F",
+          "name": "IMGUI_FREE_IMAGE",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "FreeImage",
+          "short_desc": "Frees a loaded image data",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "text",
+              "type": "string"
+            }
+          ],
+          "id": "0C40",
+          "name": "IMGUI_TEXT_CENTERED",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "TextCentered",
+          "short_desc": "Displays a center aligned ImGui text widget",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "imGuiStyleVar",
+              "type": "ImGuiStyleVar"
+            },
+            {
+              "name": "val",
+              "type": "float"
+            }
+          ],
+          "id": "0C41",
+          "name": "IMGUI_PUSH_STYLE_VAR",
+          "num_params": 2,
+          "class": "ImGui",
+          "member": "PushStyleVar",
+          "short_desc": "Pushes a ImGuiStyleVar value to the stack. Use PopStyleVar to undo the effect",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "imGuiStyleVar",
+              "type": "ImGuiStyleVar"
+            },
+            {
+              "name": "x",
+              "type": "float"
+            },
+            {
+              "name": "y",
+              "type": "float"
+            }
+          ],
+          "id": "0C42",
+          "name": "IMGUI_PUSH_STYLE_VAR2",
+          "num_params": 3,
+          "class": "ImGui",
+          "member": "PushStyleVar2",
+          "short_desc": "Pushes a ImGuiStyleVar value to the stack. Use PopStyleVar to undo the effect",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "imGuiCol",
+              "type": "ImGuiCol"
+            },
+            {
+              "name": "r",
+              "type": "int"
+            },
+            {
+              "name": "g",
+              "type": "int"
+            },
+            {
+              "name": "b",
+              "type": "int"
+            },
+            {
+              "name": "a",
+              "type": "int"
+            }
+          ],
+          "id": "0C43",
+          "name": "IMGUI_PUSH_STYLE_COLOR",
+          "num_params": 5,
+          "class": "ImGui",
+          "member": "PushStyleColor",
+          "short_desc": "Pushes a ImGuiCol value to the stack. Use PopStyleColor to undo the effect",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "count",
+              "type": "int"
+            }
+          ],
+          "id": "0C44",
+          "name": "IMGUI_POP_STYLE_VAR",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "PopStyleVar",
+          "short_desc": "Removes the recent imGuiStyleVar from the stack",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "count",
+              "type": "int"
+            }
+          ],
+          "id": "0C45",
+          "name": "IMGUI_POP_STYLE_COLOR",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "PopStyleColor",
+          "short_desc": "Removes the recent ImGuiCol from the stack",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "tabNames",
+              "type": "string"
+            }
+          ],
+          "output": [
+            {
+              "name": "index",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C46",
+          "name": "IMGUI_TABS",
+          "num_params": 3,
+          "class": "ImGui",
+          "member": "Tabs",
+          "short_desc": "Pass tab names separated by comma. Returns the index of the visible tab",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "r",
+              "type": "float"
+            },
+            {
+              "name": "g",
+              "type": "float"
+            },
+            {
+              "name": "b",
+              "type": "float"
+            },
+            {
+              "name": "a",
+              "type": "float"
+            }
+          ],
+          "id": "0C47",
+          "name": "IMGUI_SET_IMAGE_BG_COLOR",
+          "num_params": 4,
+          "class": "ImGui",
+          "member": "SetImageBgColor",
+          "short_desc": "Sets image background color",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "any"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "r",
+              "type": "float"
+            },
+            {
+              "name": "g",
+              "type": "float"
+            },
+            {
+              "name": "b",
+              "type": "float"
+            },
+            {
+              "name": "a",
+              "type": "float"
+            }
+          ],
+          "id": "0C48",
+          "name": "IMGUI_SET_IMAGE_TINT_COLOR",
+          "num_params": 4,
+          "class": "ImGui",
+          "member": "SetImageTintColor",
+          "short_desc": "Sets image tint color",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "any"
+          ]
+        },
+        {
+          "output": [
+            {
+              "name": "drawList",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C49",
+          "name": "IMGUI_GET_FOREGROUND_DRAWLIST",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "GetForegroundDrawList",
+          "short_desc": "Returns pointer to foreground draw list",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "any"
+          ]
+        },
+        {
+          "output": [
+            {
+              "name": "drawList",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C4A",
+          "name": "IMGUI_GET_BACKGROUND_DRAWLIST",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "GetBackgroundDrawList",
+          "short_desc": "Returns pointer to ImGui background drawlist",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "any"
+          ]
+        },
+        {
+          "output": [
+            {
+              "name": "drawList",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C4B",
+          "name": "IMGUI_GET_WINDOW_DRAWLIST",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "GetWindowDrawlist",
+          "short_desc": "Returns pointer to ImGui window drawList",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "any"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "drawList",
+              "type": "int"
+            },
+            {
+              "name": "posX",
+              "type": "float"
+            },
+            {
+              "name": "posY",
+              "type": "float"
+            },
+            {
+              "name": "r",
+              "type": "int"
+            },
+            {
+              "name": "g",
+              "type": "int"
+            },
+            {
+              "name": "b",
+              "type": "int"
+            },
+            {
+              "name": "a",
+              "type": "int"
+            },
+            {
+              "name": "text",
+              "type": "string"
+            }
+          ],
+          "id": "0C4C",
+          "name": "IMGUI_DRAWLIST_ADD_TEXT",
+          "num_params": 8,
+          "class": "ImGui",
+          "member": "AddText",
+          "short_desc": "Adds text at specified position",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "any"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "drawList",
+              "type": "int"
+            },
+            {
+              "name": "p1X",
+              "type": "float"
+            },
+            {
+              "name": "p1Y",
+              "type": "float"
+            },
+            {
+              "name": "p2X",
+              "type": "float"
+            },
+            {
+              "name": "p2Y",
+              "type": "float"
+            },
+            {
+              "name": "r",
+              "type": "int"
+            },
+            {
+              "name": "g",
+              "type": "int"
+            },
+            {
+              "name": "b",
+              "type": "int"
+            },
+            {
+              "name": "a",
+              "type": "int"
+            },
+            {
+              "name": "thickness",
+              "type": "float"
+            }
+          ],
+          "id": "0C4D",
+          "name": "IMGUI_DRAWLIST_ADD_LINE",
+          "num_params": 10,
+          "class": "ImGui",
+          "member": "AddLine",
+          "short_desc": "Adds a line form point A to B",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "any"
+          ]
         },
         {
           "input": [
@@ -909,6 +1420,10 @@
             {
               "name": "text",
               "type": "string"
+            },
+            {
+              "name": "selected",
+              "type": "bool"
             }
           ],
           "output": [
@@ -919,7 +1434,7 @@
             }
           ],
           "name": "IMGUI_SELECTABLE",
-          "num_params": 2,
+          "num_params": 3,
           "short_desc": "Adds the selectable widget",
           "class": "ImGui",
           "member": "Selectable",
@@ -1206,22 +1721,22 @@
           "output": [
             {
               "name": "red",
-              "type": "float",
+              "type": "int",
               "source": "var_any"
             },
             {
               "name": "green",
-              "type": "float",
+              "type": "int",
               "source": "var_any"
             },
             {
               "name": "blue",
-              "type": "float",
+              "type": "int",
               "source": "var_any"
             },
             {
               "name": "alpha",
-              "type": "float",
+              "type": "int",
               "source": "var_any"
             }
           ],
@@ -1597,6 +2112,50 @@
     {
       "name": "input",
       "commands": [
+        {
+          "output": [
+            {
+              "name": "x",
+              "type": "int",
+              "source": "var_any"
+            },
+            {
+              "name": "y",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "name": "GET_CURSOR_POS",
+          "num_params": 2,
+          "class": "Mouse",
+          "member": "GetCursorPos",
+          "short_desc": "Returns the position of the mouse cursor",
+          "attrs": {
+            "is_condition": true,
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "x",
+              "type": "int"
+            },
+            {
+              "name": "y",
+              "type": "int"
+            }
+          ],
+          "name": "SET_CURSOR_POS",
+          "num_params": 2,
+          "class": "Mouse",
+          "member": "SetCursorPos",
+          "short_desc": "Sets the position of the mouse cursor",
+          "attrs": {
+            "is_condition": true,
+            "is_static": true
+          }
+        },
         {
           "input": [
             {

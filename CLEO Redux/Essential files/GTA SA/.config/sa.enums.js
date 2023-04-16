@@ -149,10 +149,6 @@ export const Button = {
   "Leftshock": 18,
   "Rightshock": 19
 };
-export const Pad = {
-  "Pad1": 0,
-  "Pad2": 1
-};
 export const AnimGroup = {
   "Man": "man",
   "Shuffle": "shuffle",
@@ -741,7 +737,7 @@ export const PickupType = {
   "PropertyForSale": 18,
   "MoneyDoesntdisappear": 19,
   "Snapshot": 20,
-  "2P": 21,
+  "SecondPlayer": 21,
   "OnceForMission": 22
 };
 export const EntityStatus = {
@@ -1264,4 +1260,90 @@ export const ImGuiDir = {
   "Right": 1,
   "Up": 2,
   "Down": 3
+};
+export const PadId = {
+  "Pad1": 0,
+  "Pad2": 1
+};
+export const ImGuiCol = {
+  "Text": 0,
+  "TextDisabled": 1,
+  "WindowBg": 2,
+  "ChildBg": 3,
+  "PopupBg": 4,
+  "Border": 5,
+  "BorderShadow": 6,
+  "FrameBg": 7,
+  "FrameBgHovered": 8,
+  "FrameBgActive": 9,
+  "TitleBg": 10,
+  "TitleBgActive": 11,
+  "TitleBgCollapsed": 12,
+  "MenuBarBg": 13,
+  "ScrollbarBg": 14,
+  "ScrollbarGrab": 15,
+  "ScrollbarGrabHovered": 16,
+  "ScrollbarGrabActive": 17,
+  "CheckMark": 18,
+  "SliderGrab": 19,
+  "SliderGrabActive": 20,
+  "Button": 21,
+  "ButtonHovered": 22,
+  "ButtonActive": 23,
+  "Header": 24,
+  "HeaderHovered": 25,
+  "HeaderActive": 26,
+  "Separator": 27,
+  "SeparatorHovered": 28,
+  "SeparatorActive": 29,
+  "ResizeGrip": 30,
+  "ResizeGripHovered": 31,
+  "ResizeGripActive": 32,
+  "Tab": 33,
+  "TabHovered": 34,
+  "TabActive": 35,
+  "TabUnfocused": 36,
+  "TabUnfocusedActive": 37,
+  "PlotLines": 38,
+  "PlotLinesHovered": 39,
+  "PlotHistogram": 40,
+  "PlotHistogramHovered": 41,
+  "TableHeaderBg": 42,
+  "TableBorderStrong": 43,
+  "TableBorderLight": 44,
+  "TableRowBg": 45,
+  "TableRowBgAlt": 46,
+  "TextSelectedBg": 47,
+  "DragDropTarget": 48,
+  "NavHighlight": 49,
+  "NavWindowingHighlight": 50,
+  "NavWindowingDimBg": 51,
+  "ModalWindowDimBg": 52
+};
+export const ImGuiStyleVar = {
+  "Alpha": 0,
+  "DisabledAlpha": 1,
+  "WindowPadding": 2,
+  "WindowRounding": 3,
+  "WindowBorderSize": 4,
+  "WindowMinSize": 5,
+  "WindowTitleAlign": 6,
+  "ChildRounding": 7,
+  "ChildBorderSize": 8,
+  "PopupRounding": 9,
+  "PopupBorderSize": 10,
+  "FramePadding": 11,
+  "FrameRounding": 12,
+  "FrameBorderSize": 13,
+  "ItemSpacing": 14,
+  "ItemInnerSpacing": 15,
+  "IndentSpacing": 16,
+  "CellPadding": 17,
+  "ScrollbarSize": 18,
+  "ScrollbarRounding": 19,
+  "GrabMinSize": 20,
+  "GrabRounding": 21,
+  "TabRounding": 22,
+  "ButtonTextAlign": 23,
+  "SelectableTextAlign": 24
 };

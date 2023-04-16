@@ -1,7 +1,7 @@
 {
   "meta": {
-    "last_update": 1656615542061,
-    "version": "0.253",
+    "last_update": 1676237905671,
+    "version": "0.299",
     "url": "https://library.sannybuilder.com/#/sa"
   },
   "extensions": [
@@ -1414,7 +1414,8 @@
         },
         {
           "attrs": {
-            "is_keyword": true
+            "is_keyword": true,
+            "is_branch": true
           },
           "id": "004E",
           "name": "TERMINATE_THIS_SCRIPT",
@@ -1422,12 +1423,6 @@
           "short_desc": "Ends the current script, preventing further execution"
         },
         {
-          "attrs": {
-            "is_branch": true,
-            "is_keyword": true,
-            "is_variadic": true
-          },
-          "id": "004F",
           "input": [
             {
               "name": "",
@@ -1438,22 +1433,26 @@
               "type": "arguments"
             }
           ],
+          "attrs": {
+            "is_keyword": true,
+            "is_variadic": true
+          },
+          "id": "004F",
           "name": "START_NEW_SCRIPT",
           "num_params": 2,
           "short_desc": "Starts a new script at the specified label"
         },
         {
-          "attrs": {
-            "is_branch": true,
-            "is_keyword": true
-          },
-          "id": "0050",
           "input": [
             {
               "name": "",
               "type": "label"
             }
           ],
+          "attrs": {
+            "is_keyword": true
+          },
+          "id": "0050",
           "name": "GOSUB",
           "num_params": 1,
           "short_desc": "Transfers the script execution to the label as a subroutine"
@@ -3750,7 +3749,6 @@
             }
           ],
           "attrs": {
-            "is_branch": true,
             "is_keyword": true
           },
           "id": "00D7",
@@ -3885,7 +3883,7 @@
           "input": [
             {
               "name": "pad",
-              "type": "Pad"
+              "type": "PadId"
             },
             {
               "name": "buttonId",
@@ -3907,7 +3905,7 @@
           "input": [
             {
               "name": "pad",
-              "type": "Pad"
+              "type": "PadId"
             },
             {
               "name": "buttonId",
@@ -5823,7 +5821,7 @@
           "input": [
             {
               "name": "pad",
-              "type": "Pad"
+              "type": "PadId"
             },
             {
               "name": "time",
@@ -8591,7 +8589,7 @@
         {
           "input": [
             {
-              "name": "self",
+              "name": "player",
               "type": "Player"
             },
             {
@@ -8599,12 +8597,15 @@
               "type": "bool"
             }
           ],
-          "class": "Player",
+          "class": "Game",
           "id": "01F7",
-          "member": "SetIgnorePolice",
+          "member": "SetPoliceIgnorePlayer",
           "name": "SET_POLICE_IGNORE_PLAYER",
           "num_params": 2,
-          "short_desc": "Sets whether cops should ignore the player regardless of wanted level"
+          "short_desc": "Sets whether cops should ignore the player regardless of wanted level",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
           "id": "01F8",
@@ -13013,7 +13014,7 @@
           "member": "SetFastReload",
           "name": "SET_PLAYER_FAST_RELOAD",
           "num_params": 2,
-          "short_desc": "Defines whether the player have to reload their gun"
+          "short_desc": "Defines whether the player can reload their gun 4x times faster"
         },
         {
           "input": [
@@ -15191,7 +15192,7 @@
         {
           "input": [
             {
-              "name": "handle",
+              "name": "player",
               "type": "Player"
             },
             {
@@ -16135,7 +16136,7 @@
           "input": [
             {
               "name": "pad",
-              "type": "Pad"
+              "type": "PadId"
             },
             {
               "name": "delay",
@@ -18077,7 +18078,7 @@
             },
             {
               "name": "pedType",
-              "type": "int"
+              "type": "PedType"
             }
           ],
           "attrs": {
@@ -18345,7 +18346,7 @@
           "input": [
             {
               "name": "pad",
-              "type": "Pad"
+              "type": "PadId"
             }
           ],
           "output": [
@@ -18545,42 +18546,46 @@
           "member": "GotoCoords"
         },
         {
+          "input": [
+            {
+              "name": "",
+              "type": "int",
+              "source": "var_global"
+            },
+            {
+              "name": "",
+              "type": "int",
+              "source": "literal"
+            }
+          ],
           "attrs": {
             "is_condition": true
           },
           "id": "04A3",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ],
           "name": "IS_INT_VAR_EQUAL_TO_CONSTANT",
           "num_params": 2,
-          "short_desc": "Returns true if the value of the variable is equal to the constant"
+          "short_desc": "Returns true if the value of the global variable is equal to the integer constant"
         },
         {
+          "input": [
+            {
+              "name": "",
+              "type": "int",
+              "source": "var_local"
+            },
+            {
+              "name": "",
+              "type": "int",
+              "source": "literal"
+            }
+          ],
           "attrs": {
             "is_condition": true
           },
           "id": "04A4",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ],
           "name": "IS_INT_LVAR_EQUAL_TO_CONSTANT",
           "num_params": 2,
-          "short_desc": "Returns true if the first local variable is equivalent to the second"
+          "short_desc": "Returns true if the value of the local variable is equal to the integer constant"
         },
         {
           "input": [
@@ -19187,7 +19192,7 @@
           "member": "ClearAllScriptRoadblocks",
           "name": "CLEAR_ALL_SCRIPT_ROADBLOCKS",
           "num_params": 0,
-          "short_desc": "Removes references to all created roadblocks, freeing game memory"
+          "short_desc": "Removes references to all created roadblocks (04C0), freeing game memory"
         },
         {
           "id": "04C2",
@@ -21501,7 +21506,7 @@
           "member": "FreezePosition",
           "name": "FREEZE_OBJECT_POSITION",
           "num_params": 2,
-          "short_desc": "Keeps the object in the games memory"
+          "short_desc": "Sets whether the object's position remains unchanged"
         },
         {
           "id": "0551",
@@ -22494,7 +22499,7 @@
           "num_params": 2,
           "short_desc": "",
           "class": "Hud",
-          "member": "SetOnscreenCounterFlashWhenFirstDisplayed",
+          "member": "SetCounterFlashWhenFirstDisplayed",
           "attrs": {
             "is_static": true
           }
@@ -22683,44 +22688,50 @@
           }
         },
         {
+          "input": [
+            {
+              "name": "rectangle1PositionX",
+              "type": "float"
+            },
+            {
+              "name": "rectangle1PositionY",
+              "type": "float"
+            },
+            {
+              "name": "rectangle1SizeX",
+              "type": "float"
+            },
+            {
+              "name": "rectangle1SizeY",
+              "type": "float"
+            },
+            {
+              "name": "rectangle2PositionX",
+              "type": "float"
+            },
+            {
+              "name": "rectangle2PositionY",
+              "type": "float"
+            },
+            {
+              "name": "rectangle2SizeX",
+              "type": "float"
+            },
+            {
+              "name": "rectangle2SizeY",
+              "type": "float"
+            }
+          ],
           "id": "05A5",
           "name": "DO_2D_RECTANGLES_COLLIDE",
           "num_params": 8,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            },
-            {
-              "name": "_p3",
-              "type": "any"
-            },
-            {
-              "name": "_p4",
-              "type": "any"
-            },
-            {
-              "name": "_p5",
-              "type": "any"
-            },
-            {
-              "name": "_p6",
-              "type": "any"
-            },
-            {
-              "name": "_p7",
-              "type": "any"
-            },
-            {
-              "name": "_p8",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Returns true if rectangle1 is inside rectangle2 or partially intersects it",
+          "class": "Math",
+          "member": "Do2DRectanglesCollide",
+          "attrs": {
+            "is_static": true,
+            "is_condition": true
+          }
         },
         {
           "input": [
@@ -22893,52 +22904,62 @@
           }
         },
         {
+          "input": [
+            {
+              "name": "line1StartX",
+              "type": "float"
+            },
+            {
+              "name": "line1StartY",
+              "type": "float"
+            },
+            {
+              "name": "line1EndX",
+              "type": "float"
+            },
+            {
+              "name": "line1EndY",
+              "type": "float"
+            },
+            {
+              "name": "line2StartX",
+              "type": "float"
+            },
+            {
+              "name": "line2StartY",
+              "type": "float"
+            },
+            {
+              "name": "line2EndX",
+              "type": "float"
+            },
+            {
+              "name": "line2EndY",
+              "type": "float"
+            }
+          ],
+          "output": [
+            {
+              "name": "intersectPointX",
+              "type": "float",
+              "source": "var_any"
+            },
+            {
+              "name": "intersectPointY",
+              "type": "float",
+              "source": "var_any"
+            }
+          ],
           "id": "05B0",
           "name": "GET_2D_LINES_INTERSECT_POINT",
           "num_params": 10,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            },
-            {
-              "name": "_p3",
-              "type": "any"
-            },
-            {
-              "name": "_p4",
-              "type": "any"
-            },
-            {
-              "name": "_p5",
-              "type": "any"
-            },
-            {
-              "name": "_p6",
-              "type": "any"
-            },
-            {
-              "name": "_p7",
-              "type": "any"
-            },
-            {
-              "name": "_p8",
-              "type": "any"
-            },
-            {
-              "name": "_p9",
-              "type": "any"
-            },
-            {
-              "name": "_p10",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Returns the point of intersection of two lines. If they do not intersect, both returned values are -1000000.0 and the condition result is false",
+          "attrs": {
+            "is_static": true,
+            "is_condition": true
+          },
+          "class": "Math",
+          "member": "Get2DLinesIntersectPoint"
         },
         {
           "id": "05B1",
@@ -28032,15 +28053,13 @@
           }
         },
         {
-          "id": "06A2",
-          "name": "GET_CAR_SPEED_VECTOR",
-          "num_params": 4,
-          "short_desc": "",
           "input": [
             {
               "name": "self",
               "type": "Car"
-            },
+            }
+          ],
+          "output": [
             {
               "name": "x",
               "type": "float",
@@ -28048,15 +28067,19 @@
             },
             {
               "name": "y",
-              "type": "bool",
+              "type": "float",
               "source": "var_any"
             },
             {
               "name": "z",
-              "type": "bool",
+              "type": "float",
               "source": "var_any"
             }
           ],
+          "id": "06A2",
+          "name": "GET_CAR_SPEED_VECTOR",
+          "num_params": 4,
+          "short_desc": "",
           "class": "Car",
           "member": "GetSpeedVector"
         },
@@ -29040,7 +29063,7 @@
           "name": "SET_LA_RIOTS",
           "num_params": 1,
           "short_desc": "Enables the LS Riots, making smoke appear on houses, random car fires occur, peds stealing things and attacking each other in a frenzy",
-          "class": "World",
+          "class": "Game",
           "member": "SetLaRiots",
           "attrs": {
             "is_static": true
@@ -29292,7 +29315,7 @@
           "name": "SWITCH_RANDOM_TRAINS",
           "num_params": 1,
           "short_desc": "Sets whether trains are generated",
-          "class": "World",
+          "class": "Game",
           "member": "SwitchRandomTrains",
           "attrs": {
             "is_static": true
@@ -29354,7 +29377,7 @@
           "name": "MARK_MISSION_TRAINS_AS_NO_LONGER_NEEDED",
           "num_params": 0,
           "short_desc": "Marks the train as no longer needed by the script, allowing it to be deleted by the game",
-          "class": "World",
+          "class": "Streaming",
           "member": "MarkMissionTrainsAsNoLongerNeeded",
           "attrs": {
             "is_static": true
@@ -30213,8 +30236,7 @@
           "num_params": 1,
           "short_desc": "Enables skipping of the current scene",
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           }
         },
         {
@@ -36257,8 +36279,8 @@
           ],
           "output": [
             {
-              "name": "cityId",
-              "type": "int",
+              "name": "townId",
+              "type": "Town",
               "source": "var_any"
             }
           ],
@@ -36303,64 +36325,80 @@
           }
         },
         {
+          "input": [
+            {
+              "name": "text",
+              "type": "string",
+              "source": "var_global"
+            }
+          ],
           "id": "0844",
           "name": "IS_VAR_TEXT_LABEL_EMPTY",
           "num_params": 1,
           "short_desc": "Returns true if the string is empty",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            }
-          ],
           "attrs": {
-            "is_condition": true
-          }
+            "is_condition": true,
+            "is_static": true
+          },
+          "class": "Text",
+          "member": "IsEmpty"
         },
         {
+          "input": [
+            {
+              "name": "text",
+              "type": "string",
+              "source": "var_local"
+            }
+          ],
           "id": "0845",
           "name": "IS_LVAR_TEXT_LABEL_EMPTY",
           "num_params": 1,
           "short_desc": "Returns true if the string is empty",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            }
-          ],
           "attrs": {
-            "is_condition": true
-          }
+            "is_condition": true,
+            "is_static": true
+          },
+          "class": "Text",
+          "member": "IsEmpty"
         },
         {
+          "input": [
+            {
+              "name": "text",
+              "type": "string",
+              "source": "var_global"
+            }
+          ],
           "id": "0846",
           "name": "IS_VAR_TEXT_LABEL16_EMPTY",
           "num_params": 1,
           "short_desc": "Returns true if the string is empty",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            }
-          ],
           "attrs": {
-            "is_condition": true
-          }
+            "is_condition": true,
+            "is_static": true
+          },
+          "class": "Text",
+          "member": "IsEmpty"
         },
         {
+          "input": [
+            {
+              "name": "text",
+              "type": "string",
+              "source": "var_local"
+            }
+          ],
           "id": "0847",
           "name": "IS_LVAR_TEXT_LABEL16_EMPTY",
           "num_params": 1,
           "short_desc": "Returns true if the string is empty",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            }
-          ],
           "attrs": {
-            "is_condition": true
-          }
+            "is_condition": true,
+            "is_static": true
+          },
+          "class": "Text",
+          "member": "IsEmpty"
         },
         {
           "id": "0848",
@@ -37675,36 +37713,41 @@
           "member": "SetCoordinatesNoOffset"
         },
         {
+          "input": [
+            {
+              "name": "x",
+              "type": "float"
+            },
+            {
+              "name": "y",
+              "type": "float"
+            },
+            {
+              "name": "z",
+              "type": "float"
+            },
+            {
+              "name": "radius",
+              "type": "float"
+            },
+            {
+              "name": "modelId",
+              "type": "model_object"
+            },
+            {
+              "name": "state",
+              "type": "bool"
+            }
+          ],
           "id": "088D",
           "name": "SET_USES_COLLISION_OF_CLOSEST_OBJECT_OF_TYPE",
           "num_params": 6,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            },
-            {
-              "name": "_p3",
-              "type": "any"
-            },
-            {
-              "name": "_p4",
-              "type": "any"
-            },
-            {
-              "name": "_p5",
-              "type": "any"
-            },
-            {
-              "name": "_p6",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Toggles collision of the object closest to the given coordinates and matching the model",
+          "class": "World",
+          "member": "SetUsesCollisionOfClosestObjectOfType",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
           "id": "088E",
@@ -38159,7 +38202,7 @@
           "name": "SET_ALWAYS_DRAW_3D_MARKERS",
           "num_params": 1,
           "short_desc": "Enables an increase in the distance that markers hovering above entities can be seen from",
-          "class": "World",
+          "class": "Game",
           "member": "SetAlwaysDraw3DMarkers",
           "attrs": {
             "is_static": true
@@ -39448,7 +39491,7 @@
           "name": "ATTACH_ANIMS_TO_MODEL",
           "num_params": 2,
           "short_desc": "Sets an animation pack to be loaded along with the specified model",
-          "class": "Game",
+          "class": "Streaming",
           "member": "AttachAnimsToModel",
           "attrs": {
             "is_static": true
@@ -39483,7 +39526,7 @@
           "name": "SET_CREATE_RANDOM_GANG_MEMBERS",
           "num_params": 1,
           "short_desc": "Sets whether gang members will spawn",
-          "class": "World",
+          "class": "Game",
           "member": "SetCreateRandomGangMembers",
           "attrs": {
             "is_static": true
@@ -42157,9 +42200,9 @@
           "id": "0971",
           "name": "SYNC_WATER",
           "num_params": 0,
-          "short_desc": "Synchronizes the water with the current time",
-          "class": "",
-          "member": "",
+          "short_desc": "Flattens water waves",
+          "class": "World",
+          "member": "SyncWater",
           "attrs": {
             "is_static": true
           }
@@ -42488,7 +42531,7 @@
           "name": "SET_ONLY_CREATE_GANG_MEMBERS",
           "num_params": 1,
           "short_desc": "Sets whether gangs appear everywhere, like when \"Gangs control the streets\" cheat is activated",
-          "class": "World",
+          "class": "Game",
           "member": "SetOnlyCreateGangMembers",
           "attrs": {
             "is_static": true
@@ -42536,7 +42579,7 @@
               "type": "model_object"
             },
             {
-              "name": "solid",
+              "name": "state",
               "type": "bool"
             },
             {
@@ -42547,7 +42590,7 @@
           "id": "0985",
           "name": "SET_CHAR_USES_COLLISION_CLOSEST_OBJECT_OF_TYPE",
           "num_params": 7,
-          "short_desc": "",
+          "short_desc": "Sets whether collision of the object closest to the given coordinates and matching the model applies to the target character",
           "class": "World",
           "member": "SetCharUsesCollisionClosestObjectOfType",
           "attrs": {
@@ -42969,7 +43012,7 @@
           "name": "SET_CREATE_RANDOM_COPS",
           "num_params": 1,
           "short_desc": "",
-          "class": "World",
+          "class": "Game",
           "member": "SetCreateRandomCops",
           "attrs": {
             "is_static": true
@@ -43200,20 +43243,28 @@
           "member": "IsHeadMissing"
         },
         {
+          "input": [
+            {
+              "name": "text",
+              "type": "string"
+            }
+          ],
+          "output": [
+            {
+              "name": "hash",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
           "id": "09A9",
           "name": "GET_HASH_KEY",
           "num_params": 2,
           "short_desc": "Returns the CRC hash of the input string",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "class": "Text",
+          "member": "GetHashKey",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
           "input": [
@@ -44031,7 +44082,7 @@
           "name": "ENABLE_AMBIENT_CRIME",
           "num_params": 1,
           "short_desc": "Sets whether cops will chase and kill criminals when their task is 'TASK_COMPLEX_KILL_CRIMINAL'",
-          "class": "World",
+          "class": "Game",
           "member": "EnableAmbientCrime",
           "attrs": {
             "is_static": true
@@ -44479,7 +44530,7 @@
           "name": "ENABLE_BURGLARY_HOUSES",
           "num_params": 1,
           "short_desc": "Switches enex markers used for burglary missions on or off",
-          "class": "World",
+          "class": "Game",
           "member": "EnableBurglaryHouses",
           "attrs": {
             "is_static": true
@@ -44613,7 +44664,7 @@
           "name": "FORCE_BIG_MESSAGE_AND_COUNTER",
           "num_params": 1,
           "short_desc": "Prevents timers and big texts from being hidden if there is another conflicting type of text on screen",
-          "class": "Text",
+          "class": "Hud",
           "member": "ForceBigMessageAndCounter",
           "attrs": {
             "is_static": true
@@ -44844,20 +44895,28 @@
           "member": "IsIntersectingWorld"
         },
         {
+          "input": [
+            {
+              "name": "entry",
+              "type": "gxt_key"
+            }
+          ],
+          "output": [
+            {
+              "name": "width",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
           "id": "09FD",
           "name": "GET_STRING_WIDTH",
           "num_params": 2,
           "short_desc": "Gets the width of the GXT entry string",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "class": "Text",
+          "member": "GetStringWidth",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
           "input": [
@@ -45018,7 +45077,7 @@
           "output": [
             {
               "name": "width",
-              "type": "float",
+              "type": "int",
               "source": "var_any"
             }
           ],
@@ -45479,7 +45538,7 @@
           "name": "TAKE_PHOTO",
           "num_params": 1,
           "short_desc": "Takes a screenshot of the screen without any HUD elements and stores the file in the \"GTA San Andreas User FilesGallery\" folder",
-          "class": "Game",
+          "class": "Camera",
           "member": "TakePhoto",
           "attrs": {
             "is_static": true
@@ -46345,28 +46404,6 @@
           "attrs": {
             "is_condition": true
           }
-        },
-        {
-          "input": [
-            {
-              "name": "self",
-              "type": "Player"
-            },
-            {
-              "name": "mode",
-              "type": "ChangeMoney"
-            },
-            {
-              "name": "value",
-              "type": "int"
-            }
-          ],
-          "id": "0E5E",
-          "name": "CHANGE_PLAYER_MONEY",
-          "num_params": 3,
-          "class": "Player",
-          "member": "ChangeMoney",
-          "short_desc": "Changes player money by set, add or remove"
         }
       ]
     },
@@ -46377,7 +46414,7 @@
           "input": [
             {
               "name": "touch",
-              "type": "Pad"
+              "type": "PadId"
             },
             {
               "name": "touchPoints",
@@ -46607,8 +46644,7 @@
           "short_desc": "Loads a file with compiled SCM instructions at the given path and runs a new custom script",
           "attrs": {
             "is_keyword": true,
-            "is_variadic": true,
-            "is_branch": true
+            "is_variadic": true
           },
           "platforms": [
             "pc"
@@ -46650,8 +46686,7 @@
           "short_desc": "",
           "attrs": {
             "is_keyword": true,
-            "is_variadic": true,
-            "is_branch": true
+            "is_variadic": true
           },
           "platforms": [
             "pc"
@@ -47338,7 +47373,7 @@
           "id": "0AAC",
           "name": "LOAD_AUDIO_STREAM",
           "num_params": 2,
-          "short_desc": "",
+          "short_desc": "Loads an audio file and creates a new audio stream",
           "class": "AudioStream",
           "member": "Load",
           "attrs": {
@@ -47366,7 +47401,7 @@
           "id": "0AAD",
           "name": "SET_AUDIO_STREAM_STATE",
           "num_params": 2,
-          "short_desc": "",
+          "short_desc": "Sets the state of the audio stream",
           "class": "AudioStream",
           "member": "SetState",
           "platforms": [
@@ -47386,7 +47421,7 @@
           "id": "0AAE",
           "name": "REMOVE_AUDIO_STREAM",
           "num_params": 1,
-          "short_desc": "",
+          "short_desc": "Unloads the audio stream and frees the memory",
           "attrs": {
             "is_destructor": true
           },
@@ -47697,7 +47732,7 @@
           "id": "0AB9",
           "name": "GET_AUDIO_STREAM_STATE",
           "num_params": 2,
-          "short_desc": "",
+          "short_desc": "Returns the state of the audio stream",
           "class": "AudioStream",
           "member": "GetState",
           "platforms": [
@@ -47745,7 +47780,7 @@
           "id": "0ABB",
           "name": "GET_AUDIO_STREAM_VOLUME",
           "num_params": 2,
-          "short_desc": "",
+          "short_desc": "Returns the audio stream volume (from 0.0 to 1.0)",
           "class": "AudioStream",
           "member": "GetVolume",
           "platforms": [
@@ -47769,7 +47804,7 @@
           "id": "0ABC",
           "name": "SET_AUDIO_STREAM_VOLUME",
           "num_params": 2,
-          "short_desc": "",
+          "short_desc": "Sets the audio stream volume (from 0.0 to 1.0)",
           "class": "AudioStream",
           "member": "SetVolume",
           "platforms": [
@@ -47863,7 +47898,7 @@
           "id": "0AC0",
           "name": "SET_AUDIO_STREAM_LOOPED",
           "num_params": 2,
-          "short_desc": "",
+          "short_desc": "Makes the audio stream repeat endlessly",
           "class": "AudioStream",
           "member": "SetLooped",
           "platforms": [
@@ -48426,34 +48461,36 @@
         {
           "input": [
             {
-              "name": "str",
+              "name": "string",
               "type": "string"
             },
             {
               "name": "format",
               "type": "string"
-            },
-            {
-              "name": "args",
-              "type": "arguments"
             }
           ],
           "output": [
             {
-              "name": "text",
-              "type": "string",
+              "name": "nValues",
+              "type": "int",
+              "source": "var_any"
+            },
+            {
+              "name": "values",
+              "type": "arguments",
               "source": "var_any"
             }
           ],
           "id": "0AD4",
           "name": "SCAN_STRING",
           "num_params": 4,
-          "short_desc": "",
+          "short_desc": "Extracts data from a string using sscanf",
           "class": "Text",
           "member": "ScanString",
           "attrs": {
             "is_static": true,
-            "is_variadic": true
+            "is_variadic": true,
+            "is_condition": true
           },
           "platforms": [
             "pc"
@@ -48524,8 +48561,7 @@
             },
             {
               "name": "buffer",
-              "type": "string",
-              "source": "var_any"
+              "type": "int"
             },
             {
               "name": "size",
@@ -48615,23 +48651,24 @@
             {
               "name": "format",
               "type": "string"
-            },
-            {
-              "name": "args",
-              "type": "arguments"
             }
           ],
           "output": [
             {
-              "name": "text",
-              "type": "string",
+              "name": "nValues",
+              "type": "int",
+              "source": "var_any"
+            },
+            {
+              "name": "values",
+              "type": "arguments",
               "source": "var_any"
             }
           ],
           "id": "0ADA",
           "name": "SCAN_FILE",
           "num_params": 4,
-          "short_desc": "",
+          "short_desc": "Extracts data from a file using fscanf",
           "class": "File",
           "member": "Scan",
           "attrs": {
@@ -49088,7 +49125,7 @@
         {
           "output": [
             {
-              "name": "result",
+              "name": "number",
               "type": "float",
               "source": "var_any"
             }
@@ -49096,7 +49133,7 @@
           "id": "0AE9",
           "name": "POP_FLOAT",
           "num_params": 1,
-          "short_desc": "",
+          "short_desc": "Returns a floating-point number stored as the result of the function called (0AA5, 0AA6, 0AA7, 0AA8) immediately before this command",
           "class": "Memory",
           "member": "PopFloat",
           "attrs": {
@@ -50569,6 +50606,28 @@
           "input": [
             {
               "name": "self",
+              "type": "Player"
+            },
+            {
+              "name": "mode",
+              "type": "ChangeMoney"
+            },
+            {
+              "name": "value",
+              "type": "int"
+            }
+          ],
+          "id": "0E5E",
+          "name": "CHANGE_PLAYER_MONEY",
+          "num_params": 3,
+          "class": "Player",
+          "member": "ChangeMoney",
+          "short_desc": "Changes player money by set, add or remove"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
               "type": "Car"
             },
             {
@@ -50767,8 +50826,7 @@
           "name": "SET_SCRIPT_EVENT_SAVE_CONFIRMATION",
           "num_params": 3,
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           },
           "short_desc": "Toggles script event during save, just before the game is saved"
         },
@@ -50791,8 +50849,7 @@
           "name": "SET_SCRIPT_EVENT_CHAR_CREATE",
           "num_params": 3,
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           },
           "short_desc": "Toggles script event just after some char is created"
         },
@@ -50815,8 +50872,7 @@
           "name": "SET_SCRIPT_EVENT_CAR_DELETE",
           "num_params": 3,
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           },
           "short_desc": "Toggles script event just before some car is being deleted"
         },
@@ -50839,8 +50895,7 @@
           "name": "SET_SCRIPT_EVENT_CAR_CREATE",
           "num_params": 3,
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           },
           "short_desc": "Toggles script event just after some car is created"
         },
@@ -50864,7 +50919,6 @@
           "num_params": 3,
           "short_desc": "Toggles script event just before some object is being deleted",
           "attrs": {
-            "is_branch": true,
             "is_keyword": true
           }
         },
@@ -50888,8 +50942,7 @@
           "num_params": 3,
           "short_desc": "Toggles script event just after some object is created",
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           }
         },
         {
@@ -50912,8 +50965,7 @@
           "num_params": 3,
           "short_desc": "Toggles script event to run during pause menu, or when just paused the game",
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           }
         },
         {
@@ -50953,8 +51005,7 @@
           "num_params": 3,
           "short_desc": "Toggles script event to run on each char once per frame",
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           }
         },
         {
@@ -50976,7 +51027,6 @@
           "name": "SET_SCRIPT_EVENT_CAR_PROCESS",
           "num_params": 3,
           "attrs": {
-            "is_branch": true,
             "is_keyword": true
           },
           "short_desc": "Toggles script event to run on each car once per frame"
@@ -51000,8 +51050,7 @@
           "name": "SET_SCRIPT_EVENT_OBJECT_PROCESS",
           "num_params": 3,
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           },
           "short_desc": "Toggles script event to run on each object once per frame. May be slow"
         },
@@ -51024,8 +51073,7 @@
           "name": "SET_SCRIPT_EVENT_BUILDING_PROCESS",
           "num_params": 3,
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           },
           "short_desc": "Toggles script event to run on each building (CBuilding/Entity) once per frame. CAUTION! Very slow"
         },
@@ -51048,8 +51096,7 @@
           "name": "SET_SCRIPT_EVENT_CHAR_DAMAGE",
           "num_params": 3,
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           },
           "short_desc": "Toggles script event when some char receives any damage. Use 0EB5 to get damage data"
         },
@@ -51072,8 +51119,7 @@
           "name": "SET_SCRIPT_EVENT_CAR_WEAPON_DAMAGE",
           "num_params": 3,
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           },
           "short_desc": "Toggles script event to run when some car is damaged by weapon. Use 0EB6 to get damage data"
         },
@@ -51108,8 +51154,7 @@
           "name": "SET_SCRIPT_EVENT_BULLET_IMPACT",
           "num_params": 6,
           "attrs": {
-            "is_keyword": true,
-            "is_branch": true
+            "is_keyword": true
           },
           "short_desc": "Toggles script event to run when bullet impact. Char and entity can be invalid"
         },
@@ -51346,7 +51391,8 @@
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Returns a result of the bitwise AND operation on the corresponding bits of the first and second operands"
         },
         {
           "input": [
@@ -51374,7 +51420,8 @@
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Returns a result of the bitwise OR operation on the corresponding bits of the first and second operands"
         },
         {
           "input": [
@@ -51402,7 +51449,8 @@
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Returns a result of the bitwise XOR operation on the corresponding bits of the first and second operands"
         },
         {
           "input": [
@@ -51426,7 +51474,8 @@
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Returns a signed number calculated by logical negation of each bit of the input value"
         },
         {
           "input": [
@@ -51447,23 +51496,24 @@
             }
           ],
           "id": "0B14",
-          "name": "BIT_MOD",
+          "name": "MOD",
           "num_params": 3,
           "platforms": [
             "pc"
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Returns the remainder of a division, after the first number is divided by the second number"
         },
         {
           "input": [
             {
-              "name": "",
+              "name": "value",
               "type": "int"
             },
             {
-              "name": "",
+              "name": "n",
               "type": "int"
             }
           ],
@@ -51482,16 +51532,17 @@
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Returns a number calculated by shifting right all the bits of the value by n bits"
         },
         {
           "input": [
             {
-              "name": "",
+              "name": "value",
               "type": "int"
             },
             {
-              "name": "",
+              "name": "n",
               "type": "int"
             }
           ],
@@ -51510,7 +51561,8 @@
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Returns a number calculated by shifting left all the bits of the value by n bits"
         },
         {
           "input": [
@@ -51525,14 +51577,15 @@
             }
           ],
           "id": "0B17",
-          "name": "BITWISE_AND_THING_WITH_THING",
+          "name": "BIT_AND_COMPOUND",
           "num_params": 2,
           "platforms": [
             "pc"
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Reads a value from the variable, performs bitwise AND operation on it and the operand (BIT_AND) and stores the result back to the variable"
         },
         {
           "input": [
@@ -51547,14 +51600,15 @@
             }
           ],
           "id": "0B18",
-          "name": "BITWISE_OR_THING_WITH_THING",
+          "name": "BIT_OR_COMPOUND",
           "num_params": 2,
           "platforms": [
             "pc"
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Reads a value from the variable, performs bitwise OR operation on it and the operand (BIT_OR) and stores the result back to the variable"
         },
         {
           "input": [
@@ -51569,14 +51623,15 @@
             }
           ],
           "id": "0B19",
-          "name": "BITWISE_XOR_THING_WITH_THING",
+          "name": "BIT_XOR_COMPOUND",
           "num_params": 2,
           "platforms": [
             "pc"
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Reads a value from the variable, performs bitwise XOR operation on it and the operand (BIT_XOR) and stores the result back to the variable"
         },
         {
           "input": [
@@ -51587,14 +51642,15 @@
             }
           ],
           "id": "0B1A",
-          "name": "BITWISE_NOT",
+          "name": "BIT_NOT_COMPOUND",
           "num_params": 1,
           "platforms": [
             "pc"
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Reads a value from the variable, performs bitwise NOT operation on it (BIT_NOT) and stores the result back to the variable"
         },
         {
           "input": [
@@ -51604,19 +51660,20 @@
               "source": "var_any"
             },
             {
-              "name": "",
+              "name": "number",
               "type": "int"
             }
           ],
           "id": "0B1B",
-          "name": "BITWISE_MOD_THING_BY_THING",
+          "name": "MOD_COMPOUND",
           "num_params": 2,
           "platforms": [
             "pc"
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Reads a value from the variable, divides it by the number and stores the remainder (MOD) back to the variable"
         },
         {
           "input": [
@@ -51626,19 +51683,20 @@
               "source": "var_any"
             },
             {
-              "name": "",
+              "name": "n",
               "type": "int"
             }
           ],
           "id": "0B1C",
-          "name": "BITWISE_SHR_THING_BY_THING",
+          "name": "BIT_SHR_COMPOUND",
           "num_params": 2,
           "platforms": [
             "pc"
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Reads a value from the variable, shifts right by n bits (BIT_SHR) and stores the result back to the variable"
         },
         {
           "input": [
@@ -51648,19 +51706,20 @@
               "source": "var_any"
             },
             {
-              "name": "",
+              "name": "n",
               "type": "int"
             }
           ],
           "id": "0B1D",
-          "name": "BITWISE_SHL_THING_BY_THING",
+          "name": "BIT_SHL_COMPOUND",
           "num_params": 2,
           "platforms": [
             "pc"
           ],
           "versions": [
             "1.0"
-          ]
+          ],
+          "short_desc": "Reads a value from the variable, shifts left by n bits (BIT_SHL) and stores the result back to the variable"
         }
       ]
     },
@@ -52888,6 +52947,10 @@
             {
               "name": "text",
               "type": "string"
+            },
+            {
+              "name": "selected",
+              "type": "bool"
             }
           ],
           "output": [
@@ -52899,7 +52962,7 @@
           ],
           "id": "0C24",
           "name": "IMGUI_SELECTABLE",
-          "num_params": 2,
+          "num_params": 3,
           "short_desc": "Adds the selectable widget",
           "class": "ImGui",
           "member": "Selectable",
@@ -53269,22 +53332,22 @@
           "output": [
             {
               "name": "red",
-              "type": "float",
+              "type": "int",
               "source": "var_any"
             },
             {
               "name": "green",
-              "type": "float",
+              "type": "int",
               "source": "var_any"
             },
             {
               "name": "blue",
-              "type": "float",
+              "type": "int",
               "source": "var_any"
             },
             {
               "name": "alpha",
-              "type": "float",
+              "type": "int",
               "source": "var_any"
             }
           ],
@@ -53608,6 +53671,451 @@
           "class": "ImGui",
           "member": "ComboBox",
           "short_desc": "Creates a combo box widget. Pass options separated by commas \"item1,item2,item3\"",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "image",
+              "type": "int"
+            },
+            {
+              "name": "width",
+              "type": "float"
+            },
+            {
+              "name": "height",
+              "type": "float"
+            }
+          ],
+          "id": "0C3D",
+          "name": "IMGUI_IMAGE_BUTTON",
+          "num_params": 4,
+          "class": "ImGui",
+          "member": "ButtonImage",
+          "short_desc": "Creates a ImGui button with specified image",
+          "attrs": {
+            "is_static": true,
+            "is_condition": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "path",
+              "type": "string"
+            }
+          ],
+          "output": [
+            {
+              "name": "image",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C3E",
+          "name": "IMGUI_LOAD_IMAGE",
+          "num_params": 2,
+          "class": "ImGui",
+          "member": "LoadImage",
+          "short_desc": "Loads a image file from disk. Relative to CLEO directory",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "image",
+              "type": "int"
+            }
+          ],
+          "id": "0C3F",
+          "name": "IMGUI_FREE_IMAGE",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "FreeImage",
+          "short_desc": "Frees a loaded image data",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "text",
+              "type": "string"
+            }
+          ],
+          "id": "0C40",
+          "name": "IMGUI_TEXT_CENTERED",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "TextCentered",
+          "short_desc": "Displays a center aligned ImGui text widget",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "imGuiStyleVar",
+              "type": "ImGuiStyleVar"
+            },
+            {
+              "name": "val",
+              "type": "float"
+            }
+          ],
+          "id": "0C41",
+          "name": "IMGUI_PUSH_STYLE_VAR",
+          "num_params": 2,
+          "class": "ImGui",
+          "member": "PushStyleVar",
+          "short_desc": "Pushes a ImGuiStyleVar value to the stack. Use PopStyleVar to undo the effect",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "imGuiStyleVar",
+              "type": "ImGuiStyleVar"
+            },
+            {
+              "name": "x",
+              "type": "float"
+            },
+            {
+              "name": "y",
+              "type": "float"
+            }
+          ],
+          "id": "0C42",
+          "name": "IMGUI_PUSH_STYLE_VAR2",
+          "num_params": 3,
+          "class": "ImGui",
+          "member": "PushStyleVar2",
+          "short_desc": "Pushes a ImGuiStyleVar value to the stack. Use PopStyleVar to undo the effect",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "imGuiCol",
+              "type": "ImGuiCol"
+            },
+            {
+              "name": "r",
+              "type": "int"
+            },
+            {
+              "name": "g",
+              "type": "int"
+            },
+            {
+              "name": "b",
+              "type": "int"
+            },
+            {
+              "name": "a",
+              "type": "int"
+            }
+          ],
+          "id": "0C43",
+          "name": "IMGUI_PUSH_STYLE_COLOR",
+          "num_params": 5,
+          "class": "ImGui",
+          "member": "PushStyleColor",
+          "short_desc": "Pushes a ImGuiCol value to the stack. Use PopStyleColor to undo the effect",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "count",
+              "type": "int"
+            }
+          ],
+          "id": "0C44",
+          "name": "IMGUI_POP_STYLE_VAR",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "PopStyleVar",
+          "short_desc": "Removes the recent imGuiStyleVar from the stack",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "count",
+              "type": "int"
+            }
+          ],
+          "id": "0C45",
+          "name": "IMGUI_POP_STYLE_COLOR",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "PopStyleColor",
+          "short_desc": "Removes the recent ImGuiCol from the stack",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "tabNames",
+              "type": "string"
+            }
+          ],
+          "output": [
+            {
+              "name": "index",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C46",
+          "name": "IMGUI_TABS",
+          "num_params": 3,
+          "class": "ImGui",
+          "member": "Tabs",
+          "short_desc": "Pass tab names separated by comma. Returns the index of the visible tab",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "r",
+              "type": "float"
+            },
+            {
+              "name": "g",
+              "type": "float"
+            },
+            {
+              "name": "b",
+              "type": "float"
+            },
+            {
+              "name": "a",
+              "type": "float"
+            }
+          ],
+          "id": "0C47",
+          "name": "IMGUI_SET_IMAGE_BG_COLOR",
+          "num_params": 4,
+          "class": "ImGui",
+          "member": "SetImageBgColor",
+          "short_desc": "Sets image background color",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "r",
+              "type": "float"
+            },
+            {
+              "name": "g",
+              "type": "float"
+            },
+            {
+              "name": "b",
+              "type": "float"
+            },
+            {
+              "name": "a",
+              "type": "float"
+            }
+          ],
+          "id": "0C48",
+          "name": "IMGUI_SET_IMAGE_TINT_COLOR",
+          "num_params": 4,
+          "class": "ImGui",
+          "member": "SetImageTintColor",
+          "short_desc": "Sets image tint color",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "output": [
+            {
+              "name": "drawList",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C49",
+          "name": "IMGUI_GET_FOREGROUND_DRAWLIST",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "GetForegroundDrawList",
+          "short_desc": "Returns pointer to foreground draw list",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "output": [
+            {
+              "name": "drawList",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C4A",
+          "name": "IMGUI_GET_BACKGROUND_DRAWLIST",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "GetBackgroundDrawList",
+          "short_desc": "Returns pointer to ImGui background drawlist",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "output": [
+            {
+              "name": "drawList",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C4B",
+          "name": "IMGUI_GET_WINDOW_DRAWLIST",
+          "num_params": 1,
+          "class": "ImGui",
+          "member": "GetWindowDrawlist",
+          "short_desc": "Returns pointer to ImGui window drawList",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "drawList",
+              "type": "int"
+            },
+            {
+              "name": "posX",
+              "type": "float"
+            },
+            {
+              "name": "posY",
+              "type": "float"
+            },
+            {
+              "name": "r",
+              "type": "int"
+            },
+            {
+              "name": "g",
+              "type": "int"
+            },
+            {
+              "name": "b",
+              "type": "int"
+            },
+            {
+              "name": "a",
+              "type": "int"
+            },
+            {
+              "name": "text",
+              "type": "string"
+            }
+          ],
+          "id": "0C4C",
+          "name": "IMGUI_DRAWLIST_ADD_TEXT",
+          "num_params": 8,
+          "class": "ImGui",
+          "member": "AddText",
+          "short_desc": "Adds text at specified position",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "drawList",
+              "type": "int"
+            },
+            {
+              "name": "p1X",
+              "type": "float"
+            },
+            {
+              "name": "p1Y",
+              "type": "float"
+            },
+            {
+              "name": "p2X",
+              "type": "float"
+            },
+            {
+              "name": "p2Y",
+              "type": "float"
+            },
+            {
+              "name": "r",
+              "type": "int"
+            },
+            {
+              "name": "g",
+              "type": "int"
+            },
+            {
+              "name": "b",
+              "type": "int"
+            },
+            {
+              "name": "a",
+              "type": "int"
+            },
+            {
+              "name": "thickness",
+              "type": "float"
+            }
+          ],
+          "id": "0C4D",
+          "name": "IMGUI_DRAWLIST_ADD_LINE",
+          "num_params": 10,
+          "class": "ImGui",
+          "member": "AddLine",
+          "short_desc": "Adds a line form point A to B",
           "attrs": {
             "is_static": true
           }

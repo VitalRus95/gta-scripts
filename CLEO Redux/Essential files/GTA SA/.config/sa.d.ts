@@ -1,28 +1,51 @@
-// Sanny Builder Library v0.253
+// Sanny Builder Library v0.299
 /// <reference no-default-lib="true"/>
 /// <reference lib="es2020" />
 /** Integer value */
-type int = number & { _int: never };
+type int = (number & { _int: never }) | number;
 /** Floating-point value */
-type float = number & { _float: never };
+type float = (number & { _float: never }) | number;
 /** Vector3 type */
-type Vector3 = { x: float, y: float, z: float };
+type Vector3 = { x: float; y: float; z: float };
 
 /** Pauses the script execution for the specified amount of time in milliseconds */
 declare function wait(delay: int): void;
+/** Returns a Promise that resolves after given time in milliseconds */
+declare function asyncWait(delay: int): Promise<void>;
 /** Displays a black text box with custom text. Not available on an `unknown` host */
 declare function showTextBox(text: string): void;
 /** Prints values to the cleo_redux.log */
 declare function log(...values: Array<string | int | float>): void;
-/** Executes the opcode with the given arguments */
-declare function op<T>(op: int, ...args: any[]): T;
 /** Executes the command by name with the given arguments */
 declare function native<T>(name: string, ...args: any[]): T;
 /** Terminates the script and optionally writes a reason to the log file */
 declare function exit(reason?: string): void;
+/** Creates a new event listener https://re.cleo.li/docs/en/events.html */
+declare function addEventListener<T>(event: string, callback: (event: CleoEvent<T>) => void): () => void;
+/** Dispatches an event https://re.cleo.li/docs/en/events.html */
+declare function dispatchEvent<T>(event: string, data?: T): void;
+// Sets a timer which executes a function once the timer expires
+declare function setTimeout(callback: () => void, delay?: int, ...args: any[]): number;
+// Repeatedly calls a function with a fixed time delay between each call
+declare function setInterval(callback: () => void, delay?: int, ...args: any[]): number;
+// Cancels a timeout previously established by calling setTimeout()
+declare function clearTimeout(id: number): void;
+// Cancels a timed, repeating action which was previously established by a call to setInterval()
+declare function clearInterval(id: number): void;
 
 /** Current host name */
-declare const HOST: "re3" | "reVC" | "gta3" | "vc" | "sa" | "gta3_unreal" | "vc_unreal" | "sa_unreal" | "unknown";
+declare const HOST:
+  | "re3"
+  | "reVC"
+  | "gta3"
+  | "vc"
+  | "sa"
+  | "gta3_unreal"
+  | "vc_unreal"
+  | "sa_unreal"
+  | "gta_iv"
+  | "bully"
+  | "unknown";
 /** Is player on a mission flag. Not available on an `unknown` host */
 declare var ONMISSION: boolean;
 /** Self-incrementing timer #1 */
@@ -35,19 +58,30 @@ declare const __dirname: string;
 declare const __filename: string;
 
 declare interface Version {
-  readonly major: string;
-  readonly minor: string;
-  readonly patch: string;
-  readonly pre: string;
-  readonly build: string;
+  readonly major: string | undefined;
+  readonly minor: string | undefined;
+  readonly patch: string | undefined;
+  readonly pre: string | undefined;
+  readonly build: string | undefined;
   toString(): string;
 }
+declare interface CleoEvent<T = object> {
+  name: string;
+  data: T | undefined;
+}
 interface CLEO {
+  /** CLEO Redux version */
   readonly version: Version;
+  /** Version of API definitions from Sanny Builder Library */
   readonly apiVersion: Version;
+  /** Version of the host's exe file. Not available on some hosts */
+  readonly hostVersion?: Version;
   debug: {
+    /** Enables or disables tracing of executed commands in cleo_redux.log */
     trace(flag: boolean): void;
   };
+  /** Spawns a new instance of a script at path and optionally sets initial values for the variables */
+  runScript(path: string, args?: object): void;
 }
 
 declare const CLEO: CLEO;
@@ -56,13 +90,15 @@ interface FxtStore {
    * Inserts new text content in the script's fxt storage overwriting the previous content and shadowing static fxt with the same key
    * @param key GXT key that can be used in text commands (7 characters max)
    * @param value text content
+   * @param [isGlobal] if true, the text affects global FXT storage
    */
-  insert(key: string, value: string): void;
+  insert(key: string, value: string, isGlobal?: boolean): void;
   /**
    * Removes the text content associated with the key in the local fxt storage
    * @param key GXT key
+   * @param [isGlobal] if true, the text affects global FXT storage
    */
-  delete(key: string): void;
+  delete(key: string, isGlobal?: boolean): void;
 }
 
 declare const FxtStore: FxtStore;
@@ -173,16 +209,37 @@ declare var Audio: Audio
  * https://library.sannybuilder.com/#/sa/classes/AudioStream */
 declare class AudioStream {
     constructor(handle: number);
+    /** Loads an audio file and creates a new audio stream
+    *
+    * https://library.sannybuilder.com/#/sa?q=LOAD_AUDIO_STREAM */
     static Load(audioFileName: string): AudioStream | undefined;
     /** Gets the audio stream length in seconds
     *
     * https://library.sannybuilder.com/#/sa?q=GET_AUDIO_STREAM_LENGTH */
     getLength(): int;
+    /** Returns the state of the audio stream
+    *
+    * https://library.sannybuilder.com/#/sa?q=GET_AUDIO_STREAM_STATE */
     getState(): int;
+    /** Returns the audio stream volume (from 0.0 to 1.0)
+    *
+    * https://library.sannybuilder.com/#/sa?q=GET_AUDIO_STREAM_VOLUME */
     getVolume(): float;
+    /** Unloads the audio stream and frees the memory
+    *
+    * https://library.sannybuilder.com/#/sa?q=REMOVE_AUDIO_STREAM */
     remove(): void;
+    /** Makes the audio stream repeat endlessly
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_AUDIO_STREAM_LOOPED */
     setLooped(state: boolean): AudioStream;
+    /** Sets the state of the audio stream
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_AUDIO_STREAM_STATE */
     setState(state: int): AudioStream;
+    /** Sets the audio stream volume (from 0.0 to 1.0)
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_AUDIO_STREAM_VOLUME */
     setVolume(volume: float): AudioStream;
 }
 /** 
@@ -493,6 +550,10 @@ interface Camera {
     *
     * https://library.sannybuilder.com/#/sa?q=SHAKE_CAM */
     Shake(intensity: int): void;
+    /** Takes a screenshot of the screen without any HUD elements and stores the file in the "GTA San Andreas User FilesGallery" folder
+    *
+    * https://library.sannybuilder.com/#/sa?q=TAKE_PHOTO */
+    TakePhoto(_p1: boolean): void;
 }
 declare var Camera: Camera
 /** 
@@ -793,7 +854,11 @@ declare class Car {
     *
     * https://library.sannybuilder.com/#/sa?q=GET_CAR_SPEED */
     getSpeed(): float;
-    getSpeedVector(x: float, y: boolean, z: boolean): Car;
+    getSpeedVector(): {
+        x: float;
+        y: float;
+        z: float;
+    };
     /** Returns vehicle subclass, useful to check if vehicle is motorbike, bicycle, trailer etc
     *
     * https://library.sannybuilder.com/#/sa?q=GET_VEHICLE_SUBCLASS */
@@ -2626,8 +2691,14 @@ declare class File {
     /** Reads data from the file into the buffer until either the end of buffer is reached, the newline character is read, or the end-of-file is reached, whichever comes first
     *
     * https://library.sannybuilder.com/#/sa?q=READ_STRING_FROM_FILE */
-    readString(buffer: string, size: int): boolean;
-    scan(format: string, ...args: number[]): string | undefined;
+    readString(buffer: int, size: int): boolean;
+    /** Extracts data from a file using fscanf
+    *
+    * https://library.sannybuilder.com/#/sa?q=SCAN_FILE */
+    scan(format: string): {
+        nValues: int;
+        values: number[];
+    } | undefined;
     /** Sets the position of the file to the given offset from the origin
     *
     * https://library.sannybuilder.com/#/sa?q=FILE_SEEK */
@@ -2782,10 +2853,6 @@ interface Game {
     *
     * https://library.sannybuilder.com/#/sa?q=ARE_SUBTITLES_SWITCHED_ON */
     AreSubtitlesSwitchedOn(): boolean;
-    /** Sets an animation pack to be loaded along with the specified model
-    *
-    * https://library.sannybuilder.com/#/sa?q=ATTACH_ANIMS_TO_MODEL */
-    AttachAnimsToModel(pedModelId: int, animationFile: string): void;
     /** Allows the player to provoke turf wars while a mission is active
     *
     * https://library.sannybuilder.com/#/sa?q=CAN_TRIGGER_GANG_WAR_WHEN_ON_A_MISSION */
@@ -2800,6 +2867,14 @@ interface Game {
     * https://library.sannybuilder.com/#/sa?q=CLEAR_WANTED_LEVEL_IN_GARAGE */
     ClearWantedLevelInGarage(): void;
     DisableSecondPlayer(restoreCamera: boolean): void;
+    /** Sets whether cops will chase and kill criminals when their task is 'TASK_COMPLEX_KILL_CRIMINAL'
+    *
+    * https://library.sannybuilder.com/#/sa?q=ENABLE_AMBIENT_CRIME */
+    EnableAmbientCrime(state: boolean): void;
+    /** Switches enex markers used for burglary missions on or off
+    *
+    * https://library.sannybuilder.com/#/sa?q=ENABLE_BURGLARY_HOUSES */
+    EnableBurglaryHouses(state: boolean): void;
     /** Enables the entry/exit marker in the specified radius of the coordinates
     *
     * https://library.sannybuilder.com/#/sa?q=ENABLE_ENTRY_EXIT_PLAYER_GROUP_WARPING */
@@ -2939,6 +3014,10 @@ interface Game {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_ALL_TAXIS_HAVE_NITRO */
     SetAllTaxisHaveNitro(state: boolean): void;
+    /** Enables an increase in the distance that markers hovering above entities can be seen from
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_ALWAYS_DRAW_3D_MARKERS */
+    SetAlwaysDraw3DMarkers(state: boolean): void;
     /** Enables or disables the SAM site at the Area 51
     *
     * https://library.sannybuilder.com/#/sa?q=SET_AREA51_SAM_SITE */
@@ -2947,10 +3026,15 @@ interface Game {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_COLLECTABLE1_TOTAL */
     SetCollectableTotal(amount: int): void;
+    SetCreateRandomCops(state: boolean): void;
+    /** Sets whether gang members will spawn
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_CREATE_RANDOM_GANG_MEMBERS */
+    SetCreateRandomGangMembers(state: boolean): void;
     /** Makes pedestrians pay no attention to the player
     *
     * https://library.sannybuilder.com/#/sa?q=SET_EVERYONE_IGNORE_PLAYER */
-    SetEveryoneIgnorePlayer(handle: Player, state: boolean): void;
+    SetEveryoneIgnorePlayer(player: Player, state: boolean): void;
     /** Forces all cars spawned to be of the specified model
     *
     * https://library.sannybuilder.com/#/sa?q=SET_FORCE_RANDOM_CAR_MODEL */
@@ -2976,6 +3060,10 @@ interface Game {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_PLAYER_IS_IN_STADIUM */
     SetIsInStadium(state: boolean): void;
+    /** Enables the LS Riots, making smoke appear on houses, random car fires occur, peds stealing things and attacking each other in a frenzy
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_LA_RIOTS */
+    SetLaRiots(state: boolean): void;
     /** Sets the limit on how many fires can be created from other fires when "propagation" was enabled on 02CF
     *
     * https://library.sannybuilder.com/#/sa?q=SET_MAX_FIRE_GENERATIONS */
@@ -3000,6 +3088,14 @@ interface Game {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_NO_RESPRAYS */
     SetNoResprays(state: boolean): void;
+    /** Sets whether gangs appear everywhere, like when "Gangs control the streets" cheat is activated
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_ONLY_CREATE_GANG_MEMBERS */
+    SetOnlyCreateGangMembers(state: boolean): void;
+    /** Sets whether cops should ignore the player regardless of wanted level
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_POLICE_IGNORE_PLAYER */
+    SetPoliceIgnorePlayer(player: Player, state: boolean): void;
     /** Sets the attitude of peds with one pedtype towards peds of another pedtype
     *
     * https://library.sannybuilder.com/#/sa?q=SET_RELATIONSHIP */
@@ -3052,10 +3148,10 @@ interface Game {
     *
     * https://library.sannybuilder.com/#/sa?q=SWITCH_POLICE_HELIS */
     SwitchPoliceHelis(state: boolean): void;
-    /** Takes a screenshot of the screen without any HUD elements and stores the file in the "GTA San Andreas User FilesGallery" folder
+    /** Sets whether trains are generated
     *
-    * https://library.sannybuilder.com/#/sa?q=TAKE_PHOTO */
-    TakePhoto(_p1: boolean): void;
+    * https://library.sannybuilder.com/#/sa?q=SWITCH_RANDOM_TRAINS */
+    SwitchRandomTrains(state: boolean): void;
 }
 declare var Game: Game
 /** 
@@ -3226,6 +3322,10 @@ interface Hud {
     *
     * https://library.sannybuilder.com/#/sa?q=FLASH_HUD_OBJECT */
     FlashObject(object: int): void;
+    /** Prevents timers and big texts from being hidden if there is another conflicting type of text on screen
+    *
+    * https://library.sannybuilder.com/#/sa?q=FORCE_BIG_MESSAGE_AND_COUNTER */
+    ForceBigMessageAndCounter(state: boolean): void;
     /** Makes the on-screen timer stop updating
     *
     * https://library.sannybuilder.com/#/sa?q=FREEZE_ONSCREEN_TIMER */
@@ -3248,7 +3348,7 @@ interface Hud {
     };
     IsRadarVisible(): boolean;
     IsVisible(): boolean;
-    SetOnscreenCounterFlashWhenFirstDisplayed(counter: int, state: boolean): void;
+    SetCounterFlashWhenFirstDisplayed(counter: int, state: boolean): void;
     SetRadarZoom(zoom: int): void;
     /** Causes the next texture to be drawn (038D) before the fade is drawn
     *
@@ -3268,6 +3368,14 @@ declare var Hud: Hud
  * 
  * https://library.sannybuilder.com/#/sa/classes/ImGui */
 interface ImGui {
+    /** Adds a line form point A to B
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_DRAWLIST_ADD_LINE */
+    AddLine(drawList: int, p1X: float, p1Y: float, p2X: float, p2Y: float, r: int, g: int, b: int, a: int, thickness: float): void;
+    /** Adds text at specified position
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_DRAWLIST_ADD_TEXT */
+    AddText(drawList: int, posX: float, posY: float, r: int, g: int, b: int, a: int, text: string): void;
     /** Creates the window
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_BEGIN */
@@ -3300,6 +3408,10 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_COLOR_BUTTON */
     ButtonColored(buttonName: string, red: float, green: float, blue: float, alpha: float, width: float, height: float): boolean;
+    /** Creates a ImGui button with specified image
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_IMAGE_BUTTON */
+    ButtonImage(name: string, image: int, width: float, height: float): boolean;
     /** Creates the invisible button
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_INVISIBLE_BUTTON */
@@ -3323,10 +3435,10 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_COLOR_PICKER */
     ColorPicker(label: string): {
-        red: float;
-        green: float;
-        blue: float;
-        alpha: float;
+        red: int;
+        green: int;
+        blue: int;
+        alpha: int;
     };
     /** Divides the window width into N columns. Close this with Columns(1)
     *
@@ -3356,6 +3468,14 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_END_MAINMENUBAR */
     EndMainMenuBar(): void;
+    /** Frees a loaded image data
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_FREE_IMAGE */
+    FreeImage(image: int): void;
+    /** Returns pointer to ImGui background drawlist
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_GET_BACKGROUND_DRAWLIST */
+    GetBackgroundDrawList(): int;
     /** Returns the width & height of the display
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_GET_DISPLAY_SIZE */
@@ -3363,6 +3483,10 @@ interface ImGui {
         width: float;
         height: float;
     };
+    /** Returns pointer to foreground draw list
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_GET_FOREGROUND_DRAWLIST */
+    GetForegroundDrawList(): int;
     /** Returns the ImGui frame height
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_GET_FRAME_HEIGHT */
@@ -3386,6 +3510,10 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_GET_WINDOW_CONTENT_REGION_WIDTH */
     GetWindowContentRegionWidth(uniqueId: string): float;
+    /** Returns pointer to ImGui window drawList
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_GET_WINDOW_DRAWLIST */
+    GetWindowDrawlist(): int;
     /** Returns the x,y coordinates of the window on the screen
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_GET_WINDOW_POS */
@@ -3428,6 +3556,10 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_IS_ITEM_HOVERED */
     IsItemHovered(uniqueId: string): boolean;
+    /** Loads a image file from disk. Relative to CLEO directory
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_LOAD_IMAGE */
+    LoadImage(path: string): int;
     /** Adds the menu item
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_MENU_ITEM */
@@ -3444,10 +3576,30 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_POP_ITEM_WIDTH */
     PopItemWidth(): void;
+    /** Removes the recent ImGuiCol from the stack
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_POP_STYLE_COLOR */
+    PopStyleColor(count: int): void;
+    /** Removes the recent imGuiStyleVar from the stack
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_POP_STYLE_VAR */
+    PopStyleVar(count: int): void;
     /** Sets the item width for the next widgets
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_PUSH_ITEM_WIDTH */
     PushItemWidth(width: float): void;
+    /** Pushes a ImGuiCol value to the stack. Use PopStyleColor to undo the effect
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_PUSH_STYLE_COLOR */
+    PushStyleColor(imGuiCol: int, r: int, g: int, b: int, a: int): void;
+    /** Pushes a ImGuiStyleVar value to the stack. Use PopStyleVar to undo the effect
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_PUSH_STYLE_VAR */
+    PushStyleVar(imGuiStyleVar: int, val: float): void;
+    /** Pushes a ImGuiStyleVar value to the stack. Use PopStyleVar to undo the effect
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_PUSH_STYLE_VAR2 */
+    PushStyleVar2(imGuiStyleVar: int, x: float, y: float): void;
     /** Creates the radio button
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_RADIO_BUTTON */
@@ -3459,7 +3611,7 @@ interface ImGui {
     /** Adds the selectable widget
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_SELECTABLE */
-    Selectable(text: string): boolean;
+    Selectable(text: string, selected: boolean): boolean;
     /** Adds a horizontal separator line
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_SEPARATOR */
@@ -3468,6 +3620,14 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_SET_CURSOR_VISIBLE */
     SetCursorVisible(show: boolean): void;
+    /** Sets image background color
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_SET_IMAGE_BG_COLOR */
+    SetImageBgColor(r: float, g: float, b: float, a: float): void;
+    /** Sets image tint color
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_SET_IMAGE_TINT_COLOR */
+    SetImageTintColor(r: float, g: float, b: float, a: float): void;
     /** Displays a text message on top left corner of the screen. Useful for games without `showTextBox(...)` support
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_SET_MESSAGE */
@@ -3508,10 +3668,18 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_SPACING */
     Spacing(): void;
+    /** Pass tab names separated by comma. Returns the index of the visible tab
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_TABS */
+    Tabs(name: string, tabNames: string): int;
     /** Creates the text line
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_TEXT */
     Text(text: string): void;
+    /** Displays a center aligned ImGui text widget
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_TEXT_CENTERED */
+    TextCentered(text: string): void;
     /** Creates the text line of the given RGBA color (0.0f-1.0f)
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_TEXT_COLORED */
@@ -3790,10 +3958,21 @@ interface Math {
     *
     * https://library.sannybuilder.com/#/sa?q=CONVERT_METRES_TO_FEET_INT */
     ConvertMetersToFeet(meters: int): int;
+    /** Returns true if rectangle1 is inside rectangle2 or partially intersects it
+    *
+    * https://library.sannybuilder.com/#/sa?q=DO_2D_RECTANGLES_COLLIDE */
+    Do2DRectanglesCollide(rectangle1PositionX: float, rectangle1PositionY: float, rectangle1SizeX: float, rectangle1SizeY: float, rectangle2PositionX: float, rectangle2PositionY: float, rectangle2SizeX: float, rectangle2SizeY: float): boolean;
     /** Eases k value in range of 0.0 to 1.0, resulting in a easing value based on mode and way, useful for smooth animations
     *
     * https://library.sannybuilder.com/#/sa?q=EASE */
     Ease(k: float, mode: int, way: int): float;
+    /** Returns the point of intersection of two lines. If they do not intersect, both returned values are -1000000.0 and the condition result is false
+    *
+    * https://library.sannybuilder.com/#/sa?q=GET_2D_LINES_INTERSECT_POINT */
+    Get2DLinesIntersectPoint(line1StartX: float, line1StartY: float, line1EndX: float, line1EndY: float, line2StartX: float, line2StartY: float, line2EndX: float, line2EndY: float): {
+        intersectPointX: float;
+        intersectPointY: float;
+    } | undefined;
     /** Gets the angle between the two 2D vectors
     *
     * https://library.sannybuilder.com/#/sa?q=GET_ANGLE_BETWEEN_2D_VECTORS */
@@ -3845,62 +4024,78 @@ declare var Math: Math
  * 
  * https://library.sannybuilder.com/#/sa/classes/Memory */
 interface Memory {
-    /** Reads a floating-point value (IEEE 754) from the game memory 
+    /** Reads a floating-point value (IEEE 754) from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     ReadFloat(address: int, vp: boolean): float;
-    /** Writes a floating-point value (IEEE 754) to the game memory 
+    /** Writes a floating-point value (IEEE 754) to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     WriteFloat(address: int, value: float, vp: boolean): void;
-    /** Reads a 8-bit signed integer value from the game memory 
+    /** Reads a 8-bit signed integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     ReadI8(address: int, vp: boolean): int;
-    /** Reads a 16-bit signed integer value from the game memory 
+    /** Reads a 16-bit signed integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     ReadI16(address: int, vp: boolean): int;
-    /** Reads a 32-bit signed integer value from the game memory 
+    /** Reads a 32-bit signed integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     ReadI32(address: int, vp: boolean): int;
-    /** Reads a 8-bit unsigned integer value from the game memory 
+    /** Reads a 8-bit unsigned integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     ReadU8(address: int, vp: boolean): int;
-    /** Reads a 16-bit unsigned integer value from the game memory 
+    /** Reads a 16-bit unsigned integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     ReadU16(address: int, vp: boolean): int;
-    /** Reads a 32-bit unsigned integer value from the game memory 
+    /** Reads a 32-bit unsigned integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     ReadU32(address: int, vp: boolean): int;
-    /** Writes a 8-bit signed integer value to the game memory 
+    /** Reads a null-terminated UTF-8 encoded string from the memory 
+    *
+    * https://re.cleo.li/docs/en/using-memory.html */
+    ReadUtf8(address: int): string;
+    /** Reads a null-terminated UTF-16 encoded string from the memory 
+    *
+    * https://re.cleo.li/docs/en/using-memory.html */
+    ReadUtf16(address: int): string;
+    /** Writes a 8-bit signed integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     WriteI8(address: int, value: int, vp: boolean): void;
-    /** Writes a 16-bit signed integer value to the game memory 
+    /** Writes a 16-bit signed integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     WriteI16(address: int, value: int, vp: boolean): void;
-    /** Writes a 32-bit signed integer value to the game memory 
+    /** Writes a 32-bit signed integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     WriteI32(address: int, value: int, vp: boolean): void;
-    /** Writes a 8-bit unsigned integer value to the game memory 
+    /** Writes a 8-bit unsigned integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     WriteU8(address: int, value: int, vp: boolean): void;
-    /** Writes a 16-bit unsigned integer value to the game memory 
+    /** Writes a 16-bit unsigned integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     WriteU16(address: int, value: int, vp: boolean): void;
-    /** Writes a 32-bit unsigned integer value to the game memory 
+    /** Writes a 32-bit unsigned integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     WriteU32(address: int, value: int, vp: boolean): void;
+    /** Writes a sequence of UTF-8 encoded characters to the memory 
+    *
+    * https://re.cleo.li/docs/en/using-memory.html */
+    WriteUtf8(address: int, value: string, vp: boolean, ib: boolean): void;
+    /** Writes a sequence of UTF-16 encoded characters to the memory 
+    *
+    * https://re.cleo.li/docs/en/using-memory.html */
+    WriteUtf16(address: int, value: string, vp: boolean, ib: boolean): void;
 
     /** Cast 32-bit signed integer value to floating-point value (IEEE 754) 
     *
@@ -4194,6 +4389,9 @@ interface Memory {
     *
     * https://library.sannybuilder.com/#/sa?q=MAKE_NOP */
     MakeNop(address: int, size: int): void;
+    /** Returns a floating-point number stored as the result of the function called (0AA5, 0AA6, 0AA7, 0AA8) immediately before this command
+    *
+    * https://library.sannybuilder.com/#/sa?q=POP_FLOAT */
     PopFloat(): float;
     /** Reads a value from the game memory
     *
@@ -4299,6 +4497,13 @@ declare var Mission: Mission
  * 
  * https://library.sannybuilder.com/#/sa/classes/Mouse */
 interface Mouse {
+    /** Returns the position of the mouse cursor
+    *
+    * https://library.sannybuilder.com/#/sa?q=GET_CURSOR_POS */
+    GetCursorPos(): {
+        x: int;
+        y: int;
+    } | undefined;
     /** Gives the offset of the mouse or right thumbstick movement
     *
     * https://library.sannybuilder.com/#/sa?q=GET_PC_MOUSE_MOVEMENT */
@@ -4322,6 +4527,10 @@ interface Mouse {
     *
     * https://library.sannybuilder.com/#/sa?q=IS_MOUSE_WHEEL_UP */
     IsWheelUp(): boolean;
+    /** Sets the position of the mouse cursor
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_CURSOR_POS */
+    SetCursorPos(x: int, y: int): boolean;
 }
 declare var Mouse: Mouse
 /** 
@@ -4339,7 +4548,7 @@ interface Pad {
     /** Returns the offset of the specified Left/Right, Up/Down, Look Left/Look Right and Look Up/Look Down keys
     *
     * https://library.sannybuilder.com/#/sa?q=GET_POSITION_OF_ANALOGUE_STICKS */
-    GetPositionOfAnalogueSticks(pad: Pad): {
+    GetPositionOfAnalogueSticks(pad: int): {
         leftStickX: int;
         leftStickY: int;
         rightStickX: int;
@@ -4348,7 +4557,7 @@ interface Pad {
     /** Stores the status of the specified key into a variable
     *
     * https://library.sannybuilder.com/#/sa?q=GET_PAD_STATE */
-    GetState(pad: Pad, buttonId: int): int;
+    GetState(pad: int, buttonId: int): int;
     /** Holds down a keyboard or mouse button until it gets released with RELEASE_KEY
     *
     * https://library.sannybuilder.com/#/sa?q=HOLD_KEY */
@@ -4356,7 +4565,7 @@ interface Pad {
     /** Returns true if the pad's button has been pressed
     *
     * https://library.sannybuilder.com/#/sa?q=IS_BUTTON_PRESSED */
-    IsButtonPressed(pad: Pad, buttonId: int): boolean;
+    IsButtonPressed(pad: int, buttonId: int): boolean;
     /** Returns true if a keyboard or mouse button has just been pressed
     *
     * https://library.sannybuilder.com/#/sa?q=IS_KEY_DOWN */
@@ -4380,7 +4589,7 @@ interface Pad {
     /** Affects the delay to the left and right steering while driving
     *
     * https://library.sannybuilder.com/#/sa?q=SET_DRUNK_INPUT_DELAY */
-    SetDrunkInputDelay(pad: Pad, delay: int): void;
+    SetDrunkInputDelay(pad: int, delay: int): void;
     SetPlayerCycleWeaponButton(playerId: Player, state: boolean): void;
     /** Sets whether a player can use the ACTION key to display their stats
     *
@@ -4405,7 +4614,7 @@ interface Pad {
     /** Shakes the player's joypad at the specified intensity for the specified time
     *
     * https://library.sannybuilder.com/#/sa?q=SHAKE_PAD */
-    Shake(pad: Pad, time: int, intensity: int): void;
+    Shake(pad: int, time: int, intensity: int): void;
     /** Returns true if the specified string of letters has been typed on the keyboard
     *
     * https://library.sannybuilder.com/#/sa?q=TEST_CHEAT */
@@ -4830,7 +5039,7 @@ declare class Player {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_PLAYER_DRUNKENNESS */
     setDrunkenness(intensity: int): Player;
-    /** Defines whether the player have to reload their gun
+    /** Defines whether the player can reload their gun 4x times faster
     *
     * https://library.sannybuilder.com/#/sa?q=SET_PLAYER_FAST_RELOAD */
     setFastReload(state: boolean): Player;
@@ -4851,10 +5060,6 @@ declare class Player {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_HEADING_FOR_ATTACHED_PLAYER */
     setHeadingForAttached(heading: float, rotationSpeed: float): Player;
-    /** Sets whether cops should ignore the player regardless of wanted level
-    *
-    * https://library.sannybuilder.com/#/sa?q=SET_POLICE_IGNORE_PLAYER */
-    setIgnorePolice(state: boolean): Player;
     /** Changes the player to use the specified model
     *
     * https://library.sannybuilder.com/#/sa?q=SET_PLAYER_MODEL */
@@ -5037,7 +5242,7 @@ declare class ScriptObject {
     *
     * https://library.sannybuilder.com/#/sa?q=ENABLE_DISABLED_ATTRACTORS_ON_OBJECT */
     enableDisabledAttractors(state: boolean): ScriptObject;
-    /** Keeps the object in the games memory
+    /** Sets whether the object's position remains unchanged
     *
     * https://library.sannybuilder.com/#/sa?q=FREEZE_OBJECT_POSITION */
     freezePosition(state: boolean): ScriptObject;
@@ -5634,6 +5839,10 @@ declare var StreamedScript: StreamedScript
  * 
  * https://library.sannybuilder.com/#/sa/classes/Streaming */
 interface Streaming {
+    /** Sets an animation pack to be loaded along with the specified model
+    *
+    * https://library.sannybuilder.com/#/sa?q=ATTACH_ANIMS_TO_MODEL */
+    AttachAnimsToModel(pedModelId: int, animationFile: string): void;
     /** Gets the current interior ID
     *
     * https://library.sannybuilder.com/#/sa?q=GET_AREA_VISIBLE */
@@ -5713,6 +5922,10 @@ interface Streaming {
     *
     * https://library.sannybuilder.com/#/sa?q=LOAD_SPECIAL_CHARACTER */
     LoadSpecialCharacter(slotId: int, modelName: string): void;
+    /** Marks the train as no longer needed by the script, allowing it to be deleted by the game
+    *
+    * https://library.sannybuilder.com/#/sa?q=MARK_MISSION_TRAINS_AS_NO_LONGER_NEEDED */
+    MarkMissionTrainsAsNoLongerNeeded(): void;
     /** Releases the specified model, freeing game memory
     *
     * https://library.sannybuilder.com/#/sa?q=MARK_MODEL_AS_NO_LONGER_NEEDED */
@@ -6171,19 +6384,27 @@ interface Text {
     *
     * https://library.sannybuilder.com/#/sa?q=DRAW_SUBTITLES_BEFORE_FADE */
     DrawSubtitlesBeforeFade(state: boolean): void;
-    /** Prevents timers and big texts from being hidden if there is another conflicting type of text on screen
+    /** Returns the CRC hash of the input string
     *
-    * https://library.sannybuilder.com/#/sa?q=FORCE_BIG_MESSAGE_AND_COUNTER */
-    ForceBigMessageAndCounter(state: boolean): void;
+    * https://library.sannybuilder.com/#/sa?q=GET_HASH_KEY */
+    GetHashKey(text: string): int;
     GetLabelString(key: string): string;
     /** Returns the string length
     *
     * https://library.sannybuilder.com/#/sa?q=GET_STRING_LENGTH */
     GetStringLength(text: string): int;
+    /** Gets the width of the GXT entry string
+    *
+    * https://library.sannybuilder.com/#/sa?q=GET_STRING_WIDTH */
+    GetStringWidth(entry: string): int;
     /** Gets the width of the GXT entry string with the specified number
     *
     * https://library.sannybuilder.com/#/sa?q=GET_STRING_WIDTH_WITH_NUMBER */
-    GetStringWidthWithNumber(gxtEntry: string, number: int): float;
+    GetStringWidthWithNumber(gxtEntry: string, number: int): int;
+    /** Returns true if the string is empty
+    *
+    * https://library.sannybuilder.com/#/sa?q=IS_LVAR_TEXT_LABEL16_EMPTY */
+    IsEmpty(text: string): boolean;
     /** Returns true if any help message is being displayed
     *
     * https://library.sannybuilder.com/#/sa?q=IS_HELP_MESSAGE_BEING_DISPLAYED */
@@ -6286,7 +6507,13 @@ interface Text {
     * https://library.sannybuilder.com/#/sa?q=PRINT_WITH_NUMBER_NOW */
     PrintWithNumberNow(key: string, num: int, duration: int, flag: int): void;
     RemoveLabel(dynamicKey: string): void;
-    ScanString(str: string, format: string, ...args: number[]): string;
+    /** Extracts data from a string using sscanf
+    *
+    * https://library.sannybuilder.com/#/sa?q=SCAN_STRING */
+    ScanString(string: string, format: string): {
+        nValues: int;
+        values: number[];
+    } | undefined;
     /** Displays the text of the specified GXT entry using San Andreas' area name text style
     *
     * https://library.sannybuilder.com/#/sa?q=SET_AREA_NAME */
@@ -6538,7 +6765,7 @@ interface World {
     *
     * https://library.sannybuilder.com/#/sa?q=CLEAR_ALL_SCRIPT_FIRE_FLAGS */
     ClearAllScriptFireFlags(): void;
-    /** Removes references to all created roadblocks, freeing game memory
+    /** Removes references to all created roadblocks (04C0), freeing game memory
     *
     * https://library.sannybuilder.com/#/sa?q=CLEAR_ALL_SCRIPT_ROADBLOCKS */
     ClearAllScriptRoadblocks(): void;
@@ -6586,14 +6813,6 @@ interface World {
     *
     * https://library.sannybuilder.com/#/sa?q=DISABLE_ALL_ENTRY_EXITS */
     DisableAllEntryExits(state: boolean): void;
-    /** Sets whether cops will chase and kill criminals when their task is 'TASK_COMPLEX_KILL_CRIMINAL'
-    *
-    * https://library.sannybuilder.com/#/sa?q=ENABLE_AMBIENT_CRIME */
-    EnableAmbientCrime(state: boolean): void;
-    /** Switches enex markers used for burglary missions on or off
-    *
-    * https://library.sannybuilder.com/#/sa?q=ENABLE_BURGLARY_HOUSES */
-    EnableBurglaryHouses(state: boolean): void;
     /** Removes all fires within the specified area
     *
     * https://library.sannybuilder.com/#/sa?q=EXTINGUISH_FIRE_AT_POINT */
@@ -6721,45 +6940,27 @@ interface World {
     *
     * https://library.sannybuilder.com/#/sa?q=IS_PROJECTILE_IN_AREA */
     IsProjectileInArea(leftBottomX: float, leftBottomY: float, leftBottomZ: float, rightTopX: float, rightTopY: float, rightTopZ: float): boolean;
-    /** Marks the train as no longer needed by the script, allowing it to be deleted by the game
-    *
-    * https://library.sannybuilder.com/#/sa?q=MARK_MISSION_TRAINS_AS_NO_LONGER_NEEDED */
-    MarkMissionTrainsAsNoLongerNeeded(): void;
     /** Removes all script fires (02CF)
     *
     * https://library.sannybuilder.com/#/sa?q=REMOVE_ALL_SCRIPT_FIRES */
     RemoveAllScriptFires(): void;
     RemoveOilPuddlesInArea(leftBottomX: float, leftBottomY: float, rightTopX: float, rightTopY: float): void;
-    /** Enables an increase in the distance that markers hovering above entities can be seen from
-    *
-    * https://library.sannybuilder.com/#/sa?q=SET_ALWAYS_DRAW_3D_MARKERS */
-    SetAlwaysDraw3DMarkers(state: boolean): void;
     /** Sets the quantity of traffic that will spawn in the game
     *
     * https://library.sannybuilder.com/#/sa?q=SET_CAR_DENSITY_MULTIPLIER */
     SetCarDensityMultiplier(multiplier: float): void;
-    SetCharUsesCollisionClosestObjectOfType(x: float, y: float, z: float, radius: float, modelId: int, solid: boolean, target: Char): void;
+    /** Sets whether collision of the object closest to the given coordinates and matching the model applies to the target character
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_CHAR_USES_COLLISION_CLOSEST_OBJECT_OF_TYPE */
+    SetCharUsesCollisionClosestObjectOfType(x: float, y: float, z: float, radius: float, modelId: int, state: boolean, target: Char): void;
     /** This command is like 098E, except it finds the appropriate enex marker via its position instead of its name
     *
     * https://library.sannybuilder.com/#/sa?q=SET_CLOSEST_ENTRY_EXIT_FLAG */
     SetClosestEntryExitFlag(x: float, y: float, radius: float, entryexitsFlag: int, state: boolean): void;
-    SetCreateRandomCops(state: boolean): void;
-    /** Sets whether gang members will spawn
-    *
-    * https://library.sannybuilder.com/#/sa?q=SET_CREATE_RANDOM_GANG_MEMBERS */
-    SetCreateRandomGangMembers(state: boolean): void;
     /** Sets the extra color of the sky
     *
     * https://library.sannybuilder.com/#/sa?q=SET_EXTRA_COLOURS */
     SetExtraColors(color: int, fade: boolean): void;
-    /** Enables the LS Riots, making smoke appear on houses, random car fires occur, peds stealing things and attacking each other in a frenzy
-    *
-    * https://library.sannybuilder.com/#/sa?q=SET_LA_RIOTS */
-    SetLaRiots(state: boolean): void;
-    /** Sets whether gangs appear everywhere, like when "Gangs control the streets" cheat is activated
-    *
-    * https://library.sannybuilder.com/#/sa?q=SET_ONLY_CREATE_GANG_MEMBERS */
-    SetOnlyCreateGangMembers(state: boolean): void;
     /** Sets the quantity of pedestrians to spawn in the game
     *
     * https://library.sannybuilder.com/#/sa?q=SET_PED_DENSITY_MULTIPLIER */
@@ -6776,6 +6977,10 @@ interface World {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_TAG_STATUS_IN_AREA */
     SetTagStatusInArea(leftBottomX: float, leftBottomY: float, rightTopX: float, rightTopY: float, percent: int): void;
+    /** Toggles collision of the object closest to the given coordinates and matching the model
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_USES_COLLISION_OF_CLOSEST_OBJECT_OF_TYPE */
+    SetUsesCollisionOfClosestObjectOfType(x: float, y: float, z: float, radius: float, modelId: int, state: boolean): void;
     /** Sets the visibility of the object closest to the specified coordinates, matching the specified model
     *
     * https://library.sannybuilder.com/#/sa?q=SET_VISIBILITY_OF_CLOSEST_OBJECT_OF_TYPE */
@@ -6796,10 +7001,10 @@ interface World {
     *
     * https://library.sannybuilder.com/#/sa?q=SWITCH_WORLD_PROCESSING */
     SwitchProcessing(state: boolean): void;
-    /** Sets whether trains are generated
+    /** Flattens water waves
     *
-    * https://library.sannybuilder.com/#/sa?q=SWITCH_RANDOM_TRAINS */
-    SwitchRandomTrains(state: boolean): void;
+    * https://library.sannybuilder.com/#/sa?q=SYNC_WATER */
+    SyncWater(): void;
 }
 declare var World: World
 /** 
