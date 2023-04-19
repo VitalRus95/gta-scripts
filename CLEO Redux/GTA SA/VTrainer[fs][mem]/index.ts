@@ -232,21 +232,30 @@ let menuOpacity: float = IniFile.ReadFloat(settings, 'SETTINGS', 'opacity') ?? 0
 let lang: string = IniFile.ReadString(settings, 'SETTINGS', 'language') ?? 'English';
 let coloursPerRow: int = IniFile.ReadInt(settings, 'SETTINGS', 'colsPerRow') ?? 30;
 
-//#region Flags
+//#region Flags & Values
 let playerProofs: boolean[] = [false, false, false, false, false];
 let carProofs: boolean[] = [false, false, false, false, false];
+let freezePlayer: boolean = false;
+let lockPlayer: boolean = false;
 let stayOnBike: boolean = false;
+let infiniteSprint: boolean = false;
+let ignoredByPolice: boolean = false;
+let ignoredByEveryone: boolean = false;
 let tyresProof: boolean = false;
 let heavyCar: boolean = false;
 let lockClock: boolean = false;
 let instantTeleport: boolean = false;
 let resetInstantTp: boolean = false;
+let changeWind: boolean = false;
 
 let pedDensity: float = 1.0;
 let carDensity: float = 1.0;
 let gameSpeed: float = 1.0;
 let oldSpawnedCarModel: int = 0;
+let gravity: float = 0.008;
+let windX: float, windY: float, windZ: float;
 let time = { hours: 0, minutes: 0 };
+
 let x, y, z, heading; // Teleport
 let chosenCar: int; // Index of car to spawn
 let money: int; // Giving money
@@ -297,8 +306,15 @@ function style() {
 }
 
 function applyFlags() {
+    plr.setControl(!lockPlayer)
+        .setNeverGetsTired(infiniteSprint);
+
     plc.setProofs(playerProofs[0], playerProofs[1], playerProofs[2], playerProofs[3], playerProofs[4])
-        .setCanBeKnockedOffBike(stayOnBike);
+        .setCanBeKnockedOffBike(stayOnBike)
+        .freezePosition(freezePlayer);
+
+    Game.SetPoliceIgnorePlayer(plr, ignoredByPolice);
+    Game.SetEveryoneIgnorePlayer(plr, ignoredByEveryone);
 
     if (plc.isInAnyCar()) {
         let car: Car = plc.storeCarIsInNoSave();
@@ -315,6 +331,12 @@ function applyFlags() {
         Clock.SetTimeOfDay(time.hours, time.minutes);
         Weather.ForceNow(getCurrentWeather());
     }
+
+    if (changeWind) {
+        Memory.WriteFloat(0xC813E0, windX, false);
+        Memory.WriteFloat(0xC813E4, windY, false);
+        Memory.WriteFloat(0xC813E8, windZ, false);
+    }
 }
 
 function getCurrentWeather(): int {
@@ -322,8 +344,6 @@ function getCurrentWeather(): int {
 }
 
 function teleport(char: Char, x: float, y: float, z: float, heading: float, interior: int = 0, loadScene: boolean = true) {
-    Streaming.SetAreaVisible(interior);
-
     if (loadScene) {
         Streaming.RequestCollision(x, y);
         Streaming.LoadScene(x, y, z);
@@ -363,33 +383,25 @@ function spawnCar(model: int) {
     TIMERA = 0;
 }
 
+function input(mode: int, inputType: 'int' | 'float', value: number, text: string, initial: number, min: number, max: number, stepFast: number, stepPrecise: number) {
+    if (mode === 0 || mode === 1) {
+        let step = mode === 0 ? stepFast : stepPrecise;
+        return inputType === 'int'
+            ? ImGui.SliderInt(text, initial, Math.max(value - step, min), Math.min(value + step, max))
+            : ImGui.SliderFloat(text, initial, Math.max(value - step, min), Math.min(value + step, max));
+    }
+    return inputType === 'int'
+        ? ImGui.InputInt(text, initial, min, max)
+        : ImGui.InputFloat(text, initial, min, max);
+}
+
 // Menu tabs
 function tabPlayer() {
     if (ImGui.CollapsingHeader(Texts[lang].General + '##Player')) {
-        let step;
-        switch (ImGui.Tabs(Texts[lang].Mode + '##Money', Texts[lang].Modes + '##Money')) {
-            case 0: // Fast
-                step = 1000;
-                money = ImGui.SliderInt(
-                    Texts[lang].Money, 0,
-                    money - step < -999999999 ? -999999999 : money - step,
-                    money + step > 999999999 ? 999999999 : money + step
-                );
-                break;
-            case 1: // Precise
-                step = 5;
-                money = ImGui.SliderInt(
-                    Texts[lang].Money, 0,
-                    money - step < -999999999 ? -999999999 : money - step,
-                    money + step > 999999999 ? 999999999 : money + step
-                );
-                break;
-            case 2: // Text input
-                money = ImGui.InputInt(Texts[lang].Money, 0, -999999999, 999999999);
-                break;
-            default:
-                break;
-        }
+        money = input(
+            ImGui.Tabs(Texts[lang].Mode + '##Money', Texts[lang].Modes + '##Money'),
+            'int', money, Texts[lang].Money, 0, -999999999, 999999999, 1000, 5
+        );
         if (ImGui.IsItemActive('GiveMoney')) plr.addScore(money + plr.storeScore() * -1);
         space();
 
@@ -405,6 +417,10 @@ function tabPlayer() {
 
         let maxWL = ImGui.SliderInt(Texts[lang].MaxWL, 6, 0, 6);
         if (ImGui.IsItemActive('MaxWL')) Game.SetMaxWantedLevel(maxWL);
+        space();
+
+        freezePlayer = ImGui.Checkbox(Texts[lang].FreezePlr, freezePlayer);
+        lockPlayer = ImGui.Checkbox(Texts[lang].LockPlr, lockPlayer);
     }
     ImGui.Separator();
 
@@ -414,9 +430,12 @@ function tabPlayer() {
         playerProofs[2] = ImGui.Checkbox(Texts[lang].ImmExplosion, playerProofs[2]);
         playerProofs[3] = ImGui.Checkbox(Texts[lang].ImmCollision, playerProofs[3]);
         playerProofs[4] = ImGui.Checkbox(Texts[lang].ImmMelee, playerProofs[4]);
-
         space();
+
         stayOnBike = ImGui.Checkbox(Texts[lang].StayOnBike, stayOnBike);
+        infiniteSprint = ImGui.Checkbox(Texts[lang].InfiniteSprint, infiniteSprint);
+        ignoredByPolice = ImGui.Checkbox(Texts[lang].IgnoredByCops, ignoredByPolice);
+        ignoredByEveryone = ImGui.Checkbox(Texts[lang].IgnoredByAll, ignoredByEveryone);
     }
     ImGui.Separator();
 }
@@ -489,15 +508,24 @@ function tabVehicle() {
     if (ImGui.CollapsingHeader(Texts[lang].Spawner)) {
         let step = 5;
         chosenCar = ImGui.SliderInt(
-            Texts[lang].Vehicles, 0,
-            chosenCar - step < 0 ? 0 : chosenCar - step,
-            chosenCar + step > vehicles.length - 1 ? vehicles.length - 1 : chosenCar + step
+            Texts[lang].Vehicles, 0, Math.max(chosenCar - step, 0), Math.min(chosenCar + step, vehicles.length - 1)
         );
         if (ImGui.IsItemActive('SpawnCar')) spawnCar(vehicles[chosenCar]);
     }
 }
 
 function tabWorld() {
+    if (ImGui.CollapsingHeader(Texts[lang].General + '##World')) {
+        gravity = ImGui.SliderFloat(
+            Texts[lang].Gravity, 0.008, Math.max(gravity - 0.01, -0.1), Math.min(gravity + 0.01, 0.1)
+        );
+        if (ImGui.IsItemActive('SetGravity')) Memory.WriteFloat(0x863984, gravity, false);
+
+        if (ImGui.Button(Texts[lang].Reset + '##Gravity', windowSize.width * maxItemWidth, 30)) {
+            Memory.WriteFloat(0x863984, 0.008, false);
+        }
+    }
+
     if (ImGui.CollapsingHeader(Texts[lang].Population)) {
         let clrRadius = ImGui.SliderInt(Texts[lang].Radius + '##CLR', 20, 1, 300);
         if (ImGui.Button(Texts[lang].ClearArea, windowSize.width * maxItemWidth, 30)) {
@@ -546,6 +574,15 @@ function tabWorld() {
         if (ImGui.Button(Texts[lang].ResetWeather, windowSize.width * maxItemWidth, 30)) {
             Weather.SetToAppropriateTypeNow();
         }
+        space();
+
+        changeWind = ImGui.Checkbox(Texts[lang].Wind, changeWind);
+        if (changeWind) {
+            let tab: int = ImGui.Tabs(Texts[lang].Mode + '##Wind', Texts[lang].Modes + '##Wind');
+            windX = input(tab, 'float', windX, Texts[lang].WindX, 0, -100, 100, 10, 1);
+            windY = input(tab, 'float', windY, Texts[lang].WindY, 0, -100, 100, 10, 1);
+            windZ = input(tab, 'float', windZ, Texts[lang].WindZ, 0, -100, 100, 10, 1);
+        }
     }
     ImGui.Separator();
 }
@@ -554,11 +591,13 @@ function tabPosition() {
     if (ImGui.CollapsingHeader(Texts[lang].CurPosition)) {
         let pos = plc.getCoordinates();
         let heading = plc.getHeading();
+        let interior = plc.getAreaVisible();
 
         ImGui.TextColored(`X: ${pos.x.toFixed(3)}`, 1, 1, 0, 1);
         ImGui.TextColored(`Y: ${pos.y.toFixed(3)}`, 1, 1, 0, 1);
         ImGui.TextColored(`Z: ${pos.z.toFixed(3)}`, 1, 1, 0, 1);
         ImGui.TextColored(`${Texts[lang].Heading}: ${heading.toFixed(3)}`, 1, 1, 1, 1);
+        ImGui.TextColored(`${Texts[lang].Interior}: ${interior}`, 1, 1, 1, 1);
     }
     ImGui.Separator();
 
@@ -570,68 +609,14 @@ function tabPosition() {
         }
         space();
 
-        switch (ImGui.Tabs(Texts[lang].Mode + '##Teleport', Texts[lang].Modes + '##Teleport')) {
-            case 0: // Fast
-                let stepXY = 75;
-                let stepZ = 20;
-                let stepH = 180;
-
-                x = ImGui.SliderFloat(
-                    Texts[lang].CoordX, 0,
-                    x - stepXY < -3000 ? -3000 : x - stepXY,
-                    x + stepXY > 3000 ? 3000 : x + stepXY
-                );
-                y = ImGui.SliderFloat(
-                    Texts[lang].CoordY, 0,
-                    y - stepXY < -3000 ? -3000 : y - stepXY,
-                    y + stepXY > 3000 ? 3000 : y + stepXY
-                );
-                z = ImGui.SliderFloat(
-                    Texts[lang].CoordZ, 0,
-                    z - stepZ < -100 ? -100 : z - stepZ,
-                    z + stepZ > 2000 ? 2000 : z + stepZ
-                );
-                heading = ImGui.SliderFloat(
-                    Texts[lang].Heading, 0,
-                    heading - stepH < 0 ? 0 : heading - stepH,
-                    heading + stepH > 360 ? 360 : heading + stepH
-                );
-                break;
-            case 1: // Precise
-                let step = 0.5;
-
-                x = ImGui.SliderFloat(
-                    Texts[lang].CoordX, 0,
-                    x - step < -3000 ? -3000 : x - step,
-                    x + step > 3000 ? 3000 : x + step
-                );
-                y = ImGui.SliderFloat(
-                    Texts[lang].CoordY, 0,
-                    y - step < -3000 ? -3000 : y - step,
-                    y + step > 3000 ? 3000 : y + step
-                );
-                z = ImGui.SliderFloat(
-                    Texts[lang].CoordZ, 0,
-                    z - step < -100 ? -100 : z - step,
-                    z + step > 2000 ? 2000 : z + step
-                );
-                heading = ImGui.SliderFloat(
-                    Texts[lang].Heading, 0,
-                    heading - step < 0 ? 0 : heading - step,
-                    heading + step > 360 ? 360 : heading + step
-                );
-                break;
-            case 2: // Texts input
-                x = ImGui.InputFloat(Texts[lang].CoordX, 0, -3000, 3000);
-                y = ImGui.InputFloat(Texts[lang].CoordY, 0, -3000, 3000);
-                z = ImGui.InputFloat(Texts[lang].CoordZ, 0, -100, 2000);
-                heading = ImGui.InputFloat(Texts[lang].Heading, 0, 0, 360);
-                break;
-            default:
-                break;
-        }
+        let tab: int = ImGui.Tabs(Texts[lang].Mode + '##Teleport', Texts[lang].Modes + '##Teleport');
+        x = input(tab, 'float', x, Texts[lang].CoordX, 0, -3000, 3000, 75, 0.5);
+        y = input(tab, 'float', y, Texts[lang].CoordY, 0, -3000, 3000, 75, 0.5);
+        z = input(tab, 'float', z, Texts[lang].CoordZ, 0, -100, 2000, 20, 0.5);
+        heading = input(tab, 'float', heading, Texts[lang].Heading, 0, 0, 360, 180, 0.5);
 
         let interior = ImGui.SliderInt(Texts[lang].Interior, 0, 0, 18);
+        if (ImGui.IsItemActive('SetInterior')) Streaming.SetAreaVisible(interior);
 
         if (instantTeleport) {
             teleport(plc, x, y, z, heading, interior, false);

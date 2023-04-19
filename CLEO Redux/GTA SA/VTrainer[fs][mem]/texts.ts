@@ -8,6 +8,7 @@ export const Texts = {
         'Position': 'Position',
         'About': 'About',
         'Mode': 'Mode',
+        'Reset': 'Reset',
 
         'General': 'General',
         'Health': 'Health',
@@ -15,7 +16,12 @@ export const Texts = {
         'Money': 'Money',
         'Wanted': 'Wanted level',
         'MaxWL': 'Max wanted level',
+        'LockPlr': 'Lock movement and camera',
+        'FreezePlr': 'Lock movement',
         'StayOnBike': 'Stay on bike',
+        'InfiniteSprint': 'Infinite sprint',
+        'IgnoredByCops': 'Ignored by police',
+        'IgnoredByAll': 'Ignored by everyone',
 
         'Immunities': 'Proofs',
         'ImmBullet': 'Bullet',
@@ -37,6 +43,7 @@ export const Texts = {
         'ColsPerRow': 'Colours per row',
 
         'Population': 'Population',
+        'Gravity': 'Gravity',
         'Time': 'Time',
         'Hours': 'Hours',
         'Minutes': 'Minutes',
@@ -50,6 +57,10 @@ export const Texts = {
         'CarDensity': 'Car density',
         'ClearArea': 'Clear area',
         'Radius': 'Radius',
+        'Wind': 'Custom wind speed',
+        'WindX': 'Wind speed (X)',
+        'WindY': 'Wind speed (Y)',
+        'WindZ': 'Wind speed (Z)',
 
         'CurPosition': 'Current position',
         'Teleport': 'Teleport',
@@ -70,6 +81,6 @@ export const Texts = {
         'About2': '\t\tCLEO Redux by Seemann',
         'About3': '\t\tImGui support by Grinch',
         'Help': 'Thanks for help to:',
-        'Help1': '\t\t'
+        'Help1': '\t\tSeemann, Bloodriver'
     }
 };
