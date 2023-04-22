@@ -33,6 +33,11 @@
 + added radar and map colour choice (thanks to Bloodriver!)
 + added crosshair colour choice (thanks to Bloodriver!)
 ```
+#### 1.6
+```diff
++ added Turkish translation (thanks to Bloodriver!)
++ added Ukrainian translation (thanks to wmysterio!)
+```
 
 ## РУССКИЙ
 * Автор: Vital (Виталий Павлович Ульянов)
@@ -68,4 +73,9 @@
 ```diff
 + добавлен выбор цвета карты и радара (спасибо Bloodriver!)
 + добавлен выбор цвета прицела (спасибо Bloodriver!)
+```
+#### 1.6
+```diff
++ добавлен турецкий перевод (спасибо Bloodriver!)
++ добавлен украинский перевод (спасибо wmysterio!)
 ```

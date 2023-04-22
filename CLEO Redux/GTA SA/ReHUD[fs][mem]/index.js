@@ -2,7 +2,7 @@
 //	Script by Vital (Vitaly Pavlovich Ulyanov)
 
 import { Font, ImGuiCond, WeaponType } from "../.config/enums";
-import { ReHud } from "./texts";
+import ReHud from "./texts.json";
 
 var plr = new Player(0),
     plc = plr.getChar(),
@@ -59,16 +59,16 @@ const StandardGXT = {
 class RGBA {
     /**
      * Creates an RGBA colour (range 0-255).
-     * @param {int} r Red
-     * @param {int} g Green
-     * @param {int} b Blue
-     * @param {int} a Alpha
+     * @param {int} red Red
+     * @param {int} green Green
+     * @param {int} blue Blue
+     * @param {int} alpha Alpha
      */
-    constructor(r, g, b, a = 255) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
+    constructor(red, green, blue, alpha = 255) {
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = alpha;
     }
 }
 
@@ -93,9 +93,9 @@ class HSV {
         const percToValue = 255/100;
         var Hi = parseInt(((this.h/60) % 6).toString()),
             Vmin = ((100 - this.s) * this.v)/100,
-            a = (this.v - Vmin) * ((this.h % 60)/60),
-            Vinc = Vmin + a,
-            Vdec = this.v - a;
+            alpha = (this.v - Vmin) * ((this.h % 60)/60),
+            Vinc = Vmin + alpha,
+            Vdec = this.v - alpha;
 
         switch (Hi) {
             case 0:
@@ -118,7 +118,7 @@ class HSV {
 
 class VarTextDraw {
     /**
-     * A text with a variable or two to draw on screen.
+     * A text with alpha variable or two to draw on screen.
      * @param {string} gxt GXT string
      * @param {AlignType} alignment Type of alignment
      */
@@ -150,11 +150,11 @@ class VarTextDraw {
             default:
                 break;
         }
-        Text.SetColor(colour.r, colour.g, colour.b, colour.a);
+        Text.SetColor(colour.red, colour.green, colour.blue, colour.alpha);
         if (defShadow) {
-            Text.SetDropshadow(outlineWidth, outlineColour.r, outlineColour.g, outlineColour.b, outlineColour.a);
+            Text.SetDropshadow(outlineWidth, outlineColour.red, outlineColour.green, outlineColour.blue, outlineColour.alpha);
         } else {
-            Text.SetEdge(outlineWidth, outlineColour.r, outlineColour.g, outlineColour.b, outlineColour.a);
+            Text.SetEdge(outlineWidth, outlineColour.red, outlineColour.green, outlineColour.blue, outlineColour.alpha);
         }
         Text.SetFont(font);
         Text.SetScale(width * defMult, height * defMult);
@@ -174,26 +174,26 @@ class VarTextDraw {
 
 class BarDraw {
     /**
-     * Creates a HUD bar.
+     * Creates alpha HUD bar.
      * @param {RGBA} barFgColour Foreground colour
      * @param {RGBA} barBgColour Background colour
      * @param {RGBA} barMiddleColour Optional middle colour
      */
     constructor(barFgColour = new RGBA(255, 255, 255, defBarFgTransparency), barBgColour = new RGBA(0, 0, 0, defBarBgTransparency), useMiddle = false, middleColour = new RGBA(50, 50, 50, defBarBgTransparency)) {
-        this.fgR = barFgColour.r;
-        this.fgG = barFgColour.g;
-        this.fgB = barFgColour.b;
-        this.bgR = barBgColour.r;
-        this.bgG = barBgColour.g;
-        this.bgB = barBgColour.b;
-        this.midR = middleColour.r;
-        this.midG = middleColour.g;
-        this.midB = middleColour.b;
+        this.fgR = barFgColour.red;
+        this.fgG = barFgColour.green;
+        this.fgB = barFgColour.blue;
+        this.bgR = barBgColour.red;
+        this.bgG = barBgColour.green;
+        this.bgB = barBgColour.blue;
+        this.midR = middleColour.red;
+        this.midG = middleColour.green;
+        this.midB = middleColour.blue;
         this.useMiddle = useMiddle;
     }
 
     /**
-     * Draws a HUD bar on the screen.
+     * Draws alpha HUD bar on the screen.
      * @param {float} x X screen coordinate
      * @param {float} y Y screen coordinate
      * @param {any} value Value to depict
@@ -260,10 +260,10 @@ class BarDraw {
                 sepY = fgY,
                 sepW = 1 * defMult,
                 sepH = fgH,
-                sepR = defBarSeparatorColour.r,
-                sepG = defBarSeparatorColour.g,
-                sepB = defBarSeparatorColour.b,
-                sepA = defBarSeparatorColour.a;
+                sepR = defBarSeparatorColour.red,
+                sepG = defBarSeparatorColour.green,
+                sepB = defBarSeparatorColour.blue,
+                sepA = defBarSeparatorColour.alpha;
 
             Hud.DrawRect(sepX, sepY, sepW, sepH, sepR, sepG, sepB, sepA);
         }
@@ -351,28 +351,29 @@ var defFont = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'Font') ?? 3,
     defBarFgTransparency = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarFgAlpha') ?? 225,
     defBarBgTransparency = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarBgAlpha') ?? 175,
     defBarMdTransparency = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarMdAlpha') ?? 225,
-    defBarSeparator = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSeparator') ?? true;
+    defBarSeparator = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSeparator') ?? true,
+    language = IniFile.ReadString('./rehud.ini', 'SETTINGS', 'Language') ?? 'English';
 
-defBarSeparatorColour.r = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepR') ?? 0;
-defBarSeparatorColour.g = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepG') ?? 0;
-defBarSeparatorColour.b = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepB') ?? 0;
-defBarSeparatorColour.a = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepA') ?? 255;
+defBarSeparatorColour.red = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepR') ?? 0;
+defBarSeparatorColour.green = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepG') ?? 0;
+defBarSeparatorColour.blue = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepB') ?? 0;
+defBarSeparatorColour.alpha = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'BarSepA') ?? 255;
 
-crosshairColour.r = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairR') ?? 255;
-crosshairColour.g = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairG') ?? 255;
-crosshairColour.b = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairB') ?? 255;
-crosshairColour.a = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairA') ?? 255;
+crosshairColour.red = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairR') ?? 255;
+crosshairColour.green = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairG') ?? 255;
+crosshairColour.blue = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairB') ?? 255;
+crosshairColour.alpha = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'CrosshairA') ?? 255;
 
-radarColour.r = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'RadarR') ?? 255;
-radarColour.g = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'RadarG') ?? 255;
-radarColour.b = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'RadarB') ?? 255;
+radarColour.red = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'RadarR') ?? 255;
+radarColour.green = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'RadarG') ?? 255;
+radarColour.blue = IniFile.ReadInt('./rehud.ini', 'SETTINGS', 'RadarB') ?? 255;
 
 changeRadarMapColour();
 changeCrosshairColour();
 //#endregion
 
 //#region Fix radar
-// It used to be 0x866B78, but Bloodriver taught me a better way to fix the radar width;
+// It used to be 0x866B78, but Bloodriver taught me alpha better way to fix the radar width;
 if (!Fs.DoesFileExist('GTASA.WidescreenFix.asi')) {
     const radarWidth = [0x5834C2, 0x58A7E9, 0x58A840, 0x58A943, 0x58A99D, 0x58A449, 0x58781B],
           radarHeight = [0x5834F6, 0x58A47D, 0x58A801, 0x58A8AB, 0x58A921, 0x58A9D5];
@@ -405,10 +406,9 @@ while (true) {
     ImGui.SetCursorVisible(active);
     if (active) {
         ImGui.SetNextWindowPos(0, 0, ImGuiCond.Once);
-        ImGui.SetNextWindowSize(400, 400, ImGuiCond.Once);
         active = ImGui.Begin('ReHUD', active, false, false, false, true);
 
-        if (IsGuiButtonPressed(ReHud.Save)) {
+        if (IsGuiButtonPressed(ReHud[language].Save)) {
             IniFile.WriteInt(defFont, './rehud.ini', 'SETTINGS', 'Font');
             IniFile.WriteInt(defOutlineWidth, './rehud.ini', 'SETTINGS', 'OutlineWidth');
             IniFile.WriteInt(defShadow, './rehud.ini', 'SETTINGS', 'Shadow');
@@ -421,104 +421,109 @@ while (true) {
             IniFile.WriteInt(defBarBgTransparency, './rehud.ini', 'SETTINGS', 'BarBgAlpha');
             IniFile.WriteInt(defBarMdTransparency, './rehud.ini', 'SETTINGS', 'BarMdAlpha');
             IniFile.WriteInt(defBarSeparator, './rehud.ini', 'SETTINGS', 'BarSeparator');
-            IniFile.WriteInt(defBarSeparatorColour.r, './rehud.ini', 'SETTINGS', 'BarSepR');
-            IniFile.WriteInt(defBarSeparatorColour.g, './rehud.ini', 'SETTINGS', 'BarSepG');
-            IniFile.WriteInt(defBarSeparatorColour.b, './rehud.ini', 'SETTINGS', 'BarSepB');
-            IniFile.WriteInt(defBarSeparatorColour.a, './rehud.ini', 'SETTINGS', 'BarSepA');
-            IniFile.WriteInt(crosshairColour.r, './rehud.ini', 'SETTINGS', 'CrosshairR');
-            IniFile.WriteInt(crosshairColour.g, './rehud.ini', 'SETTINGS', 'CrosshairG');
-            IniFile.WriteInt(crosshairColour.b, './rehud.ini', 'SETTINGS', 'CrosshairB');
-            IniFile.WriteInt(crosshairColour.a, './rehud.ini', 'SETTINGS', 'CrosshairA');
-            IniFile.WriteInt(radarColour.r, './rehud.ini', 'SETTINGS', 'RadarR');
-            IniFile.WriteInt(radarColour.g, './rehud.ini', 'SETTINGS', 'RadarG');
-            IniFile.WriteInt(radarColour.b, './rehud.ini', 'SETTINGS', 'RadarB');
+            IniFile.WriteInt(defBarSeparatorColour.red, './rehud.ini', 'SETTINGS', 'BarSepR');
+            IniFile.WriteInt(defBarSeparatorColour.green, './rehud.ini', 'SETTINGS', 'BarSepG');
+            IniFile.WriteInt(defBarSeparatorColour.blue, './rehud.ini', 'SETTINGS', 'BarSepB');
+            IniFile.WriteInt(defBarSeparatorColour.alpha, './rehud.ini', 'SETTINGS', 'BarSepA');
+            IniFile.WriteInt(crosshairColour.red, './rehud.ini', 'SETTINGS', 'CrosshairR');
+            IniFile.WriteInt(crosshairColour.green, './rehud.ini', 'SETTINGS', 'CrosshairG');
+            IniFile.WriteInt(crosshairColour.blue, './rehud.ini', 'SETTINGS', 'CrosshairB');
+            IniFile.WriteInt(crosshairColour.alpha, './rehud.ini', 'SETTINGS', 'CrosshairA');
+            IniFile.WriteInt(radarColour.red, './rehud.ini', 'SETTINGS', 'RadarR');
+            IniFile.WriteInt(radarColour.green, './rehud.ini', 'SETTINGS', 'RadarG');
+            IniFile.WriteInt(radarColour.blue, './rehud.ini', 'SETTINGS', 'RadarB');
+            IniFile.WriteString(language, './rehud.ini', 'SETTINGS', 'Language');
             Sound.AddOneOffSound(.0, .0, .0, 1052);
         }
         ImGui.Separator();
 
-        turnedOn = ImGui.Checkbox(ReHud.TurnON, turnedOn);
+        if (ImGui.CollapsingHeader(`${ReHud[language].Translation}##LanguageHeader`)) {
+            for (const lang in ReHud) {
+                if (IsGuiButtonPressed(`${ReHud[lang].Translation}##LanguageButton`)) {
+                    language = lang;
+                }
+            }
+        }
+        ImGui.Separator();
+
+        turnedOn = ImGui.Checkbox(ReHud[language].TurnON, turnedOn);
         Memory.WriteU8(Addresses.HudMode.adr, (turnedOn) ? 0 : 1, false);
         ImGui.Separator();
 
-        defBars = ImGui.Checkbox(ReHud.UseBars, defBars);
+        defBars = ImGui.Checkbox(ReHud[language].UseBars, defBars);
         if (defBars) {
             ImGui.SameLine();
-            defBarSeparator = ImGui.Checkbox(ReHud.UseSeparator, defBarSeparator);
+            defBarSeparator = ImGui.Checkbox(ReHud[language].UseSeparator, defBarSeparator);
 
-            if (ImGui.CollapsingHeader(ReHud.BarSettings)) {
-                defBarBgTransparency = ImGui.SliderInt(ReHud.BgAlpha, defBarBgTransparency, 35, 255);
-                defBarMdTransparency = ImGui.SliderInt(ReHud.MdAlpha, defBarMdTransparency, 35, 255);
-                defBarFgTransparency = ImGui.SliderInt(ReHud.FgAlpha, defBarFgTransparency, 35, 255);
+            if (ImGui.CollapsingHeader(ReHud[language].BarSettings)) {
+                defBarBgTransparency = ImGui.SliderInt(ReHud[language].BgAlpha, defBarBgTransparency, 35, 255);
+                defBarMdTransparency = ImGui.SliderInt(ReHud[language].MdAlpha, defBarMdTransparency, 35, 255);
+                defBarFgTransparency = ImGui.SliderInt(ReHud[language].FgAlpha, defBarFgTransparency, 35, 255);
 
                 if (defBarSeparator) {
-                    var sepColour = ImGui.ColorPicker(ReHud.SepColour);
-                    if (IsGuiButtonPressed(ReHud.ApplySepCol)) {
-                        defBarSeparatorColour.r = sepColour.red * 255;
-                        defBarSeparatorColour.g = sepColour.green * 255;
-                        defBarSeparatorColour.b = sepColour.blue * 255;
-                        defBarSeparatorColour.a = sepColour.alpha * 255;
+                    var sepColour = ImGui.ColorPicker(ReHud[language].SepColour);
+                    if (ImGui.IsItemActive('PickSeparatorColour')) {
+                        defBarSeparatorColour = sepColour;
                     }
                 }
             }
         }
         ImGui.Separator();
 
-        if (ImGui.CollapsingHeader(ReHud.Font)) {
-            defFont = ImGui.RadioButton(ReHud.Gothic, defFont, 0);
-            defFont = ImGui.RadioButton(ReHud.Subtitles, defFont, 1);
-            defFont = ImGui.RadioButton(ReHud.Menu, defFont, 2);
-            defFont = ImGui.RadioButton(ReHud.Pricedown, defFont, 3);
+        if (ImGui.CollapsingHeader(ReHud[language].Font)) {
+            defFont = ImGui.RadioButton(ReHud[language].Gothic, defFont, 0);
+            defFont = ImGui.RadioButton(ReHud[language].Subtitles, defFont, 1);
+            defFont = ImGui.RadioButton(ReHud[language].Menu, defFont, 2);
+            defFont = ImGui.RadioButton(ReHud[language].Pricedown, defFont, 3);
         }
         ImGui.Separator();
 
-        defShadow = ImGui.Checkbox(ReHud.Shadow, defShadow);
+        defShadow = ImGui.Checkbox(ReHud[language].Shadow, defShadow);
         ImGui.Separator();
 
-        defClock = ImGui.Checkbox(ReHud.DefClock, defClock);
+        defClock = ImGui.Checkbox(ReHud[language].DefClock, defClock);
         if (!defClock) {
             ImGui.SameLine();
-            defHrsInCentre = ImGui.Checkbox(ReHud.HrsCentre, defHrsInCentre);
+            defHrsInCentre = ImGui.Checkbox(ReHud[language].HrsCentre, defHrsInCentre);
         }
         ImGui.Separator();
 
-        defStars = ImGui.Checkbox(ReHud.WantedStars, defStars);
+        defStars = ImGui.Checkbox(ReHud[language].WantedStars, defStars);
         ImGui.Separator();
 
-        var defMult = ImGui.SliderInt(ReHud.Scale, defMult * 10, 5, 20) / 10;
+        var defMult = ImGui.SliderInt(ReHud[language].Scale, defMult * 10, 5, 20) / 10;
         ImGui.Separator();
 
-        if (defShadow) {
-            defOutlineWidth = ImGui.SliderInt(ReHud.ShadowSize, defOutlineWidth, 0, 5);
-        } else {
-            defOutlineWidth = ImGui.SliderInt(ReHud.OutlineSize, defOutlineWidth, 0, 5);
-        }
+        if (defShadow)
+            defOutlineWidth = ImGui.SliderInt(ReHud[language].ShadowSize, defOutlineWidth, 0, 5);
+        else
+            defOutlineWidth = ImGui.SliderInt(ReHud[language].OutlineSize, defOutlineWidth, 0, 5);
         ImGui.Separator();
 
-        if (ImGui.CollapsingHeader(ReHud.RadarMapColour)) {
-            radarColour.r = ImGui.SliderInt('R#RadarMap', radarColour.r, 0, 255);
-            radarColour.g = ImGui.SliderInt('G#RadarMap', radarColour.g, 0, 255);
-            radarColour.b = ImGui.SliderInt('B#RadarMap', radarColour.b, 0, 255);
-            changeRadarMapColour();
+        if (ImGui.CollapsingHeader(ReHud[language].RadarMapColour)) {
+            radarColour = ImGui.ColorPicker('##RadarMapCP');
+            if (ImGui.IsItemActive('PickMapRadarColour')) {
+                changeRadarMapColour();
+            }
         }
 
-        if (ImGui.CollapsingHeader(ReHud.CrosshairColour)) {
-            crosshairColour.r = ImGui.SliderInt('R#Crosshair', crosshairColour.r, 0, 255);
-            crosshairColour.g = ImGui.SliderInt('G#Crosshair', crosshairColour.g, 0, 255);
-            crosshairColour.b = ImGui.SliderInt('B#Crosshair', crosshairColour.b, 0, 255);
-            crosshairColour.a = ImGui.SliderInt('A#Crosshair', crosshairColour.a, 0, 255);
-            changeCrosshairColour();
+        if (ImGui.CollapsingHeader(ReHud[language].CrosshairColour)) {
+            crosshairColour = ImGui.ColorPicker('##CrosshairCP')
+            if (ImGui.IsItemActive('PickCrosshairColour')) {
+                changeCrosshairColour();
+            }
         }
 
-        if (ImGui.CollapsingHeader(ReHud.About)) {
+        if (ImGui.CollapsingHeader(ReHud[language].About)) {
                 ImGui.Bullet();
                 ImGui.SameLine();
-            ImGui.TextWrapped(ReHud.Authors);
+            ImGui.TextWrapped(ReHud[language].Authors);
                 ImGui.Bullet();
                 ImGui.SameLine();
-            ImGui.TextWrapped(ReHud.Help);
+            ImGui.TextWrapped(ReHud[language].Help);
                 ImGui.Bullet();
                 ImGui.SameLine();
-            ImGui.TextWrapped(ReHud.Ideas);
+            ImGui.TextWrapped(ReHud[language].Ideas);
         }
         ImGui.End();
     }
@@ -711,7 +716,7 @@ while (true) {
 }
 
 /**
- * Calculates and returns the sine of ingame timer and multiplies by a given value.
+ * Calculates and returns the sine of ingame timer and multiplies by alpha given value.
  * @param {int} period Time period of function
  * @param {number} maxValue Maximum return value
  * @param {boolean} isAbsolute Make the value absolute
@@ -724,7 +729,7 @@ function timerSin(period, maxValue, isAbsolute = false) {
 }
 
 /**
- * Calculates and returns the cosine of ingame timer and multiplies by a given value.
+ * Calculates and returns the cosine of ingame timer and multiplies by alpha given value.
  * @param {int} period Time period of function
  * @param {number} maxValue Maximum return value
  * @param {boolean} isAbsolute Make the value absolute
@@ -751,13 +756,13 @@ function timerSin(period, maxValue, isAbsolute = false) {
  */
 function changeRadarMapColour() {
     radarRAddresses.forEach(adr => {
-        Memory.WriteU32(adr, radarColour.r, true);
+        Memory.WriteU32(adr, radarColour.red, true);
     });
     radarGAddresses.forEach(adr => {
-        Memory.WriteU32(adr, radarColour.g, true);
+        Memory.WriteU32(adr, radarColour.green, true);
     });
     radarBAddresses.forEach(adr => {
-        Memory.WriteU32(adr, radarColour.b, true);
+        Memory.WriteU32(adr, radarColour.blue, true);
     });
 }
 
@@ -766,15 +771,15 @@ function changeRadarMapColour() {
  */
 function changeCrosshairColour() {
     crosshairRAddresses.forEach(adr => {
-        Memory.WriteU32(adr, crosshairColour.r, true);
+        Memory.WriteU32(adr, crosshairColour.red, true);
     });
     crosshairGAddresses.forEach(adr => {
-        Memory.WriteU32(adr, crosshairColour.g, true);
+        Memory.WriteU32(adr, crosshairColour.green, true);
     });
     crosshairBAddresses.forEach(adr => {
-        Memory.WriteU32(adr, crosshairColour.b, true);
+        Memory.WriteU32(adr, crosshairColour.blue, true);
     });
     crosshairAAddresses.forEach(adr => {
-        Memory.WriteU32(adr, crosshairColour.a, true);
+        Memory.WriteU32(adr, crosshairColour.alpha, true);
     });
 }
