@@ -20,6 +20,12 @@ v2023-04-19
 + Added gravity editing [World > General]
 + Added player movement and camera lock [Player > General]
 + Added infinite sprint and ignored state [Player > Proofs]
+
+v2023-05-04
+- Replaced some checkboxes with tri-state sliders (-1: let the game choose the state, 0: always OFF, 1: always ON)
++ Added hydraulics control [Car > General]
++ Added checkboxes for pedestrian and car density sliders [World > Population]
++ Added sound feedback for buttons
 ```
 </details>
 
@@ -46,5 +52,11 @@ v2023-04-19
 + Добавлено изменение гравитации [Мир > Общее]
 + Добавлена блокировка движения и камеры [Игрок > Общее]
 + Добавлен бесконечный бег и игнорирование игрока [Игрок > Защита]
+
+v2023-05-04
+- Некоторые флажки заменены ползунками с тремя состояниями (-1: на усмотрение игры, 0: всегда ВЫКЛ, 1: всегда ВКЛ)
++ Добавлено управление гидравликой [Транспорт > Общее]
++ Добавлены флажки к ползункам числа пешеходов и машин [Мир > Население]
++ Добавлен звук при нажатии кнопок
 ```
 </details>

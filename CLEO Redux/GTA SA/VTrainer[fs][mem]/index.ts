@@ -223,7 +223,7 @@ const carColours: { r: float, g: float, b: float; }[] = [
 
 const settings: string = './settings.ini';
 const menuSwitch: int = 192; // Tilde
-const tabFunction: Function[] = [tabPlayer, tabVehicle, tabWorld, tabPosition, tabAbout];
+const tabFunction: Function[] = [tabPlayer, tabVehicle, tabWorld, tabPosition, tabDisplay, tabAbout];
 const space: Function = () => { ImGui.Dummy(15, 15); };
 const maxItemWidth: float = 0.55;
 
@@ -233,20 +233,35 @@ let lang: string = IniFile.ReadString(settings, 'SETTINGS', 'language') ?? 'Engl
 let coloursPerRow: int = IniFile.ReadInt(settings, 'SETTINGS', 'colsPerRow') ?? 30;
 
 //#region Flags & Values
-let playerProofs: boolean[] = [false, false, false, false, false];
-let carProofs: boolean[] = [false, false, false, false, false];
-let freezePlayer: boolean = false;
-let lockPlayer: boolean = false;
-let stayOnBike: boolean = false;
-let infiniteSprint: boolean = false;
-let ignoredByPolice: boolean = false;
-let ignoredByEveryone: boolean = false;
-let tyresProof: boolean = false;
-let heavyCar: boolean = false;
-let lockClock: boolean = false;
-let instantTeleport: boolean = false;
-let resetInstantTp: boolean = false;
-let changeWind: boolean = false;
+let proofs: { stateChar: boolean, stateCar: boolean, byte: int, text: string; }[] = [
+    { stateChar: undefined, stateCar: undefined, byte: 0b00000100, text: Texts[lang].ImmBullet },
+    { stateChar: undefined, stateCar: undefined, byte: 0b00001000, text: Texts[lang].ImmFire },
+    { stateChar: undefined, stateCar: undefined, byte: 0b10000000, text: Texts[lang].ImmExplosion },
+    { stateChar: undefined, stateCar: undefined, byte: 0b00010000, text: Texts[lang].ImmCollision },
+    { stateChar: undefined, stateCar: undefined, byte: 0b00100000, text: Texts[lang].ImmMelee }
+];
+
+let flags = {
+    freezePlayer: undefined,
+    lockPlayer: undefined,
+    stayOnBike: undefined,
+    infiniteSprint: undefined,
+    ignoredByPolice: undefined,
+    ignoredByEveryone: undefined,
+    tyresProof: undefined,
+    heavyCar: undefined,
+    changePedDensity: undefined,
+    changeCarDensity: undefined,
+    lockClock: false,
+    instantTeleport: false,
+    resetInstantTp: false,
+    changeWind: false,
+    hud: undefined,
+    radar: undefined,
+    widescreen: undefined,
+    nightVision: undefined,
+    thermalVision: undefined
+};
 
 let pedDensity: float = 1.0;
 let carDensity: float = 1.0;
@@ -266,7 +281,7 @@ while (true) {
 
     if (Pad.IsKeyDown(menuSwitch)) {
         menuShow = !menuShow;
-        if (!menuShow && resetInstantTp) instantTeleport = false;
+        if (!menuShow && flags.resetInstantTp) flags.instantTeleport = false;
     }
 
     ImGui.BeginFrame('VITALTRAINER');
@@ -305,38 +320,72 @@ function style() {
     });
 }
 
+function isDefined(flag: boolean) { return flag !== undefined; }
+
 function applyFlags() {
-    plr.setControl(!lockPlayer)
-        .setNeverGetsTired(infiniteSprint);
+    if (isDefined(flags.lockPlayer)) plr.setControl(!flags.lockPlayer);
+    if (isDefined(flags.infiniteSprint)) plr.setNeverGetsTired(flags.infiniteSprint);
 
-    plc.setProofs(playerProofs[0], playerProofs[1], playerProofs[2], playerProofs[3], playerProofs[4])
-        .setCanBeKnockedOffBike(stayOnBike)
-        .freezePosition(freezePlayer);
+    if (isDefined(flags.stayOnBike)) plc.setCanBeKnockedOffBike(flags.stayOnBike);
+    if (isDefined(flags.freezePlayer)) plc.freezePosition(flags.freezePlayer);
 
-    Game.SetPoliceIgnorePlayer(plr, ignoredByPolice);
-    Game.SetEveryoneIgnorePlayer(plr, ignoredByEveryone);
+    let offsetProofs: int = Memory.GetPedPointer(plc) + 0x42;
+    let currentPlayerProofs: int = Memory.ReadU8(offsetProofs, false);
+    let setPlayerProofs = currentPlayerProofs;
+    proofs.forEach(p => {
+        if (p.stateChar !== undefined) {
+            if (p.stateChar) {
+                setPlayerProofs |= p.byte;
+            } else {
+                setPlayerProofs &= ~p.byte;
+            }
+        }
+    });
+    if (setPlayerProofs !== currentPlayerProofs) Memory.WriteU8(offsetProofs, setPlayerProofs, false);
+
+    if (isDefined(flags.ignoredByPolice)) Game.SetPoliceIgnorePlayer(plr, flags.ignoredByPolice);
+    if (isDefined(flags.ignoredByEveryone)) Game.SetEveryoneIgnorePlayer(plr, flags.ignoredByEveryone);
 
     if (plc.isInAnyCar()) {
         let car: Car = plc.storeCarIsInNoSave();
-        car.setProofs(carProofs[0], carProofs[1], carProofs[2], carProofs[3], carProofs[4])
-            .setCanBurstTires(!tyresProof)
-            .setHeavy(heavyCar);
+        if (isDefined(flags.tyresProof)) car.setCanBurstTires(!flags.tyresProof);
+        if (isDefined(flags.heavyCar)) car.setHeavy(flags.heavyCar);
+
+        let offsetProofs: int = Memory.GetVehiclePointer(car) + 0x42;
+        let currentCarProofs: int = Memory.ReadU8(offsetProofs, false);
+        let setCarProofs = currentCarProofs;
+        proofs.forEach(p => {
+            if (p.stateCar !== undefined) {
+                if (p.stateCar) {
+                    setCarProofs |= p.byte;
+                } else {
+                    setCarProofs &= ~p.byte;
+                }
+            }
+        });
+        if (setCarProofs !== currentCarProofs) Memory.WriteU8(offsetProofs, setCarProofs, false);
     }
 
-    World.SetPedDensityMultiplier(pedDensity);
-    World.SetCarDensityMultiplier(carDensity);
+    if (flags.changePedDensity) World.SetPedDensityMultiplier(pedDensity);
+    if (flags.changeCarDensity) World.SetCarDensityMultiplier(carDensity);
 
     Clock.SetTimeScale(gameSpeed);
-    if (lockClock) {
+    if (flags.lockClock) {
         Clock.SetTimeOfDay(time.hours, time.minutes);
         Weather.ForceNow(getCurrentWeather());
     }
 
-    if (changeWind) {
+    if (flags.changeWind) {
         Memory.WriteFloat(0xC813E0, windX, false);
         Memory.WriteFloat(0xC813E4, windY, false);
         Memory.WriteFloat(0xC813E8, windZ, false);
     }
+
+    if (isDefined(flags.hud)) Hud.Display(flags.hud);
+    if (isDefined(flags.radar)) Hud.DisplayRadar(flags.radar);
+    if (isDefined(flags.widescreen)) Hud.SwitchWidescreen(flags.widescreen);
+    if (isDefined(flags.nightVision)) Game.SetNightVision(flags.nightVision);
+    if (isDefined(flags.thermalVision)) Game.SetInfraredVision(flags.thermalVision);
 }
 
 function getCurrentWeather(): int {
@@ -383,7 +432,7 @@ function spawnCar(model: int) {
     TIMERA = 0;
 }
 
-function input(mode: int, inputType: 'int' | 'float', value: number, text: string, initial: number, min: number, max: number, stepFast: number, stepPrecise: number) {
+function input(mode: int, inputType: 'int' | 'float', value: number, text: string, initial: number, min: number, max: number, stepFast: number, stepPrecise: number): number {
     if (mode === 0 || mode === 1) {
         let step = mode === 0 ? stepFast : stepPrecise;
         return inputType === 'int'
@@ -393,6 +442,13 @@ function input(mode: int, inputType: 'int' | 'float', value: number, text: strin
     return inputType === 'int'
         ? ImGui.InputInt(text, initial, min, max)
         : ImGui.InputFloat(text, initial, min, max);
+}
+
+function sliderFlag(text: string): boolean {
+    ImGui.PushItemWidth(windowSize.width * 0.075);
+    let value = ImGui.SliderInt(text, -1, -1, 1);
+    ImGui.PushItemWidth(windowSize.width * maxItemWidth);
+    return value === 1 ? true : value === 0 ? false : undefined;
 }
 
 // Menu tabs
@@ -419,25 +475,20 @@ function tabPlayer() {
         if (ImGui.IsItemActive('MaxWL')) Game.SetMaxWantedLevel(maxWL);
         space();
 
-        freezePlayer = ImGui.Checkbox(Texts[lang].FreezePlr, freezePlayer);
-        lockPlayer = ImGui.Checkbox(Texts[lang].LockPlr, lockPlayer);
+        flags.freezePlayer = sliderFlag(Texts[lang].FreezePlr);
+        flags.lockPlayer = sliderFlag(Texts[lang].LockPlr);
     }
     ImGui.Separator();
 
     if (ImGui.CollapsingHeader(Texts[lang].Immunities + '##Player')) {
-        playerProofs[0] = ImGui.Checkbox(Texts[lang].ImmBullet, playerProofs[0]);
-        playerProofs[1] = ImGui.Checkbox(Texts[lang].ImmFire, playerProofs[1]);
-        playerProofs[2] = ImGui.Checkbox(Texts[lang].ImmExplosion, playerProofs[2]);
-        playerProofs[3] = ImGui.Checkbox(Texts[lang].ImmCollision, playerProofs[3]);
-        playerProofs[4] = ImGui.Checkbox(Texts[lang].ImmMelee, playerProofs[4]);
+        proofs.forEach(p => { p.stateChar = sliderFlag(p.text + '##Player'); });
         space();
 
-        stayOnBike = ImGui.Checkbox(Texts[lang].StayOnBike, stayOnBike);
-        infiniteSprint = ImGui.Checkbox(Texts[lang].InfiniteSprint, infiniteSprint);
-        ignoredByPolice = ImGui.Checkbox(Texts[lang].IgnoredByCops, ignoredByPolice);
-        ignoredByEveryone = ImGui.Checkbox(Texts[lang].IgnoredByAll, ignoredByEveryone);
+        flags.stayOnBike = sliderFlag(Texts[lang].StayOnBike);
+        flags.infiniteSprint = sliderFlag(Texts[lang].InfiniteSprint);
+        flags.ignoredByPolice = sliderFlag(Texts[lang].IgnoredByCops);
+        flags.ignoredByEveryone = sliderFlag(Texts[lang].IgnoredByAll);
     }
-    ImGui.Separator();
 }
 
 function tabVehicle() {
@@ -448,24 +499,36 @@ function tabVehicle() {
             let health = ImGui.SliderInt(Texts[lang].Health + '##Car', 1000, 0, 1000);
             if (ImGui.IsItemActive('carHealth')) car.setHealth(health);
 
-            if (ImGui.Button(Texts[lang].Fix, windowSize.width * maxItemWidth, 30)) car.fix();
+            if (ImGui.Button(Texts[lang].Fix, windowSize.width * maxItemWidth, 30)) {
+                car.fix();
+                Sound.AddOneOffSound(0, 0, 0, 1054);
+            }
             space();
 
             let dirt = ImGui.SliderInt(Texts[lang].DirtLevel, 0, 0, 15) as float;
             if (ImGui.IsItemActive('CarDirt')) car.setDirtLevel(dirt);
+
+            if (ImGui.Button(
+                car.doesHaveHydraulics() ? Texts[lang].HydraulicsRemove : Texts[lang].HydraulicsAdd,
+                windowSize.width * maxItemWidth, 30
+            )) {
+                if (car.doesHaveHydraulics()) {
+                    car.setHydraulics(false);
+                    Sound.AddOneOffSound(0, 0, 0, 1055);
+                } else {
+                    car.setHydraulics(true);
+                    Sound.AddOneOffSound(0, 0, 0, 1054);
+                }
+            }
         }
         ImGui.Separator();
 
         if (ImGui.CollapsingHeader(Texts[lang].Immunities + '##Car')) {
-            carProofs[0] = ImGui.Checkbox(Texts[lang].ImmBullet + '##Car', carProofs[0]);
-            carProofs[1] = ImGui.Checkbox(Texts[lang].ImmFire + '##Car', carProofs[1]);
-            carProofs[2] = ImGui.Checkbox(Texts[lang].ImmExplosion + '##Car', carProofs[2]);
-            carProofs[3] = ImGui.Checkbox(Texts[lang].ImmCollision + '##Car', carProofs[3]);
-            carProofs[4] = ImGui.Checkbox(Texts[lang].ImmMelee + '##Car', carProofs[4]);
+            proofs.forEach(p => { p.stateCar = sliderFlag(p.text + '##Car'); });
 
             space();
-            tyresProof = ImGui.Checkbox(Texts[lang].TyresProof, tyresProof);
-            heavyCar = ImGui.Checkbox(Texts[lang].HeavyCar, heavyCar);
+            flags.tyresProof = sliderFlag(Texts[lang].TyresProof);
+            flags.heavyCar = sliderFlag(Texts[lang].HeavyCar);
         }
         ImGui.Separator();
 
@@ -523,19 +586,28 @@ function tabWorld() {
 
         if (ImGui.Button(Texts[lang].Reset + '##Gravity', windowSize.width * maxItemWidth, 30)) {
             Memory.WriteFloat(0x863984, 0.008, false);
+            Sound.AddOneOffSound(0, 0, 0, 1054);
         }
     }
 
     if (ImGui.CollapsingHeader(Texts[lang].Population)) {
-        let clrRadius = ImGui.SliderInt(Texts[lang].Radius + '##CLR', 20, 1, 300);
+        let clrRadius = ImGui.SliderInt(Texts[lang].Radius + '##CLR', 20, 1, 200);
         if (ImGui.Button(Texts[lang].ClearArea, windowSize.width * maxItemWidth, 30)) {
             let pos = plc.getCoordinates();
             World.ClearArea(pos.x, pos.y, pos.z, clrRadius, true);
+            Sound.AddOneOffSound(0, 0, 0, 1054);
         }
         space();
 
-        pedDensity = ImGui.SliderInt(Texts[lang].PedDensity, 10, 0, 10) / 10;
-        carDensity = ImGui.SliderInt(Texts[lang].CarDensity, 10, 0, 10) / 10;
+        flags.changePedDensity = ImGui.Checkbox(Texts[lang].PedDensChange, flags.changePedDensity);
+        if (flags.changePedDensity) {
+            pedDensity = ImGui.SliderInt(Texts[lang].PedDensity, 10, 0, 10) / 10;
+        }
+
+        flags.changeCarDensity = ImGui.Checkbox(Texts[lang].CarDensChange, flags.changeCarDensity);
+        if (flags.changeCarDensity) {
+            carDensity = ImGui.SliderInt(Texts[lang].CarDensity, 10, 0, 10) / 10;
+        }
     }
     ImGui.Separator();
 
@@ -554,8 +626,8 @@ function tabWorld() {
             Weather.ForceNow(getCurrentWeather());
         }
 
-        lockClock = ImGui.Checkbox(Texts[lang].LockTime, lockClock);
-        if (lockClock) {
+        flags.lockClock = ImGui.Checkbox(Texts[lang].LockTime, flags.lockClock);
+        if (flags.lockClock) {
             time.hours = hours;
             time.minutes = minutes;
         }
@@ -566,25 +638,25 @@ function tabWorld() {
         let currentWeather = ImGui.SliderInt(Texts[lang].CurrentWeather, 3, 0, 45);
         if (ImGui.IsItemActive('SetCurWeather')) Weather.ForceNow(currentWeather);
 
-        if (!lockClock) {
+        if (!flags.lockClock) {
             let nextWeather = ImGui.SliderInt(Texts[lang].NextWeather, 3, 0, 45);
             if (ImGui.IsItemActive('SetNextWeather')) Weather.Force(nextWeather);
         }
 
         if (ImGui.Button(Texts[lang].ResetWeather, windowSize.width * maxItemWidth, 30)) {
             Weather.SetToAppropriateTypeNow();
+            Sound.AddOneOffSound(0, 0, 0, 1054);
         }
         space();
 
-        changeWind = ImGui.Checkbox(Texts[lang].Wind, changeWind);
-        if (changeWind) {
+        flags.changeWind = ImGui.Checkbox(Texts[lang].Wind, flags.changeWind);
+        if (flags.changeWind) {
             let tab: int = ImGui.Tabs(Texts[lang].Mode + '##Wind', Texts[lang].Modes + '##Wind');
             windX = input(tab, 'float', windX, Texts[lang].WindX, 0, -100, 100, 10, 1);
             windY = input(tab, 'float', windY, Texts[lang].WindY, 0, -100, 100, 10, 1);
             windZ = input(tab, 'float', windZ, Texts[lang].WindZ, 0, -100, 100, 10, 1);
         }
     }
-    ImGui.Separator();
 }
 
 function tabPosition() {
@@ -602,10 +674,10 @@ function tabPosition() {
     ImGui.Separator();
 
     if (ImGui.CollapsingHeader(Texts[lang].Teleport)) {
-        instantTeleport = ImGui.Checkbox(Texts[lang].InstantTeleport, instantTeleport);
-        if (instantTeleport) {
+        flags.instantTeleport = ImGui.Checkbox(Texts[lang].InstantTeleport, flags.instantTeleport);
+        if (flags.instantTeleport) {
             ImGui.SameLine();
-            resetInstantTp = ImGui.Checkbox(Texts[lang].InstTpReset, resetInstantTp);
+            flags.resetInstantTp = ImGui.Checkbox(Texts[lang].InstTpReset, flags.resetInstantTp);
         }
         space();
 
@@ -618,20 +690,33 @@ function tabPosition() {
         let interior = ImGui.SliderInt(Texts[lang].Interior, 0, 0, 18);
         if (ImGui.IsItemActive('SetInterior')) Streaming.SetAreaVisible(interior);
 
-        if (instantTeleport) {
+        if (flags.instantTeleport) {
             teleport(plc, x, y, z, heading, interior, false);
         } else {
             if (ImGui.Button(Texts[lang].Coords, windowSize.width * maxItemWidth, 30)) {
                 teleport(plc, x, y, z, heading, interior);
+                Sound.AddOneOffSound(0, 0, 0, 1054);
             }
 
             let wp = World.GetTargetCoords();
             if (wp && ImGui.Button(Texts[lang].Waypoint, windowSize.width * maxItemWidth, 30)) {
                 teleport(plc, wp.x, wp.y, -100, plc.getHeading(), 0);
+                Sound.AddOneOffSound(0, 0, 0, 1054);
             }
         }
     }
-    ImGui.Separator();
+}
+
+function tabDisplay() {
+    if (ImGui.CollapsingHeader(Texts[lang].General + '##Display')) {
+        flags.hud = sliderFlag(Texts[lang].Hud);
+        flags.radar = sliderFlag(Texts[lang].Radar);
+        flags.widescreen = sliderFlag(Texts[lang].Widescreen);
+        space();
+
+        flags.nightVision = sliderFlag(Texts[lang].NightVision);
+        flags.thermalVision = sliderFlag(Texts[lang].ThermalVision);
+    }
 }
 
 function tabAbout() {

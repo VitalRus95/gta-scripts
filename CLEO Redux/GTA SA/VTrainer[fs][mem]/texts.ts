@@ -1,7 +1,7 @@
 export const Texts = {
     'English': {
         'Opacity': 'Menu background opacity',
-        'Tabs': 'Player, Vehicle, World, Position, About',
+        'Tabs': 'Player, Vehicle, World, Position, Display, About',
         'Player': 'Player',
         'Vehicle': 'Vehicle',
         'World': 'World',
@@ -41,6 +41,8 @@ export const Texts = {
         'Paintjob': 'Paintjob',
         'Categories': 'Primary, Secondary, Extra 1, Extra 2',
         'ColsPerRow': 'Colours per row',
+        'HydraulicsAdd': 'Add hydraulics',
+        'HydraulicsRemove': 'Remove hydraulics',
 
         'Population': 'Population',
         'Gravity': 'Gravity',
@@ -53,7 +55,9 @@ export const Texts = {
         'CurrentWeather': 'Current weather',
         'NextWeather': 'Next weather',
         'ResetWeather': 'Reset weather',
+        'PedDensChange': 'Change pedestrian density',
         'PedDensity': 'Pedestrian density',
+        'CarDensChange': 'Change car density',
         'CarDensity': 'Car density',
         'ClearArea': 'Clear area',
         'Radius': 'Radius',
@@ -74,6 +78,12 @@ export const Texts = {
         'Interior': 'Interior',
         'Coords': 'Teleport to coordinates',
         'Waypoint': 'Teleport to waypoint',
+
+        'Hud': 'HUD',
+        'Radar': 'Radar',
+        'Widescreen': 'Widescreen',
+        'NightVision': 'Night vision',
+        'ThermalVision': 'Infrared vision',
 
         'HowTo': 'Choose the necessary category and subcategory, then adjust settings sliders\' grab or just press it to apply changes.',
         'About0': 'Authors',
