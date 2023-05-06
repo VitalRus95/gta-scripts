@@ -225,11 +225,12 @@ const settings: string = './settings.ini';
 const menuSwitch: int = 192; // Tilde
 const tabFunction: Function[] = [tabPlayer, tabVehicle, tabWorld, tabPosition, tabDisplay, tabAbout];
 const space: Function = () => { ImGui.Dummy(15, 15); };
-const maxItemWidth: float = 0.55;
+const maxWidthPercent: float = 0.7;
+const minItemWidth: int = 300;
 
 let menuShow: boolean = false;
-let menuOpacity: float = IniFile.ReadFloat(settings, 'SETTINGS', 'opacity') ?? 0.75;
 let lang: string = IniFile.ReadString(settings, 'SETTINGS', 'language') ?? 'English';
+let menuOpacity: float = IniFile.ReadFloat(settings, 'SETTINGS', 'opacity') ?? 0.75;
 let coloursPerRow: int = IniFile.ReadInt(settings, 'SETTINGS', 'colsPerRow') ?? 30;
 
 //#region Flags & Values
@@ -288,12 +289,28 @@ while (true) {
     ImGui.SetCursorVisible(menuShow);
 
     if (menuShow && plr.isPlaying()) {
-        var windowSize = ImGui.GetDisplaySize();
-
+        let displaySize = ImGui.GetDisplaySize();
         ImGui.SetNextWindowTransparency(menuOpacity);
-        ImGui.SetNextWindowPos(0, 0, 8); // 8 - appearing
-        ImGui.SetNextWindowSize(windowSize.width, windowSize.height, 8);
-        menuShow = ImGui.Begin('Vital Trainer', menuShow, false, true, true, false);
+        ImGui.SetNextWindowPos(0, 0, 2); // 8 - appearing
+        ImGui.SetNextWindowSize(displaySize.width, displaySize.height, 2);
+        menuShow = ImGui.Begin('Vital Trainer', menuShow, false, false, false, false);
+
+        var winSize = ImGui.GetWindowSize('WINSIZE');
+        if (winSize.width > displaySize.width) ImGui.SetWindowSize(displaySize.width, winSize.height, 1);
+        if (winSize.height > displaySize.height) ImGui.SetWindowSize(winSize.width, displaySize.height, 1);
+
+        let winPos = ImGui.GetWindowPos('WINPOS');
+        if (winPos.x < 0)
+            ImGui.SetWindowPos(0, winPos.y, 1);
+        if (winPos.y < 0)
+            ImGui.SetWindowPos(winPos.x, 0, 1);
+        if (winPos.x + winSize.width > displaySize.width)
+            ImGui.SetWindowPos(displaySize.width - winSize.width, winPos.y, 1);
+        if (winPos.y + winSize.height > displaySize.height)
+            ImGui.SetWindowPos(winPos.x, displaySize.height - winSize.height, 1);
+
+        let newWidth = winSize.width * maxWidthPercent;
+        var itemsWidth = (newWidth) >= minItemWidth ? newWidth : minItemWidth;
         style();
 
         menuOpacity = ImGui.SliderInt(Texts[lang].Opacity, menuOpacity * 100, 0, 100) / 100 as float;
@@ -313,7 +330,7 @@ while (true) {
 
 // Auxiliary functions
 function style() {
-    ImGui.PushItemWidth(windowSize.width * maxItemWidth);
+    ImGui.PushItemWidth(itemsWidth);
 
     customStyle.forEach(e => {
         ImGui.PushStyleColor(e.element ?? 0, e.RGBA[0] ?? 0, e.RGBA[1] ?? 0, e.RGBA[2] ?? 0, e.RGBA[3] ?? 0);
@@ -445,10 +462,22 @@ function input(mode: int, inputType: 'int' | 'float', value: number, text: strin
 }
 
 function sliderFlag(text: string): boolean {
-    ImGui.PushItemWidth(windowSize.width * 0.075);
+    let width = winSize.width * 0.07;
+    ImGui.PushItemWidth(width > 49 ? width : 50);
+
     let value = ImGui.SliderInt(text, -1, -1, 1);
-    ImGui.PushItemWidth(windowSize.width * maxItemWidth);
+    if (ImGui.IsItemHovered(text + '##Hover')) {
+        ImGui.SameLine();
+        if (value === -1) ImGui.TextColored(`[${Texts[lang].GameChoice}]`, 1, 1, 0, 1);
+        else if (value === 0) ImGui.TextColored(`[${Texts[lang].AlwaysOFF}]`, 1, 0, 0, 1);
+        else ImGui.TextColored(`[${Texts[lang].AlwaysON}]`, 0, 1, 0, 1);
+    }
+    ImGui.PushItemWidth(winSize.width * maxWidthPercent);
     return value === 1 ? true : value === 0 ? false : undefined;
+}
+
+function myButton(text: string): boolean {
+    return ImGui.Button(text, itemsWidth, 30);
 }
 
 // Menu tabs
@@ -499,7 +528,7 @@ function tabVehicle() {
             let health = ImGui.SliderInt(Texts[lang].Health + '##Car', 1000, 0, 1000);
             if (ImGui.IsItemActive('carHealth')) car.setHealth(health);
 
-            if (ImGui.Button(Texts[lang].Fix, windowSize.width * maxItemWidth, 30)) {
+            if (myButton(Texts[lang].Fix)) {
                 car.fix();
                 Sound.AddOneOffSound(0, 0, 0, 1054);
             }
@@ -508,10 +537,7 @@ function tabVehicle() {
             let dirt = ImGui.SliderInt(Texts[lang].DirtLevel, 0, 0, 15) as float;
             if (ImGui.IsItemActive('CarDirt')) car.setDirtLevel(dirt);
 
-            if (ImGui.Button(
-                car.doesHaveHydraulics() ? Texts[lang].HydraulicsRemove : Texts[lang].HydraulicsAdd,
-                windowSize.width * maxItemWidth, 30
-            )) {
+            if (myButton(car.doesHaveHydraulics() ? Texts[lang].HydraulicsRemove : Texts[lang].HydraulicsAdd)) {
                 if (car.doesHaveHydraulics()) {
                     car.setHydraulics(false);
                     Sound.AddOneOffSound(0, 0, 0, 1055);
@@ -584,7 +610,7 @@ function tabWorld() {
         );
         if (ImGui.IsItemActive('SetGravity')) Memory.WriteFloat(0x863984, gravity, false);
 
-        if (ImGui.Button(Texts[lang].Reset + '##Gravity', windowSize.width * maxItemWidth, 30)) {
+        if (myButton(Texts[lang].Reset + '##Gravity')) {
             Memory.WriteFloat(0x863984, 0.008, false);
             Sound.AddOneOffSound(0, 0, 0, 1054);
         }
@@ -592,7 +618,7 @@ function tabWorld() {
 
     if (ImGui.CollapsingHeader(Texts[lang].Population)) {
         let clrRadius = ImGui.SliderInt(Texts[lang].Radius + '##CLR', 20, 1, 200);
-        if (ImGui.Button(Texts[lang].ClearArea, windowSize.width * maxItemWidth, 30)) {
+        if (myButton(Texts[lang].ClearArea)) {
             let pos = plc.getCoordinates();
             World.ClearArea(pos.x, pos.y, pos.z, clrRadius, true);
             Sound.AddOneOffSound(0, 0, 0, 1054);
@@ -643,7 +669,7 @@ function tabWorld() {
             if (ImGui.IsItemActive('SetNextWeather')) Weather.Force(nextWeather);
         }
 
-        if (ImGui.Button(Texts[lang].ResetWeather, windowSize.width * maxItemWidth, 30)) {
+        if (myButton(Texts[lang].ResetWeather)) {
             Weather.SetToAppropriateTypeNow();
             Sound.AddOneOffSound(0, 0, 0, 1054);
         }
@@ -693,13 +719,13 @@ function tabPosition() {
         if (flags.instantTeleport) {
             teleport(plc, x, y, z, heading, interior, false);
         } else {
-            if (ImGui.Button(Texts[lang].Coords, windowSize.width * maxItemWidth, 30)) {
+            if (myButton(Texts[lang].Coords)) {
                 teleport(plc, x, y, z, heading, interior);
                 Sound.AddOneOffSound(0, 0, 0, 1054);
             }
 
             let wp = World.GetTargetCoords();
-            if (wp && ImGui.Button(Texts[lang].Waypoint, windowSize.width * maxItemWidth, 30)) {
+            if (wp && myButton(Texts[lang].Waypoint)) {
                 teleport(plc, wp.x, wp.y, -100, plc.getHeading(), 0);
                 Sound.AddOneOffSound(0, 0, 0, 1054);
             }

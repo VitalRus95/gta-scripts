@@ -9,6 +9,9 @@ export const Texts = {
         'About': 'About',
         'Mode': 'Mode',
         'Reset': 'Reset',
+        'GameChoice': 'GAME\'S CHOICE',
+        'AlwaysOFF': 'ALWAYS OFF',
+        'AlwaysON': 'ALWAYS ON',
 
         'General': 'General',
         'Health': 'Health',
