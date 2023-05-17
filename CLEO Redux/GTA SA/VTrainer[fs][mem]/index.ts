@@ -57,7 +57,16 @@ enum Elements {
     NavWindowingHighlight,
     NavWindowingDimBg,
     ModalWindowDimBg
-}
+};
+
+enum VK {
+    End = 0x23,
+    Home = 0x24,
+    Left = 0x25,
+    Up = 0x26,
+    Right = 0x27,
+    Down = 0x28
+};
 
 let customStyle: { element: Elements, RGBA: int[]; }[] = [
     { element: Elements.FrameBg, RGBA: [0, 255, 255, 50] },
@@ -280,35 +289,36 @@ let money: int; // Giving money
 while (true) {
     wait(0);
 
+    // Holding the activation button while the window is open will not close it (for snapping)
     if (Pad.IsKeyDown(menuSwitch)) {
-        menuShow = !menuShow;
-        if (!menuShow && flags.resetInstantTp) flags.instantTeleport = false;
+        TIMERA = 0;
+
+        // Skip waiting if the menu is not open
+        while (menuShow && Pad.IsKeyPressed(menuSwitch) && TIMERA < 349) {
+            wait(0);
+        }
+
+        if (TIMERA < 349) {
+            menuShow = !menuShow;
+            if (!menuShow && flags.resetInstantTp) flags.instantTeleport = false;
+        }
     }
 
     ImGui.BeginFrame('VITALTRAINER');
     ImGui.SetCursorVisible(menuShow);
 
     if (menuShow && plr.isPlaying()) {
-        let displaySize = ImGui.GetDisplaySize();
         ImGui.SetNextWindowTransparency(menuOpacity);
-        ImGui.SetNextWindowPos(0, 0, 2); // 8 - appearing
-        ImGui.SetNextWindowSize(displaySize.width, displaySize.height, 2);
+        ImGui.SetNextWindowPos(0, 0, 2);
+        ImGui.SetNextWindowSize(640, 480, 2);
+
         menuShow = ImGui.Begin('Vital Trainer', menuShow, false, false, false, false);
 
+        var displaySize = ImGui.GetDisplaySize();
         var winSize = ImGui.GetWindowSize('WINSIZE');
-        if (winSize.width > displaySize.width) ImGui.SetWindowSize(displaySize.width, winSize.height, 1);
-        if (winSize.height > displaySize.height) ImGui.SetWindowSize(winSize.width, displaySize.height, 1);
+        windowControl();
 
-        let winPos = ImGui.GetWindowPos('WINPOS');
-        if (winPos.x < 0)
-            ImGui.SetWindowPos(0, winPos.y, 1);
-        if (winPos.y < 0)
-            ImGui.SetWindowPos(winPos.x, 0, 1);
-        if (winPos.x + winSize.width > displaySize.width)
-            ImGui.SetWindowPos(displaySize.width - winSize.width, winPos.y, 1);
-        if (winPos.y + winSize.height > displaySize.height)
-            ImGui.SetWindowPos(winPos.x, displaySize.height - winSize.height, 1);
-
+        // Calculate width of ImGui items
         let newWidth = winSize.width * maxWidthPercent;
         var itemsWidth = (newWidth) >= minItemWidth ? newWidth : minItemWidth;
         style();
@@ -329,6 +339,91 @@ while (true) {
 }
 
 // Auxiliary functions
+function getSnapValues(): { x: int, y: int, width: int, height: int; } {
+    // Reset
+    if (Pad.IsKeyDown(VK.Home)) return {
+        x: 0, y: 0,
+        width: 640, height: 480
+    };
+    // Fill the screen
+    if (Pad.IsKeyDown(VK.End)) return {
+        x: 0, y: 0,
+        width: displaySize.width, height: displaySize.height
+    };
+    // Upper corners
+    if (Pad.IsKeyPressed(VK.Up)) {
+        // Upper-left corner
+        if (Pad.IsKeyPressed(VK.Left)) return {
+            x: 0, y: 0,
+            width: displaySize.width / 2, height: displaySize.height / 2
+        };
+        // Upper-right corner
+        if (Pad.IsKeyPressed(VK.Right)) return {
+            x: displaySize.width / 2, y: 0,
+            width: displaySize.width / 2, height: displaySize.height / 2
+        };
+    }
+    // Bottom corners
+    if (Pad.IsKeyPressed(VK.Down)) {
+        // Bottom-left corner
+        if (Pad.IsKeyPressed(VK.Left)) return {
+            x: 0, y: displaySize.height / 2,
+            width: displaySize.width / 2, height: displaySize.height / 2
+        };
+        // Bottom-right corner
+        if (Pad.IsKeyPressed(VK.Right)) return {
+            x: displaySize.width / 2, y: displaySize.height / 2,
+            width: displaySize.width / 2, height: displaySize.height / 2
+        };
+    }
+    // Top
+    if (Pad.IsKeyDown(VK.Up)) return {
+        x: 0, y: 0,
+        width: displaySize.width, height: displaySize.height / 2
+    };
+    // Bottom
+    if (Pad.IsKeyDown(VK.Down)) return {
+        x: 0, y: displaySize.height / 2,
+        width: displaySize.width, height: displaySize.height / 2
+    };
+    // Left
+    if (Pad.IsKeyDown(VK.Left)) return {
+        x: 0, y: 0,
+        width: displaySize.width / 2, height: displaySize.height
+    };
+    // Right
+    if (Pad.IsKeyDown(VK.Right)) return {
+        x: displaySize.width / 2, y: 0,
+        width: displaySize.width / 2, height: displaySize.height
+    };
+}
+
+function windowControl() {
+    // Prevent from resizing beyond the screen size
+    if (winSize.width > displaySize.width) ImGui.SetWindowSize(displaySize.width, winSize.height, 1);
+    if (winSize.height > displaySize.height) ImGui.SetWindowSize(winSize.width, displaySize.height, 1);
+
+    // Prevent from moving beyond the screen borders
+    let winPos = ImGui.GetWindowPos('WINPOS');
+    if (winPos.x < 0)
+        ImGui.SetWindowPos(0, winPos.y, 1);
+    if (winPos.y < 0)
+        ImGui.SetWindowPos(winPos.x, 0, 1);
+    if (winPos.x + winSize.width > displaySize.width)
+        ImGui.SetWindowPos(displaySize.width - winSize.width, winPos.y, 1);
+    if (winPos.y + winSize.height > displaySize.height)
+        ImGui.SetWindowPos(winPos.x, displaySize.height - winSize.height, 1);
+
+    // Window snapping: ~ + Home, End, or arrow buttons
+    if (Pad.IsKeyPressed(menuSwitch)) {
+        let snap = getSnapValues();
+        if (snap) {
+            ImGui.SetWindowPos(snap.x, snap.y, 1);
+            ImGui.SetWindowSize(snap.width, snap.height, 1);
+        }
+    }
+}
+
 function style() {
     ImGui.PushItemWidth(itemsWidth);
 
@@ -537,7 +632,10 @@ function tabVehicle() {
             let dirt = ImGui.SliderInt(Texts[lang].DirtLevel, 0, 0, 15) as float;
             if (ImGui.IsItemActive('CarDirt')) car.setDirtLevel(dirt);
 
-            if (myButton(car.doesHaveHydraulics() ? Texts[lang].HydraulicsRemove : Texts[lang].HydraulicsAdd)) {
+            if (
+                !plc.isInAnyBoat() && !plc.isOnAnyBike() && !plc.isInFlyingVehicle()
+                && myButton(car.doesHaveHydraulics() ? Texts[lang].HydraulicsRemove : Texts[lang].HydraulicsAdd)
+            ) {
                 if (car.doesHaveHydraulics()) {
                     car.setHydraulics(false);
                     Sound.AddOneOffSound(0, 0, 0, 1055);
@@ -753,6 +851,15 @@ function tabAbout() {
     ImGui.TextWrapped(Texts[lang].About2);
     ImGui.TextWrapped(Texts[lang].About3);
     ImGui.Separator();
+
     ImGui.TextWithBullet(Texts[lang].Help);
     ImGui.TextWrapped(Texts[lang].Help1);
+    ImGui.Separator();
+
+    if (ImGui.CollapsingHeader(Texts[lang].WindowControl)) {
+        ImGui.TextWithBullet(Texts[lang].WinCtrl1);
+        ImGui.TextWrapped(Texts[lang].WinCtrl2);
+        ImGui.TextWrapped(Texts[lang].WinCtrl3);
+        ImGui.TextWrapped(Texts[lang].WinCtrl4);
+    }
 }

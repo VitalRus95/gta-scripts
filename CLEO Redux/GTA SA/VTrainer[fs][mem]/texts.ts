@@ -1,6 +1,6 @@
 export const Texts = {
     'English': {
-        'Opacity': 'Menu background opacity',
+        'Opacity': 'Opacity',
         'Tabs': 'Player, Vehicle, World, Position, Display, About',
         'Player': 'Player',
         'Vehicle': 'Vehicle',
@@ -94,6 +94,11 @@ export const Texts = {
         'About2': '\t\tCLEO Redux by Seemann',
         'About3': '\t\tImGui support by Grinch',
         'Help': 'Thanks for help to:',
-        'Help1': '\t\tSeemann, Bloodriver'
+        'Help1': '\t\tSeemann, Bloodriver',
+        'WindowControl': 'Window control',
+        'WinCtrl1': 'Hold ~ and press:',
+        'WinCtrl2': '\t\tHome - reset window',
+        'WinCtrl3': '\t\tEnd - fill screen',
+        'WinCtrl4': '\t\tArrow buttons - snap to sides/corners'
     }
 };
