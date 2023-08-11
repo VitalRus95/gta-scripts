@@ -373,7 +373,7 @@ changeCrosshairColour();
 //#endregion
 
 //#region Fix radar
-// It used to be 0x866B78, but Bloodriver taught me alpha better way to fix the radar width;
+// It used to be 0x866B78, but Bloodriver taught me a better way to fix the radar width;
 if (!Fs.DoesFileExist('GTASA.WidescreenFix.asi')) {
     const radarWidth = [0x5834C2, 0x58A7E9, 0x58A840, 0x58A943, 0x58A99D, 0x58A449, 0x58781B],
           radarHeight = [0x5834F6, 0x58A47D, 0x58A801, 0x58A8AB, 0x58A921, 0x58A9D5];
