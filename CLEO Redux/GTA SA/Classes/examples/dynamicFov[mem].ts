@@ -1,8 +1,9 @@
 //	Script by Vital (Vitaly Pavlovich Ulyanov)
 
-import { CCamera, clamp } from "../ClassesSA[mem]";
+import { CCamera } from "./Classes/CCamera";
+import { clamp } from "./Classes/Functions";
 
-let plr = new Player(0);
+const plr = new Player(0);
 
 while (true) {
     wait(0);
