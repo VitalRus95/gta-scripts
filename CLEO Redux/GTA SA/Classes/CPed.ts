@@ -6,10 +6,14 @@
 */
 
 import { CEntity } from "./CEntity";
+import { CFire } from "./CFire";
 import { CPhysical } from "./CPhysical";
+import { CVector } from "./CVector";
 import { CVehicle } from "./CVehicle";
+import { PedBones } from "./ePedBones";
 
 export class CPed extends CPhysical {
+    protected static bonePos: CVector = new CVector(Memory.Allocate(12));
     handle: Char;
 
     constructor(pedOrPointer: Char | int) {
@@ -23,6 +27,23 @@ export class CPed extends CPhysical {
             this.pointer = pedOrPointer;
         }
     }
+    static GetAllPeds(): CPed[] {
+        // Thanks to Seemann and his scm module: https://github.com/x87/scm.ts/blob/main/scm.ts
+        let peds: CPed[] = [];
+        let base: int = Memory.ReadI32(0xb74490, false);
+        let entities: int = Memory.ReadU32(base + 0, false);
+        let byteMap: int = Memory.ReadU32(base + 4, false);
+        let poolSize: int = Memory.ReadI32(base + 8, false);
+
+        for (let i = 0; i < poolSize; i++) {
+            let isFree = Memory.ReadU8(byteMap + i, false) & 0x80;
+            if (!isFree) {
+                peds.push(new CPed(entities + i * 0x7c4));
+            }
+        }
+        return peds;
+    }
+
     //#region Properties' getters and setters
     get currentWeapon(): int {
         return this.handle.getCurrentWeapon();
@@ -82,11 +103,17 @@ export class CPed extends CPhysical {
         Memory.WriteFloat(this.pointer + 0x560, value, false);
     }
 
+    get fire(): CFire {
+        let firePointer: int = Memory.ReadI32(this.pointer + 0x730, false);
+        return firePointer ? new CFire(firePointer) : undefined;
+    }
+    set fire(fire: CFire) {
+        Memory.WriteI32(this.pointer + 0x730, fire.pointer, false);
+    }
+
     get targetedPed(): CPed {
         let pedPointer: int = Memory.ReadI32(this.pointer + 0x79c, false);
-        if (pedPointer !== 0) {
-            return new CPed(pedPointer);
-        }
+        return pedPointer ? new CPed(pedPointer) : undefined;
     }
     /** 1 - game, 2 - script */
     get createdBy(): int {
@@ -94,15 +121,11 @@ export class CPed extends CPhysical {
     }
     get contactEntity(): CEntity {
         let entityPointer: int = Memory.ReadI32(this.pointer + 0x584, false);
-        if (entityPointer !== 0) {
-            return new CEntity(entityPointer);
-        }
+        return entityPointer ? new CEntity(entityPointer) : undefined;
     }
     get vehicle(): CVehicle {
         let vehiclePointer: int = Memory.ReadI32(this.pointer + 0x58c, false);
-        if (vehiclePointer !== 0) {
-            return new CVehicle(vehiclePointer);
-        }
+        return vehiclePointer ? new CVehicle(vehiclePointer) : undefined;
     }
 
     set modelIndex(value: int) {
@@ -145,6 +168,17 @@ export class CPed extends CPhysical {
     }
     getWalkAnimSpeed(): float {
         return Memory.CallMethodReturnFloat(0x5e04b0, this.pointer, 0, 0);
+    }
+    getBonePosition(boneId: int | PedBones, isDynamic: boolean): CVector {
+        Memory.Fn.Thiscall(0x5e4280, this.pointer)(
+            CPed.bonePos.pointer,
+            boneId,
+            +isDynamic
+        );
+        return CPed.bonePos;
+    }
+    getWeaponSkill(): int {
+        return Memory.Fn.ThiscallU8(0x5e6580, this.pointer)();
     }
     toString() {
         return `Pointer: ${this.pointer}. Handle: ${+this.handle}.`;
