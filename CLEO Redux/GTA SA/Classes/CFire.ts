@@ -9,6 +9,7 @@ import { CEntity } from "./CEntity";
 import { CVector } from "./CVector";
 
 export class CFire {
+    static gFireManager: int = 0xb71f80;
     static start: int = 0xb71f80;
     static size: int = 0x28;
     static max: int = 0x3c;
@@ -18,6 +19,83 @@ export class CFire {
     constructor(pointer: int) {
         this.pointer = pointer;
         this.pos = new CVector(this.pointer + 0x4);
+    }
+
+    static GetNumOfNonScriptFires(): int {
+        return Memory.Fn.ThiscallU32(0x538f10, this.gFireManager)();
+    }
+    static FindNearestFire(
+        position: CVector,
+        notBeingExtinguished: boolean,
+        notScript: boolean
+    ): CFire {
+        let firePointer = Memory.Fn.ThiscallI32(0x538f40, this.gFireManager)(
+            position.pointer,
+            +notBeingExtinguished,
+            +notScript
+        );
+        return firePointer ? new CFire(firePointer) : undefined;
+    }
+    /** Starts returning `false` at 55 fires out of 60 maximum. */
+    static PlentyFiresAvailable(): boolean {
+        return Memory.Fn.ThiscallU8(0x539340, this.gFireManager)() !== 0;
+    }
+    static ExtinguishPointWithWater(
+        point: CVector,
+        range: float,
+        strength: float
+    ): boolean {
+        return (
+            Memory.Fn.ThiscallU8(0x5394c0, this.gFireManager)(
+                point.pointer,
+                Memory.FromFloat(range),
+                Memory.FromFloat(strength)
+            ) !== 0
+        );
+    }
+    static GetNextFreeFire(allowDeletingOldFire: boolean): CFire {
+        let firePointer = Memory.Fn.ThiscallI32(
+            0x539e50,
+            this.gFireManager
+        )(+allowDeletingOldFire);
+        return firePointer ? new CFire(firePointer) : undefined;
+    }
+    static CreateInPoint(
+        point: CVector,
+        creator: CEntity,
+        burnTime: int,
+        numGenerations: int
+    ): CFire {
+        return new CFire(
+            Memory.Fn.ThiscallI32(0x539f00, this.gFireManager)(
+                Memory.FromFloat(point.x),
+                Memory.FromFloat(point.y),
+                Memory.FromFloat(point.z),
+                Memory.FromFloat(1),
+                1,
+                creator?.pointer,
+                burnTime,
+                numGenerations,
+                1
+            )
+        );
+    }
+    static CreateOnEntity(
+        target: CEntity,
+        creator: CEntity,
+        burnTime: int,
+        numGenerations: int
+    ) {
+        return new CFire(
+            Memory.Fn.ThiscallI32(0x53a050, this.gFireManager)(
+                target.pointer,
+                creator?.pointer,
+                Memory.FromFloat(1),
+                1,
+                burnTime,
+                numGenerations
+            )
+        );
     }
 
     get entityOnFire(): CEntity {

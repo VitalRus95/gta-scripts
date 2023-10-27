@@ -23,6 +23,7 @@ export class CVector {
         }
         this.set(coordsOrPointer);
     }
+
     static AssignPointers(vectors: CVector[]) {
         let dynVecs: CVector[] = vectors.filter((v) => v.type === "dynamic");
         for (let i = 0; i < dynVecs.length; i++) {
@@ -36,6 +37,7 @@ export class CVector {
     static GetNumOfPointers(): int {
         return CVector.pointers.length;
     }
+
     get x(): float {
         if (this.type === "static")
             this._x = Memory.ReadFloat(this.pointer, false);

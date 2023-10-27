@@ -1,4 +1,4 @@
-// Sanny Builder Library v0.299
+// Sanny Builder Library v0.319
 /// <reference no-default-lib="true"/>
 /// <reference lib="es2020" />
 /** Integer value */
@@ -14,8 +14,8 @@ declare function wait(delay: int): void;
 declare function asyncWait(delay: int): Promise<void>;
 /** Displays a black text box with custom text. Not available on an `unknown` host */
 declare function showTextBox(text: string): void;
-/** Prints values to the cleo_redux.log */
-declare function log(...values: Array<string | int | float>): void;
+/** Prints serialized values to the cleo_redux.log */
+declare function log(...values: Array<any>): void;
 /** Executes the command by name with the given arguments */
 declare function native<T>(name: string, ...args: any[]): T;
 /** Terminates the script and optionally writes a reason to the log file */
@@ -565,10 +565,6 @@ declare class Car {
     *
     * https://library.sannybuilder.com/#/sa?q=CREATE_CAR */
     static Create(modelId: int, x: float, y: float, z: float): Car;
-    /** Sets the town ID of the license plate which is created on the specified model, affecting which texture is chosen for the plate
-    *
-    * https://library.sannybuilder.com/#/sa?q=CUSTOM_PLATE_DESIGN_FOR_NEXT_CAR */
-    static CustomPlateDesignForNextCar(modelId: int, townId: int): void;
     /** Sets the numberplate of the next car to be spawned with the specified model
     *
     * https://library.sannybuilder.com/#/sa?q=CUSTOM_PLATE_FOR_NEXT_CAR */
@@ -577,6 +573,10 @@ declare class Car {
     *
     * https://library.sannybuilder.com/#/sa?q=DOES_VEHICLE_EXIST */
     static DoesExist(handle: int): boolean;
+    /** Returns the value of the specified car model
+    *
+    * https://library.sannybuilder.com/#/sa?q=GET_CAR_MODEL_VALUE */
+    static GetModelValue(model: int): int;
     /** Returns true if the handle is an invalid vehicle handle or the vehicle has been destroyed (wrecked)
     *
     * https://library.sannybuilder.com/#/sa?q=IS_CAR_DEAD */
@@ -804,10 +804,6 @@ declare class Car {
     *
     * https://library.sannybuilder.com/#/sa?q=GET_CAR_MODEL */
     getModel(): int;
-    /** Returns the value of the specified car model
-    *
-    * https://library.sannybuilder.com/#/sa?q=GET_CAR_MODEL_VALUE */
-    getModelValue(): int;
     /** Sets the angle of a vehicle's extra
     *
     * https://library.sannybuilder.com/#/sa?q=GET_CAR_MOVING_COMPONENT_OFFSET */
@@ -1053,7 +1049,7 @@ declare class Car {
     /** Freezes the car on its path
     *
     * https://library.sannybuilder.com/#/sa?q=PAUSE_PLAYBACK_RECORDED_CAR */
-    pausePlaybackRecorded(): Car;
+    pausePlayback(): Car;
     /** Opens the car's trunk and keeps it open
     *
     * https://library.sannybuilder.com/#/sa?q=POP_CAR_BOOT */
@@ -1291,24 +1287,24 @@ declare class Car {
     /** Advances the recorded car playback by the specified amount
     *
     * https://library.sannybuilder.com/#/sa?q=SKIP_IN_PLAYBACK_RECORDED_CAR */
-    skipInPlaybackRecorded(amount: float): Car;
-    skipToEndAndStopPlaybackRecorded(): Car;
+    skipInPlayback(amount: float): Car;
+    skipToEndAndStopPlayback(): Car;
     /** Assigns a car to a path
     *
     * https://library.sannybuilder.com/#/sa?q=START_PLAYBACK_RECORDED_CAR */
-    startPlaybackRecorded(path: int): Car;
+    startPlayback(path: int): Car;
     /** Starts looped playback of a recorded car path
     *
     * https://library.sannybuilder.com/#/sa?q=START_PLAYBACK_RECORDED_CAR_LOOPED */
-    startPlaybackRecordedLooped(pathId: int): Car;
+    startPlaybackLooped(pathId: int): Car;
     /** Starts the playback of a recorded car with driver AI enabled
     *
     * https://library.sannybuilder.com/#/sa?q=START_PLAYBACK_RECORDED_CAR_USING_AI */
-    startPlaybackRecordedUsingAi(pathId: int): Car;
+    startPlaybackUsingAi(pathId: int): Car;
     /** Stops car from following path
     *
     * https://library.sannybuilder.com/#/sa?q=STOP_PLAYBACK_RECORDED_CAR */
-    stopPlaybackRecorded(): Car;
+    stopPlayback(): Car;
     /** Sets whether the car's alarm can be activated
     *
     * https://library.sannybuilder.com/#/sa?q=SWITCH_CAR_SIREN */
@@ -1324,7 +1320,7 @@ declare class Car {
     /** Unfreezes the vehicle on its path
     *
     * https://library.sannybuilder.com/#/sa?q=UNPAUSE_PLAYBACK_RECORDED_CAR */
-    unpausePlaybackRecorded(): Car;
+    unpausePlayback(): Car;
     /** Clears any current tasks the vehicle has and makes it drive around aimlessly
     *
     * https://library.sannybuilder.com/#/sa?q=CAR_WANDER_RANDOMLY */
@@ -1506,14 +1502,14 @@ declare class Char {
     *
     * https://library.sannybuilder.com/#/sa?q=GET_AMMO_IN_CHAR_WEAPON */
     getAmmoInWeapon(weaponType: int): int;
-    /** Returns the progress of the animation on the actor, ranging from 0
+    /** Returns the progress of the animation on the actor, ranging from 0.0 to 1.0
     *
     * https://library.sannybuilder.com/#/sa?q=GET_CHAR_ANIM_CURRENT_TIME */
-    getAnimCurrentTime(animationName: string): int;
+    getAnimCurrentTime(animationName: string): float;
     /** Returns a float of the length of the animation in milliseconds
     *
     * https://library.sannybuilder.com/#/sa?q=GET_CHAR_ANIM_TOTAL_TIME */
-    getAnimTotalTime(animationName: string): int;
+    getAnimTotalTime(animationName: string): float;
     /** Returns the interior ID that the character is in
     *
     * https://library.sannybuilder.com/#/sa?q=GET_CHAR_AREA_VISIBLE */
@@ -1949,7 +1945,7 @@ declare class Char {
     /** Returns true if the character is within the 2D radius of the coordinates point
     *
     * https://library.sannybuilder.com/#/sa?q=LOCATE_CHAR_ANY_MEANS_2D */
-    locateAnyMeans2D(x: float, y: float, xRadius: float, yRadius: float, drawSphere: Sphere): boolean;
+    locateAnyMeans2D(x: float, y: float, xRadius: float, yRadius: float, drawSphere: boolean): boolean;
     /** Returns true if the character is within the 3D radius of the coordinates point
     *
     * https://library.sannybuilder.com/#/sa?q=LOCATE_CHAR_ANY_MEANS_3D */
@@ -2009,7 +2005,7 @@ declare class Char {
     /** Returns true if the character is within the 3D radius of the object in a vehicle
     *
     * https://library.sannybuilder.com/#/sa?q=LOCATE_CHAR_IN_CAR_OBJECT_3D */
-    locateInCarObject3D(object: ScriptObject, xRadius: float, yRadius: float, zRadius: float, drawSphere: int): boolean;
+    locateInCarObject3D(object: ScriptObject, xRadius: float, yRadius: float, zRadius: float, drawSphere: boolean): boolean;
     /** Returns true if the character is within the 2D radius of the coordinates point on foot
     *
     * https://library.sannybuilder.com/#/sa?q=LOCATE_CHAR_ON_FOOT_2D */
@@ -2355,12 +2351,12 @@ declare class Char {
     *
     * https://library.sannybuilder.com/#/sa?q=STORE_CAR_CHAR_IS_IN_NO_SAVE */
     storeCarIsInNoSave(): Car;
-    /** Stores the handles of a ped and vehicle being closest to the char or -1 otherwise
+    /** Stores the handles of a vehicle and ped closest to the char or -1 otherwise
     *
     * https://library.sannybuilder.com/#/sa?q=STORE_CLOSEST_ENTITIES */
     storeClosestEntities(): {
-        charHandle: Char;
         carHandle: Car;
+        charHandle: Char;
     };
     /** Pulls the character out of their car and places at the location
     *
@@ -2867,6 +2863,10 @@ interface Game {
     * https://library.sannybuilder.com/#/sa?q=CLEAR_WANTED_LEVEL_IN_GARAGE */
     ClearWantedLevelInGarage(): void;
     DisableSecondPlayer(restoreCamera: boolean): void;
+    /** Gives all the weapons of player 1 to player 2 during a cooperative mission
+    *
+    * https://library.sannybuilder.com/#/sa?q=DO_WEAPON_STUFF_AT_START_OF_2P_GAME */
+    DoWeaponStuffAtStartOf2PGame(): void;
     /** Sets whether cops will chase and kill criminals when their task is 'TASK_COMPLEX_KILL_CRIMINAL'
     *
     * https://library.sannybuilder.com/#/sa?q=ENABLE_AMBIENT_CRIME */
@@ -2976,7 +2976,7 @@ interface Game {
     /** Returns true if the specified relationship between ped types is set
     *
     * https://library.sannybuilder.com/#/sa?q=IS_RELATIONSHIP_SET */
-    IsRelationshipSet(ofPedType: int, toPedType: int, relationshipType: int): boolean;
+    IsRelationshipSet(relationshipType: int, ofPedType: int, toPedType: int): boolean;
     /** Returns true if the current game runs on San Andreas Multiplayer (SA-MP)
     *
     * https://library.sannybuilder.com/#/sa?q=IS_ON_SAMP */
@@ -3092,6 +3092,14 @@ interface Game {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_ONLY_CREATE_GANG_MEMBERS */
     SetOnlyCreateGangMembers(state: boolean): void;
+    /** Enables each player to target the other player
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_PLAYER_PLAYER_TARGETING */
+    SetPlayerPlayerTargeting(state: boolean): void;
+    /** Sets whether the players can be in separate cars during a 2-player mission
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_PLAYERS_CAN_BE_IN_SEPARATE_CARS */
+    SetPlayersCanBeInSeparateCars(state: boolean): void;
     /** Sets whether cops should ignore the player regardless of wanted level
     *
     * https://library.sannybuilder.com/#/sa?q=SET_POLICE_IGNORE_PLAYER */
@@ -3313,7 +3321,7 @@ interface Hud {
     /** This is an extended version of 038D with scale and angle parameters
     *
     * https://library.sannybuilder.com/#/sa?q=DRAW_SPRITE_WITH_ROTATION */
-    DrawSpriteWithRotation(memorySlot: int, offsetLeft: float, offsetTop: float, height: float, width: float, angle: float, red: int, green: int, blue: int, alpha: int): void;
+    DrawSpriteWithRotation(memorySlot: int, offsetLeft: float, offsetTop: float, width: float, height: float, angle: float, red: int, green: int, blue: int, alpha: int): void;
     /** Draws a black box with styled text from corner A to corner B
     *
     * https://library.sannybuilder.com/#/sa?q=DRAW_WINDOW */
@@ -3431,7 +3439,7 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_COLLAPSING_HEADER */
     CollapsingHeader(label: string): boolean;
-    /** Creates the color picker and sets the default color (0.0f-1.0f)
+    /** Creates the color picker and sets the default color (0-255)
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_COLOR_PICKER */
     ColorPicker(label: string): {
@@ -3648,6 +3656,18 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_SET_TOOLTIP */
     SetTooltip(text: string): void;
+    /** Sets the value of input float & slider float widget
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_SET_WIDGET_FLOAT */
+    SetWidgetValueFloat(id: string, val: float): void;
+    /** Sets the value of input int & slider int widget
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_SET_WIDGET_INT */
+    SetWidgetValueInt(id: string, val: int): void;
+    /** Sets value of input text widget
+    *
+    * https://library.sannybuilder.com/#/sa?q=IMGUI_SET_WIDGET_TEXT */
+    SetWidgetValueText(id: string, val: string): void;
     /** Sets the current window position. Must be called inside Begin()...End()
     *
     * https://library.sannybuilder.com/#/sa?q=IMGUI_SET_WINDOW_POS */
@@ -5413,7 +5433,7 @@ declare class ScriptObject {
     /** Plays an object animation
     *
     * https://library.sannybuilder.com/#/sa?q=PLAY_OBJECT_ANIM */
-    playAnim(animationName: string, animationFile: string, framedelta: float, lockF: boolean, loop: boolean): ScriptObject;
+    playAnim(animationName: string, animationFile: string, frameDelta: float, lockF: boolean, loop: boolean): ScriptObject;
     releaseEntityFromRope(): ScriptObject;
     /** Fades the object out of existence, freeing game memory
     *
@@ -5843,6 +5863,10 @@ interface Streaming {
     *
     * https://library.sannybuilder.com/#/sa?q=ATTACH_ANIMS_TO_MODEL */
     AttachAnimsToModel(pedModelId: int, animationFile: string): void;
+    /** Sets the town ID of the license plate which is created on the specified model, affecting which texture is chosen for the plate
+    *
+    * https://library.sannybuilder.com/#/sa?q=CUSTOM_PLATE_DESIGN_FOR_NEXT_CAR */
+    CustomPlateDesignForNextCar(modelId: int, townId: int): void;
     /** Gets the current interior ID
     *
     * https://library.sannybuilder.com/#/sa?q=GET_AREA_VISIBLE */
@@ -5986,11 +6010,11 @@ interface StuckCarCheck {
     /** Adds the vehicle to the stuck cars array
     *
     * https://library.sannybuilder.com/#/sa?q=ADD_STUCK_CAR_CHECK */
-    Add(vehicle: Car, speed: float, duration: int): void;
+    Add(vehicle: Car, distance: float, time: int): void;
     /** Attempts to automatically restore vehicles that get stuck or flipped
     *
     * https://library.sannybuilder.com/#/sa?q=ADD_STUCK_CAR_CHECK_WITH_WARP */
-    AddWithWarp(vehicle: Car, speed: float, duration: int, stuck: boolean, flipped: boolean, warp: boolean, pathId: int): void;
+    AddWithWarp(vehicle: Car, distance: float, time: int, stuck: boolean, flipped: boolean, warp: boolean, pathId: int): void;
     /** Returns true if the car is stuck
     *
     * https://library.sannybuilder.com/#/sa?q=IS_CAR_STUCK */
@@ -6429,17 +6453,26 @@ interface Text {
     *
     * https://library.sannybuilder.com/#/sa?q=PRINT_BIG */
     PrintBig(key: string, time: int, style: int): void;
-    /** Displays a styled message for the specified time respecting the format of the String entered
+    /** Formats args according to the format string fmt, then displays it similarly to PRINT_BIG
     *
     * https://library.sannybuilder.com/#/sa?q=PRINT_BIG_FORMATTED */
-    PrintBigFormatted(text: string, time: int, style: int, ...args: number[]): void;
+    PrintBigFormatted(fmt: string, time: int, style: int, ...args: number[]): void;
     /** Displays a low-priority styled message for the specified time
     *
     * https://library.sannybuilder.com/#/sa?q=PRINT_BIG_Q */
     PrintBigQ(key: string, duration: int, style: int): void;
+    /** Displays a custom text (provided as a literal or an address) similarly to PRINT_BIG
+    *
+    * https://library.sannybuilder.com/#/sa?q=PRINT_BIG_STRING */
     PrintBigString(text: string, time: int, style: int): void;
-    PrintFormatted(text: string, time: int, ...arg: number[]): void;
-    PrintFormattedNow(text: string, time: int, ...arg: number[]): void;
+    /** Formats args according to the format string fmt, then displays it similarly to PRINT
+    *
+    * https://library.sannybuilder.com/#/sa?q=PRINT_FORMATTED */
+    PrintFormatted(fmt: string, time: int, ...arg: number[]): void;
+    /** Formats args according to the format string fmt, then displays it similarly to PRINT_NOW
+    *
+    * https://library.sannybuilder.com/#/sa?q=PRINT_FORMATTED_NOW */
+    PrintFormattedNow(fmt: string, time: int, ...arg: number[]): void;
     /** Displays a black text box for a few seconds
     *
     * https://library.sannybuilder.com/#/sa?q=PRINT_HELP */
@@ -6456,12 +6489,15 @@ interface Text {
     *
     * https://library.sannybuilder.com/#/sa?q=PRINT_HELP_FORMATTED */
     PrintHelpFormatted(text: string, ...args: number[]): void;
+    /** Displays a custom text (provided as a literal or an address) in a black box similarly to PRINT_HELP
+    *
+    * https://library.sannybuilder.com/#/sa?q=PRINT_HELP_STRING */
     PrintHelpString(text: string): void;
     /** Displays a message positioned on the bottom of the screen for the specified time
     *
     * https://library.sannybuilder.com/#/sa?q=PRINT_NOW */
     PrintNow(key: string, time: int, flag: int): void;
-    /** Displays the text (provided as a string literal or an address) similarly to 00BB
+    /** Displays a custom text (provided as a literal or an address) similarly to PRINT
     *
     * https://library.sannybuilder.com/#/sa?q=PRINT_STRING */
     PrintString(text: string, time: int): void;
@@ -6469,6 +6505,9 @@ interface Text {
     *
     * https://library.sannybuilder.com/#/sa?q=PRINT_STRING_IN_STRING_NOW */
     PrintStringInStringNow(templateKey: string, replacementKey: string, duration: int, style: int): void;
+    /** Displays a custom text (provided as a literal or an address) similarly to PRINT_NOW
+    *
+    * https://library.sannybuilder.com/#/sa?q=PRINT_STRING_NOW */
     PrintStringNow(text: string, time: int): void;
     /** Displays a styled message in which the first two ~1~ tokens are substituted with the specified numbers
     *
@@ -7065,7 +7104,6 @@ declare var Zone: Zone
  * 
  * https://library.sannybuilder.com/#/sa/classes/AudioStream3D */
 declare class AudioStream3D extends AudioStream {
-    constructor(handle: number);
     static Load(audioFileName: string): AudioStream3D | undefined;
     setPlayAtCar(handle: Car): AudioStream3D;
     setPlayAtChar(handle: Char): AudioStream3D;
@@ -7076,7 +7114,10 @@ declare class AudioStream3D extends AudioStream {
  * 
  * https://library.sannybuilder.com/#/sa/classes/Boat */
 declare class Boat extends Car {
-    constructor(handle: number);
+    /** Creates a vehicle at the specified location, with the specified model
+    *
+    * https://library.sannybuilder.com/#/sa?q=CREATE_CAR */
+    static Create(modelId: int, x: float, y: float, z: float): Boat;
     /** Makes the boat stay motionless in the water
     *
     * https://library.sannybuilder.com/#/sa?q=ANCHOR_BOAT */
@@ -7098,7 +7139,6 @@ declare class Boat extends Car {
  * 
  * https://library.sannybuilder.com/#/sa/classes/DecisionMakerChar */
 declare class DecisionMakerChar extends DecisionMaker {
-    constructor(handle: number);
     /** Copies a decision makers data to another decision maker
     *
     * https://library.sannybuilder.com/#/sa?q=COPY_CHAR_DECISION_MAKER */
@@ -7121,7 +7161,6 @@ declare class DecisionMakerChar extends DecisionMaker {
  * 
  * https://library.sannybuilder.com/#/sa/classes/DecisionMakerGroup */
 declare class DecisionMakerGroup extends DecisionMaker {
-    constructor(handle: number);
     /** Copies a group decision makers data to another decision maker
     *
     * https://library.sannybuilder.com/#/sa?q=COPY_GROUP_DECISION_MAKER */
@@ -7143,7 +7182,10 @@ declare class DecisionMakerGroup extends DecisionMaker {
  * 
  * https://library.sannybuilder.com/#/sa/classes/Heli */
 declare class Heli extends Car {
-    constructor(handle: number);
+    /** Creates a vehicle at the specified location, with the specified model
+    *
+    * https://library.sannybuilder.com/#/sa?q=CREATE_CAR */
+    static Create(modelId: int, x: float, y: float, z: float): Heli;
     /** Provides the heli with extra thrust power
     *
     * https://library.sannybuilder.com/#/sa?q=ACTIVATE_HELI_SPEED_CHEAT */
@@ -7210,7 +7252,6 @@ declare class Heli extends Car {
  * 
  * https://library.sannybuilder.com/#/sa/classes/MenuGrid */
 declare class MenuGrid extends Menu {
-    constructor(handle: number);
     /** Creates the same color chart that you see in car modification shops
     *
     * https://library.sannybuilder.com/#/sa?q=CREATE_MENU_GRID */
@@ -7220,7 +7261,10 @@ declare class MenuGrid extends Menu {
  * 
  * https://library.sannybuilder.com/#/sa/classes/Plane */
 declare class Plane extends Car {
-    constructor(handle: number);
+    /** Creates a vehicle at the specified location, with the specified model
+    *
+    * https://library.sannybuilder.com/#/sa?q=CREATE_CAR */
+    static Create(modelId: int, x: float, y: float, z: float): Plane;
     /** Sets the planes mission to attack the player
     *
     * https://library.sannybuilder.com/#/sa?q=PLANE_ATTACK_PLAYER */
@@ -7244,7 +7288,10 @@ declare class Plane extends Car {
  * 
  * https://library.sannybuilder.com/#/sa/classes/Trailer */
 declare class Trailer extends Car {
-    constructor(handle: number);
+    /** Creates a vehicle at the specified location, with the specified model
+    *
+    * https://library.sannybuilder.com/#/sa?q=CREATE_CAR */
+    static Create(modelId: int, x: float, y: float, z: float): Trailer;
     attachToCab(cab: Car): Trailer;
     /** Detaches the trailer from the car which it is attached to
     *

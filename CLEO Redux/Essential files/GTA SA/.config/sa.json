@@ -1,7 +1,7 @@
 {
   "meta": {
-    "last_update": 1676237905671,
-    "version": "0.299",
+    "last_update": 1692420441356,
+    "version": "0.319",
     "url": "https://library.sannybuilder.com/#/sa"
   },
   "extensions": [
@@ -1434,8 +1434,7 @@
             }
           ],
           "attrs": {
-            "is_keyword": true,
-            "is_variadic": true
+            "is_keyword": true
           },
           "id": "004F",
           "name": "START_NEW_SCRIPT",
@@ -3200,7 +3199,7 @@
             },
             {
               "name": "drivingStyle",
-              "type": "CarDrivingStyle"
+              "type": "DrivingMode"
             }
           ],
           "class": "Car",
@@ -4025,7 +4024,7 @@
             },
             {
               "name": "drawSphere",
-              "type": "Sphere"
+              "type": "bool"
             }
           ],
           "attrs": {
@@ -10033,7 +10032,8 @@
             }
           ],
           "attrs": {
-            "is_static": true
+            "is_static": true,
+            "is_positional": true
           },
           "class": "Fx",
           "id": "024F",
@@ -15431,11 +15431,11 @@
               "type": "Car"
             },
             {
-              "name": "speed",
+              "name": "distance",
               "type": "float"
             },
             {
-              "name": "duration",
+              "name": "time",
               "type": "int"
             }
           ],
@@ -17962,7 +17962,7 @@
             },
             {
               "name": "drawSphere",
-              "type": "int"
+              "type": "bool"
             }
           ],
           "attrs": {
@@ -23548,7 +23548,7 @@
             },
             {
               "name": "drivingStyle",
-              "type": "CarDrivingStyle"
+              "type": "DrivingMode"
             }
           ],
           "id": "05D1",
@@ -24042,7 +24042,7 @@
           "num_params": 2,
           "short_desc": "Assigns a car to a path",
           "class": "Car",
-          "member": "StartPlaybackRecorded"
+          "member": "StartPlayback"
         },
         {
           "input": [
@@ -24056,7 +24056,7 @@
           "num_params": 1,
           "short_desc": "Stops car from following path",
           "class": "Car",
-          "member": "StopPlaybackRecorded"
+          "member": "StopPlayback"
         },
         {
           "input": [
@@ -24070,7 +24070,7 @@
           "num_params": 1,
           "short_desc": "Freezes the car on its path",
           "class": "Car",
-          "member": "PausePlaybackRecorded"
+          "member": "PausePlayback"
         },
         {
           "input": [
@@ -24084,7 +24084,7 @@
           "num_params": 1,
           "short_desc": "Unfreezes the vehicle on its path",
           "class": "Car",
-          "member": "UnpausePlaybackRecorded"
+          "member": "UnpausePlayback"
         },
         {
           "id": "05EF",
@@ -25127,14 +25127,14 @@
           "output": [
             {
               "name": "time",
-              "type": "int",
+              "type": "float",
               "source": "var_any"
             }
           ],
           "id": "0613",
           "name": "GET_CHAR_ANIM_CURRENT_TIME",
           "num_params": 3,
-          "short_desc": "Returns the progress of the animation on the actor, ranging from 0",
+          "short_desc": "Returns the progress of the animation on the actor, ranging from 0.0 to 1.0",
           "class": "Char",
           "member": "GetAnimCurrentTime"
         },
@@ -25250,8 +25250,8 @@
           ],
           "output": [
             {
-              "name": "time",
-              "type": "int",
+              "name": "totalTime",
+              "type": "float",
               "source": "var_any"
             }
           ],
@@ -25633,7 +25633,7 @@
           "output": [
             {
               "name": "status",
-              "type": "int",
+              "type": "TaskStatus",
               "source": "var_any"
             }
           ],
@@ -29012,7 +29012,7 @@
           "num_params": 1,
           "short_desc": "",
           "class": "Car",
-          "member": "SkipToEndAndStopPlaybackRecorded"
+          "member": "SkipToEndAndStopPlayback"
         },
         {
           "id": "06C6",
@@ -29509,7 +29509,7 @@
             },
             {
               "name": "drivingStyle",
-              "type": "CarDrivingStyle"
+              "type": "DrivingMode"
             }
           ],
           "id": "06E1",
@@ -29862,14 +29862,19 @@
         {
           "input": [
             {
-              "name": "_p1",
-              "type": "any"
+              "name": "state",
+              "type": "bool"
             }
           ],
           "id": "06F3",
           "name": "SET_PLAYER_PLAYER_TARGETING",
           "num_params": 1,
-          "short_desc": "Enables each player to target the other player"
+          "short_desc": "Enables each player to target the other player",
+          "class": "Game",
+          "attrs": {
+            "is_static": true
+          },
+          "member": "SetPlayerPlayerTargeting"
         },
         {
           "id": "06F4",
@@ -29990,14 +29995,19 @@
         {
           "input": [
             {
-              "name": "_p1",
-              "type": "any"
+              "name": "state",
+              "type": "bool"
             }
           ],
           "id": "06FA",
           "name": "SET_PLAYERS_CAN_BE_IN_SEPARATE_CARS",
           "num_params": 1,
-          "short_desc": "Sets whether the players can be in separate cars during a 2-player mission"
+          "short_desc": "Sets whether the players can be in separate cars during a 2-player mission",
+          "class": "Game",
+          "member": "SetPlayersCanBeInSeparateCars",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
           "id": "06FB",
@@ -30204,7 +30214,7 @@
           "num_params": 2,
           "short_desc": "Starts the playback of a recorded car with driver AI enabled",
           "class": "Car",
-          "member": "StartPlaybackRecordedUsingAi"
+          "member": "StartPlaybackUsingAi"
         },
         {
           "input": [
@@ -30222,7 +30232,7 @@
           "num_params": 2,
           "short_desc": "Advances the recorded car playback by the specified amount",
           "class": "Car",
-          "member": "SkipInPlaybackRecorded"
+          "member": "SkipInPlayback"
         },
         {
           "input": [
@@ -31063,11 +31073,11 @@
               "type": "Car"
             },
             {
-              "name": "speed",
+              "name": "distance",
               "type": "float"
             },
             {
-              "name": "duration",
+              "name": "time",
               "type": "int"
             },
             {
@@ -31628,11 +31638,11 @@
               "type": "float"
             },
             {
-              "name": "height",
+              "name": "width",
               "type": "float"
             },
             {
-              "name": "width",
+              "name": "height",
               "type": "float"
             },
             {
@@ -31934,7 +31944,7 @@
               "type": "string"
             },
             {
-              "name": "framedelta",
+              "name": "frameDelta",
               "type": "float"
             },
             {
@@ -32328,14 +32338,14 @@
             },
             {
               "name": "townId",
-              "type": "int"
+              "type": "Town"
             }
           ],
           "id": "0771",
           "name": "CUSTOM_PLATE_DESIGN_FOR_NEXT_CAR",
           "num_params": 2,
           "short_desc": "Sets the town ID of the license plate which is created on the specified model, affecting which texture is chosen for the plate",
-          "class": "Car",
+          "class": "Streaming",
           "member": "CustomPlateDesignForNextCar",
           "attrs": {
             "is_static": true
@@ -34503,16 +34513,16 @@
         {
           "input": [
             {
+              "name": "relationshipType",
+              "type": "RelationshipType"
+            },
+            {
               "name": "ofPedType",
               "type": "PedType"
             },
             {
               "name": "toPedType",
               "type": "PedType"
-            },
-            {
-              "name": "relationshipType",
-              "type": "RelationshipType"
             }
           ],
           "id": "07E8",
@@ -36766,7 +36776,7 @@
           "num_params": 2,
           "short_desc": "Starts looped playback of a recorded car path",
           "class": "Car",
-          "member": "StartPlaybackRecordedLooped"
+          "member": "StartPlaybackLooped"
         },
         {
           "id": "085F",
@@ -38383,310 +38393,346 @@
           }
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_global"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "literal"
+            }
+          ],
           "id": "08B4",
           "name": "IS_GLOBAL_VAR_BIT_SET_CONST",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ],
+          "short_desc": "Checks if the nth bit of the number is set",
           "attrs": {
             "is_condition": true
           }
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_global"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_global"
+            }
+          ],
           "id": "08B5",
           "name": "IS_GLOBAL_VAR_BIT_SET_VAR",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ],
+          "short_desc": "Checks if the nth bit of the number is set",
           "attrs": {
             "is_condition": true
           }
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_global"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_local"
+            }
+          ],
           "id": "08B6",
           "name": "IS_GLOBAL_VAR_BIT_SET_LVAR",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ],
+          "short_desc": "Checks if the nth bit of the number is set",
           "attrs": {
             "is_condition": true
           }
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_local"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "literal"
+            }
+          ],
           "id": "08B7",
           "name": "IS_LOCAL_VAR_BIT_SET_CONST",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ],
+          "short_desc": "Checks if the nth bit of the number is set",
           "attrs": {
             "is_condition": true
           }
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_local"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_global"
+            }
+          ],
           "id": "08B8",
           "name": "IS_LOCAL_VAR_BIT_SET_VAR",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ],
+          "short_desc": "Checks if the nth bit of the number is set",
           "attrs": {
             "is_condition": true
           }
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_local"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_local"
+            }
+          ],
           "id": "08B9",
           "name": "IS_LOCAL_VAR_BIT_SET_LVAR",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ],
+          "short_desc": "Checks if the nth bit of the number is set",
           "attrs": {
             "is_condition": true
           }
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_global"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "literal"
+            }
+          ],
           "id": "08BA",
           "name": "SET_GLOBAL_VAR_BIT_CONST",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Sets the nth bit of the number"
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_global"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_global"
+            }
+          ],
           "id": "08BB",
           "name": "SET_GLOBAL_VAR_BIT_VAR",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Sets the nth bit of the number"
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_local"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_local"
+            }
+          ],
           "id": "08BC",
           "name": "SET_GLOBAL_VAR_BIT_LVAR",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Sets the nth bit of the number"
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_local"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "literal"
+            }
+          ],
           "id": "08BD",
           "name": "SET_LOCAL_VAR_BIT_CONST",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Sets the nth bit of the number"
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_local"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_global"
+            }
+          ],
           "id": "08BE",
           "name": "SET_LOCAL_VAR_BIT_VAR",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Sets the nth bit of the number"
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_local"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_local"
+            }
+          ],
           "id": "08BF",
           "name": "SET_LOCAL_VAR_BIT_LVAR",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Sets the nth bit of the number"
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_global"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "literal"
+            }
+          ],
           "id": "08C0",
           "name": "CLEAR_GLOBAL_VAR_BIT_CONST",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Clears the nth bit of the number"
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_global"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_global"
+            }
+          ],
           "id": "08C1",
           "name": "CLEAR_GLOBAL_VAR_BIT_VAR",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Clears the nth bit of the number"
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_global"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_local"
+            }
+          ],
           "id": "08C2",
           "name": "CLEAR_GLOBAL_VAR_BIT_LVAR",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Clears the nth bit of the number"
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_local"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "literal"
+            }
+          ],
           "id": "08C3",
           "name": "CLEAR_LOCAL_VAR_BIT_CONST",
           "num_params": 2,
-          "short_desc": "",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Clears the nth bit of the number"
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_local"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_global"
+            }
+          ],
           "id": "08C4",
           "name": "CLEAR_LOCAL_VAR_BIT_VAR",
           "num_params": 2,
-          "short_desc": "Sets the specified bit to 0",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Clears the nth bit of the number"
         },
         {
+          "input": [
+            {
+              "name": "number",
+              "type": "int",
+              "source": "var_local"
+            },
+            {
+              "name": "n",
+              "type": "int",
+              "source": "var_local"
+            }
+          ],
           "id": "08C5",
           "name": "CLEAR_LOCAL_VAR_BIT_LVAR",
           "num_params": 2,
-          "short_desc": "Sets the specified bit to 0",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ]
+          "short_desc": "Clears the nth bit of the number"
         },
         {
           "input": [
@@ -40300,8 +40346,7 @@
           "class": "StreamedScript",
           "member": "StartNew",
           "attrs": {
-            "is_static": true,
-            "is_variadic": true
+            "is_static": true
           }
         },
         {
@@ -44354,8 +44399,8 @@
         {
           "input": [
             {
-              "name": "self",
-              "type": "Car"
+              "name": "model",
+              "type": "model_vehicle"
             }
           ],
           "output": [
@@ -44370,7 +44415,10 @@
           "num_params": 2,
           "short_desc": "Returns the value of the specified car model",
           "class": "Car",
-          "member": "GetModelValue"
+          "member": "GetModelValue",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
           "input": [
@@ -44836,7 +44884,12 @@
           "id": "09F8",
           "name": "DO_WEAPON_STUFF_AT_START_OF_2P_GAME",
           "num_params": 0,
-          "short_desc": "Gives all the weapons of player 1 to player 2 during a cooperative mission"
+          "short_desc": "Gives all the weapons of player 1 to player 2 during a cooperative mission",
+          "class": "Game",
+          "member": "DoWeaponStuffAtStartOf2PGame",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
           "id": "09F9",
@@ -46413,34 +46466,6 @@
         {
           "input": [
             {
-              "name": "touch",
-              "type": "PadId"
-            },
-            {
-              "name": "touchPoints",
-              "type": "TouchPoints"
-            }
-          ],
-          "id": "00E1",
-          "name": "IS_BUTTON_PRESSED",
-          "num_params": 2,
-          "class": "Hid",
-          "member": "IsButtonPressed",
-          "attrs": {
-            "is_static": true,
-            "is_condition": true
-          },
-          "platforms": [
-            "mobile"
-          ],
-          "versions": [
-            "1.0"
-          ],
-          "short_desc": "Returns true if the touch point of the screen has been pressed. See 0DE0 and 0DE1"
-        },
-        {
-          "input": [
-            {
               "name": "address",
               "type": "int"
             },
@@ -46643,8 +46668,7 @@
           "num_params": 2,
           "short_desc": "Loads a file with compiled SCM instructions at the given path and runs a new custom script",
           "attrs": {
-            "is_keyword": true,
-            "is_variadic": true
+            "is_keyword": true
           },
           "platforms": [
             "pc"
@@ -46685,8 +46709,7 @@
           "num_params": 2,
           "short_desc": "",
           "attrs": {
-            "is_keyword": true,
-            "is_variadic": true
+            "is_keyword": true
           },
           "platforms": [
             "pc"
@@ -47144,8 +47167,7 @@
           "class": "Memory",
           "member": "CallFunction",
           "attrs": {
-            "is_static": true,
-            "is_variadic": true
+            "is_static": true
           },
           "platforms": [
             "pc"
@@ -47184,8 +47206,7 @@
           "class": "Memory",
           "member": "CallMethod",
           "attrs": {
-            "is_static": true,
-            "is_variadic": true
+            "is_static": true
           },
           "platforms": [
             "pc"
@@ -47227,8 +47248,7 @@
           "class": "Memory",
           "member": "CallFunctionReturn",
           "attrs": {
-            "is_static": true,
-            "is_variadic": true
+            "is_static": true
           },
           "platforms": [
             "pc"
@@ -47274,8 +47294,7 @@
           "class": "Memory",
           "member": "CallMethodReturn",
           "attrs": {
-            "is_static": true,
-            "is_variadic": true
+            "is_static": true
           },
           "platforms": [
             "pc"
@@ -47503,10 +47522,9 @@
           "id": "0AB1",
           "name": "CLEO_CALL",
           "num_params": 3,
-          "short_desc": "",
+          "short_desc": "Starts the execution of the SCM function with given params, optionally receiving one or more numbers as the result",
           "attrs": {
-            "is_keyword": true,
-            "is_variadic": true
+            "is_keyword": true
           },
           "platforms": [
             "pc"
@@ -47529,33 +47547,7 @@
           "id": "0AB2",
           "name": "CLEO_RETURN",
           "num_params": 2,
-          "short_desc": "",
-          "attrs": {
-            "is_keyword": true,
-            "is_variadic": true
-          },
-          "platforms": [
-            "pc"
-          ],
-          "versions": [
-            "1.0"
-          ]
-        },
-        {
-          "input": [
-            {
-              "name": "varId",
-              "type": "int"
-            },
-            {
-              "name": "value",
-              "type": "any"
-            }
-          ],
-          "id": "0AB3",
-          "name": "SET_CLEO_SHARED_VAR",
-          "num_params": 2,
-          "short_desc": "",
+          "short_desc": "Returns the flow of the execution to the last CLEO_CALL instruction, optionally returning one or more numbers as the result",
           "attrs": {
             "is_keyword": true
           },
@@ -47569,7 +47561,32 @@
         {
           "input": [
             {
-              "name": "varId",
+              "name": "index",
+              "type": "int"
+            },
+            {
+              "name": "value",
+              "type": "any"
+            }
+          ],
+          "id": "0AB3",
+          "name": "SET_CLEO_SHARED_VAR",
+          "num_params": 2,
+          "short_desc": "Sets the value of an element in the global array maintained by CLEO (index is between 0-1023)",
+          "attrs": {
+            "is_keyword": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "index",
               "type": "int"
             }
           ],
@@ -47583,7 +47600,7 @@
           "id": "0AB4",
           "name": "GET_CLEO_SHARED_VAR",
           "num_params": 2,
-          "short_desc": "",
+          "short_desc": "Reads the value of an element in the global array maintained by CLEO (index is between 0-1023)",
           "attrs": {
             "is_keyword": true
           },
@@ -47603,20 +47620,20 @@
           ],
           "output": [
             {
-              "name": "charHandle",
-              "type": "Char",
+              "name": "carHandle",
+              "type": "Car",
               "source": "var_any"
             },
             {
-              "name": "carHandle",
-              "type": "Car",
+              "name": "charHandle",
+              "type": "Char",
               "source": "var_any"
             }
           ],
           "id": "0AB5",
           "name": "STORE_CLOSEST_ENTITIES",
           "num_params": 3,
-          "short_desc": "Stores the handles of a ped and vehicle being closest to the char or -1 otherwise",
+          "short_desc": "Stores the handles of a vehicle and ped closest to the char or -1 otherwise",
           "class": "Char",
           "member": "StoreClosestEntities",
           "platforms": [
@@ -48167,7 +48184,7 @@
           "id": "0ACA",
           "name": "PRINT_HELP_STRING",
           "num_params": 1,
-          "short_desc": "",
+          "short_desc": "Displays a custom text (provided as a literal or an address) in a black box similarly to PRINT_HELP",
           "class": "Text",
           "member": "PrintHelpString",
           "attrs": {
@@ -48198,7 +48215,7 @@
           "id": "0ACB",
           "name": "PRINT_BIG_STRING",
           "num_params": 3,
-          "short_desc": "",
+          "short_desc": "Displays a custom text (provided as a literal or an address) similarly to PRINT_BIG",
           "class": "Text",
           "member": "PrintBigString",
           "attrs": {
@@ -48225,7 +48242,7 @@
           "id": "0ACC",
           "name": "PRINT_STRING",
           "num_params": 2,
-          "short_desc": "Displays the text (provided as a string literal or an address) similarly to 00BB",
+          "short_desc": "Displays a custom text (provided as a literal or an address) similarly to PRINT",
           "class": "Text",
           "member": "PrintString",
           "attrs": {
@@ -48252,7 +48269,7 @@
           "id": "0ACD",
           "name": "PRINT_STRING_NOW",
           "num_params": 2,
-          "short_desc": "",
+          "short_desc": "Displays a custom text (provided as a literal or an address) similarly to PRINT_NOW",
           "class": "Text",
           "member": "PrintStringNow",
           "attrs": {
@@ -48283,8 +48300,7 @@
           "class": "Text",
           "member": "PrintHelpFormatted",
           "attrs": {
-            "is_static": true,
-            "is_variadic": true
+            "is_static": true
           },
           "platforms": [
             "pc"
@@ -48296,7 +48312,7 @@
         {
           "input": [
             {
-              "name": "text",
+              "name": "fmt",
               "type": "string"
             },
             {
@@ -48315,10 +48331,9 @@
           "id": "0ACF",
           "name": "PRINT_BIG_FORMATTED",
           "num_params": 4,
-          "short_desc": "Displays a styled message for the specified time respecting the format of the String entered",
+          "short_desc": "Formats args according to the format string fmt, then displays it similarly to PRINT_BIG",
           "attrs": {
-            "is_static": true,
-            "is_variadic": true
+            "is_static": true
           },
           "class": "Text",
           "member": "PrintBigFormatted",
@@ -48332,7 +48347,7 @@
         {
           "input": [
             {
-              "name": "text",
+              "name": "fmt",
               "type": "string"
             },
             {
@@ -48347,12 +48362,11 @@
           "id": "0AD0",
           "name": "PRINT_FORMATTED",
           "num_params": 3,
-          "short_desc": "",
+          "short_desc": "Formats args according to the format string fmt, then displays it similarly to PRINT",
           "class": "Text",
           "member": "PrintFormatted",
           "attrs": {
-            "is_static": true,
-            "is_variadic": true
+            "is_static": true
           },
           "platforms": [
             "pc"
@@ -48364,7 +48378,7 @@
         {
           "input": [
             {
-              "name": "text",
+              "name": "fmt",
               "type": "string"
             },
             {
@@ -48379,12 +48393,11 @@
           "id": "0AD1",
           "name": "PRINT_FORMATTED_NOW",
           "num_params": 3,
-          "short_desc": "",
+          "short_desc": "Formats args according to the format string fmt, then displays it similarly to PRINT_NOW",
           "class": "Text",
           "member": "PrintFormattedNow",
           "attrs": {
-            "is_static": true,
-            "is_variadic": true
+            "is_static": true
           },
           "platforms": [
             "pc"
@@ -48448,8 +48461,7 @@
           "class": "Text",
           "member": "StringFormat",
           "attrs": {
-            "is_static": true,
-            "is_variadic": true
+            "is_static": true
           },
           "platforms": [
             "pc"
@@ -48489,7 +48501,6 @@
           "member": "ScanString",
           "attrs": {
             "is_static": true,
-            "is_variadic": true,
             "is_condition": true
           },
           "platforms": [
@@ -48632,9 +48643,6 @@
           "short_desc": "Writes a formatted string to the file",
           "class": "File",
           "member": "WriteFormattedString",
-          "attrs": {
-            "is_variadic": true
-          },
           "platforms": [
             "pc"
           ],
@@ -48672,8 +48680,7 @@
           "class": "File",
           "member": "Scan",
           "attrs": {
-            "is_condition": true,
-            "is_variadic": true
+            "is_condition": true
           },
           "platforms": [
             "pc"
@@ -53354,7 +53361,7 @@
           "id": "0C30",
           "name": "IMGUI_COLOR_PICKER",
           "num_params": 5,
-          "short_desc": "Creates the color picker and sets the default color (0.0f-1.0f)",
+          "short_desc": "Creates the color picker and sets the default color (0-255)",
           "class": "ImGui",
           "member": "ColorPicker",
           "attrs": {
@@ -54119,6 +54126,87 @@
           "attrs": {
             "is_static": true
           }
+        },
+        {
+          "input": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "val",
+              "type": "int"
+            }
+          ],
+          "id": "0C4E",
+          "name": "IMGUI_SET_WIDGET_INT",
+          "num_params": 2,
+          "class": "ImGui",
+          "member": "SetWidgetValueInt",
+          "short_desc": "Sets the value of input int & slider int widget",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "val",
+              "type": "float"
+            }
+          ],
+          "id": "0C4F",
+          "name": "IMGUI_SET_WIDGET_FLOAT",
+          "num_params": 2,
+          "short_desc": "Sets the value of input float & slider float widget",
+          "class": "ImGui",
+          "member": "SetWidgetValueFloat",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "val",
+              "type": "string"
+            }
+          ],
+          "id": "0C50",
+          "name": "IMGUI_SET_WIDGET_TEXT",
+          "num_params": 2,
+          "short_desc": "Sets value of input text widget",
+          "class": "ImGui",
+          "member": "SetWidgetValueText",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "1.0"
+          ]
         }
       ]
     },

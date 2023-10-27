@@ -1,7 +1,7 @@
 {
   "meta": {
-    "last_update": 1671114840746,
-    "version": "0.222",
+    "last_update": 1687094519738,
+    "version": "0.225",
     "url": "https://library.sannybuilder.com/#/unknown_x86"
   },
   "extensions": [
@@ -80,6 +80,72 @@
     {
       "name": "imgui",
       "commands": [
+        {
+          "input": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "val",
+              "type": "int"
+            }
+          ],
+          "name": "IMGUI_SET_WIDGET_INT",
+          "num_params": 2,
+          "class": "ImGui",
+          "member": "SetWidgetValueInt",
+          "short_desc": "Sets the value of input int & slider int widget",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "val",
+              "type": "float"
+            }
+          ],
+          "name": "IMGUI_SET_WIDGET_FLOAT",
+          "num_params": 2,
+          "short_desc": "Sets the value of input float & slider float widget",
+          "class": "ImGui",
+          "member": "SetWidgetValueFloat",
+          "attrs": {
+            "is_static": true
+          },
+          "platforms": [
+            "pc"
+          ],
+          "versions": [
+            "any"
+          ]
+        },
+        {
+          "input": [
+            {
+              "name": "id",
+              "type": "string"
+            },
+            {
+              "name": "val",
+              "type": "string"
+            }
+          ],
+          "name": "IMGUI_SET_WIDGET_TEXT",
+          "num_params": 2,
+          "short_desc": "Sets value of input text widget",
+          "class": "ImGui",
+          "member": "SetWidgetValueText",
+          "attrs": {
+            "is_static": true
+          }
+        },
         {
           "input": [
             {
@@ -1742,7 +1808,7 @@
           ],
           "name": "IMGUI_COLOR_PICKER",
           "num_params": 5,
-          "short_desc": "Creates the color picker and sets the default color (0.0f-1.0f)",
+          "short_desc": "Creates the color picker and sets the default color (0-255)",
           "class": "ImGui",
           "member": "ColorPicker",
           "attrs": {

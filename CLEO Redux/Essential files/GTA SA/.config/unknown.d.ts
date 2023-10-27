@@ -1,4 +1,4 @@
-// Sanny Builder Library v0.222
+// Sanny Builder Library v0.225
 /// <reference no-default-lib="true"/>
 /// <reference lib="es2020" />
 /** Integer value */
@@ -14,8 +14,8 @@ declare function wait(delay: int): void;
 declare function asyncWait(delay: int): Promise<void>;
 /** Displays a black text box with custom text. Not available on an `unknown` host */
 declare function showTextBox(text: string): void;
-/** Prints values to the cleo_redux.log */
-declare function log(...values: Array<string | int | float>): void;
+/** Prints serialized values to the cleo_redux.log */
+declare function log(...values: Array<any>): void;
 /** Executes the command by name with the given arguments */
 declare function native<T>(name: string, ...args: any[]): T;
 /** Terminates the script and optionally writes a reason to the log file */
@@ -197,7 +197,7 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_COLLAPSING_HEADER */
     CollapsingHeader(label: string): boolean;
-    /** Creates the color picker and sets the default color (0.0f-1.0f)
+    /** Creates the color picker and sets the default color (0-255)
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_COLOR_PICKER */
     ColorPicker(label: string): {
@@ -414,6 +414,18 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_TOOLTIP */
     SetTooltip(text: string): void;
+    /** Sets the value of input float & slider float widget
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_WIDGET_FLOAT */
+    SetWidgetValueFloat(id: string, val: float): void;
+    /** Sets the value of input int & slider int widget
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_WIDGET_INT */
+    SetWidgetValueInt(id: string, val: int): void;
+    /** Sets value of input text widget
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_WIDGET_TEXT */
+    SetWidgetValueText(id: string, val: string): void;
     /** Sets the current window position. Must be called inside Begin()...End()
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_WINDOW_POS */
