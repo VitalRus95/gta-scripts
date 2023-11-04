@@ -10,11 +10,7 @@ const plc: Char = plr.getChar();
 while (true) {
     wait(0);
 
-    if (
-        !plr.isPlaying() ||
-        !plr.canStartMission() ||
-        plr.isTargettingAnything()
-    )
+    if (!plr.isPlaying() || !plr.canStartMission() || plr.isTargetingAnything())
         continue;
 
     let pos = CCamera.Find3rdPersonCamTargetVector(10, CPlayer.pos).pos;
