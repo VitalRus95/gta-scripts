@@ -86,4 +86,8 @@ export class CPlayerPed extends CPed {
     doesWeaponLockOnTargetExist(): boolean {
         return Memory.Fn.ThiscallU8(0x60dc50, this.pointer)() !== 0;
     }
+    findPedToAttack(): CPed {
+        let pedPointer: int = Memory.Fn.ThiscallI32(0x60c5f0, this.pointer)();
+        return pedPointer ? new CPed(pedPointer) : undefined;
+    }
 }

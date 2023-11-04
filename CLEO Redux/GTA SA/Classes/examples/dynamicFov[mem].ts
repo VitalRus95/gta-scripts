@@ -3,7 +3,7 @@
 import { CCamera } from "./Classes/CCamera";
 import { clamp } from "./Classes/Functions";
 
-const plr = new Player(0);
+const plr: Player = new Player(0);
 
 while (true) {
     wait(0);

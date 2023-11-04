@@ -10,6 +10,7 @@ import { CFire } from "./CFire";
 import { CPhysical } from "./CPhysical";
 import { CVector } from "./CVector";
 import { CVehicle } from "./CVehicle";
+import { CWeapon } from "./CWeapon";
 import { PedBones } from "./ePedBones";
 
 export class CPed extends CPhysical {
@@ -131,9 +132,17 @@ export class CPed extends CPhysical {
     set modelIndex(value: int) {
         Memory.CallMethod(0x5e4880, this.pointer, 1, 0, value);
     }
+
+    get weapons(): CWeapon[] {
+        let weapons: CWeapon[] = [];
+        for (let i = 0x5a0; i < 0x70c; i += 0x1c) {
+            weapons.push(new CWeapon(this.pointer + i));
+        }
+        return weapons;
+    }
     //#endregion
 
-    pedCanPickUpPickUp(): boolean {
+    pedCanPickUpPickup(): boolean {
         return Memory.Fn.ThiscallU8(0x455560, this.pointer)() !== 0;
     }
     createDeadPedMoney() {

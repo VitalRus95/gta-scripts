@@ -29,11 +29,10 @@ export class CFire {
         notBeingExtinguished: boolean,
         notScript: boolean
     ): CFire {
-        let firePointer = Memory.Fn.ThiscallI32(0x538f40, this.gFireManager)(
-            position.pointer,
-            +notBeingExtinguished,
-            +notScript
-        );
+        let firePointer: int = Memory.Fn.ThiscallI32(
+            0x538f40,
+            this.gFireManager
+        )(position.pointer, +notBeingExtinguished, +notScript);
         return firePointer ? new CFire(firePointer) : undefined;
     }
     /** Starts returning `false` at 55 fires out of 60 maximum. */
@@ -54,7 +53,7 @@ export class CFire {
         );
     }
     static GetNextFreeFire(allowDeletingOldFire: boolean): CFire {
-        let firePointer = Memory.Fn.ThiscallI32(
+        let firePointer: int = Memory.Fn.ThiscallI32(
             0x539e50,
             this.gFireManager
         )(+allowDeletingOldFire);
@@ -150,7 +149,6 @@ export class CFire {
     }
 
     doesExist(): boolean {
-        //return Memory.ReadI16(this.pointer, false) !== 0x14;
         return (Memory.ReadU8(this.pointer, false) & 0b00000001) !== 0;
     }
     isCreatedByScript(): boolean {
