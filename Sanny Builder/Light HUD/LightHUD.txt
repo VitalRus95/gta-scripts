@@ -201,6 +201,8 @@ function DrawCarName(plc: Char)
     Text.SetEdge(1, 0, 0, 0, a)
     Text.SetCenter(true)
     Text.Display(320.0, 38.0, car_name)
+    
+    cleo_return 0
 end
 
 function DrawZone(plc: Char)
