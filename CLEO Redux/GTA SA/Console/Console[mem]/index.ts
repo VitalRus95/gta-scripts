@@ -18,6 +18,7 @@ enum Proofs {
 }
 
 // Constants
+const version: string = '0.6';
 const plr: Player = new Player(0);
 const plc: Char = plr.getChar();
 const plp: int = Memory.GetPedPointer(plc);
@@ -71,6 +72,21 @@ const configs: {
         command = lastInput;
     }
 }));
+const numPadButtons: {
+    id: int,
+    char: string
+}[]= [
+    { id: KeyCode.NumPad0, char: '0' },
+    { id: KeyCode.NumPad1, char: '1' },
+    { id: KeyCode.NumPad2, char: '2' },
+    { id: KeyCode.NumPad3, char: '3' },
+    { id: KeyCode.NumPad4, char: '4' },
+    { id: KeyCode.NumPad5, char: '5' },
+    { id: KeyCode.NumPad6, char: '6' },
+    { id: KeyCode.NumPad7, char: '7' },
+    { id: KeyCode.NumPad8, char: '8' },
+    { id: KeyCode.NumPad9, char: '9' }
+];
 
 // Variables
 let toggle: boolean = false;
@@ -89,7 +105,7 @@ let cmdList: {
     name: string,
     template: string,
     func: Function,
-    lastState?: string
+    lastState?: string // Set to `null` to prevent overwriting by user
 }[] = [
     {   // Help
         name: 'HELP',
@@ -102,7 +118,7 @@ let cmdList: {
                 },
                 {
                     name: 'Information: ~s~version',
-                    description: 'Script version: ~y~0.5',
+                    description: 'Script version: ~y~' + version,
                 },
                 {
                     name: 'Information: ~s~commands',
@@ -178,12 +194,14 @@ let cmdList: {
                 }
             ], helpIndex, '~y~How to use the console?');
             return true;
-        }
+        },
+        lastState: null
     },
     {   // Search
         name: 'SEARCH ',
         template: 'SEARCH ~y~string',
         func: function (): boolean {
+            let selected: boolean = false;
             let query = command.substring(7);
             let foundItems = cmdList.filter(c => c.name.includes(query) && c.name !== 'SEARCH ');
 
@@ -191,13 +209,14 @@ let cmdList: {
                 subMenu(
                     foundItems.map(
                         i => ({
-                            name: i.template,
+                            name: i.name.trimEnd(),
                             func: function () {
                                 command = i?.lastState ? i.lastState : i.name;
                                 output = i?.lastState ? i.lastState : i.template;
                                 cursorPos = command.length;
-                                Text.PrintStringNow('Command selected!', 2000);
+                                index = cmdList.indexOf(i);
                                 exitSubMenu = true;
+                                selected = true;
                             }
                         })
                     ).sort(
@@ -206,10 +225,16 @@ let cmdList: {
                     undefined,
                     '~g~~h~Search results: ~s~' + foundItems.length
                 );
+                if (selected) {
+                    Text.PrintBigString('~y~Command selected!', 2000, TextStyle.MiddleSmaller);
+                } 
+                return true;
+            } else {
+                Text.PrintBigString('~r~~h~Nothing found!', 2000, TextStyle.MiddleSmaller);
                 return true;
             }
-            return false;
-        }
+        },
+        lastState: null
     },
     {   // Configurations
         name: 'CONFIGURATIONS',
@@ -217,7 +242,8 @@ let cmdList: {
         func: function (): boolean {
             configIndex = subMenu(configs, configIndex, '~r~~h~Configurations');
             return true;
-        }
+        },
+        lastState: null
     },
     {   // Health
         name: 'HEALTH ',
@@ -233,7 +259,7 @@ let cmdList: {
     },
     {   // Armour
         name: 'ARMOUR ',
-        template: 'ARMOUR ~y~int (0;100)',
+        template: 'ARMOUR ~y~int [0;100]',
         func: function (): boolean {
             let armour = command.match(/\d+/);
             if (armour && +armour[0] > -1 && +armour[0] < 101) {
@@ -268,6 +294,18 @@ let cmdList: {
         template: 'MELEEPROOF ~y~bool',
         func: function (): boolean { return switchProofsBit(true, Proofs.Melee); }
     },
+    {   // Never tired
+        name: 'NEVER TIRED ',
+        template: 'NEVER TIRED ~y~bool',
+        func: function (): boolean {
+            let neverTired = command.match(/[01]/);
+            if (neverTired) {
+                plr.setNeverGetsTired(+neverTired[0] === 1);
+                return true;
+            }
+            return false;
+        }
+    },
     {   // Position
         name: 'POS ',
         template: 'POS ~y~float float float',
@@ -283,10 +321,11 @@ let cmdList: {
                 }
                 Camera.SetBehindPlayer();
                 return true;
-            } else {
+            } else if (command.trimEnd() === 'POS') {
                 let pos = plc.getCoordinates();
                 command = `POS ${pos.x.toFixed(2)} ${pos.y.toFixed(2)} ${pos.z.toFixed(2)}`;
                 output = command;
+                return true;
             }
             return false;
         }
@@ -301,13 +340,16 @@ let cmdList: {
                 Streaming.LoadScene(waypoint.x, waypoint.y, waypoint.z);
                 plc.setCoordinates(waypoint.x, waypoint.y, -100);
                 return true;
+            } else {
+                Text.PrintBigString('~r~~h~Map target not found!', 2000, TextStyle.MiddleSmaller);
             }
             return false;
-        }
+        },
+        lastState: null
     },
     {   // Heading
         name: 'HEADING ',
-        template: 'HEADING ~y~float (0;360)',
+        template: 'HEADING ~y~float [0;360]',
         func: function (): boolean {
             let heading = command.match(/[\d.]+/);
             if (heading && +heading[0] >= 0 && +heading[0] <= 360) {
@@ -317,13 +359,14 @@ let cmdList: {
                     plc.storeCarIsInNoSave().setHeading(+heading[0]);
                 }
                 Camera.SetBehindPlayer();
+                return true;
             }
             return false;
         }
     },
     {   // Interior
         name: 'INTERIOR ',
-        template: 'INTERIOR ~y~int (0;18)',
+        template: 'INTERIOR ~y~int [0;18]',
         func: function (): boolean {
             let interior = command.match(/\d+/);
             if (interior && +interior[0] > -1 && +interior[0] < 19) {
@@ -336,7 +379,7 @@ let cmdList: {
     },
     {   // Wanted level
         name: 'WANTED ',
-        template: 'WANTED ~y~int (0;6)',
+        template: 'WANTED ~y~int [0;6]',
         func: function (): boolean {
             let wanted = command.match(/\d+/);
             if (wanted && +wanted[0] > -1 && +wanted[0] < 7) {
@@ -348,7 +391,7 @@ let cmdList: {
     },
     {   // Maximum wanted level
         name: 'MAX WANTED ',
-        template: 'MAX WANTED ~y~int (0;6)',
+        template: 'MAX WANTED ~y~int [0;6]',
         func: function (): boolean {
             let maxWanted = command.match(/\d+/);
             if (maxWanted && +maxWanted[0] > -1 && +maxWanted[0] < 7) {
@@ -384,7 +427,7 @@ let cmdList: {
     },
     {   // Weapon & ammo
         name: 'WEAPON ',
-        template: 'WEAPON ~y~~n~weapon: int (1;46) ~r~~h~-(19;21)~y~~n~ammo: int',
+        template: 'WEAPON ~y~~n~weapon: int [1;18]+[22;46]~n~ammo: int',
         func: function (): boolean {
             let weapon = command.match(/\d+/g);
             if (weapon
@@ -406,7 +449,7 @@ let cmdList: {
     },
     {   // Ammo for current weapon
         name: 'AMMO ',
-        template: 'AMMO ~y~int(0;)',
+        template: 'AMMO ~y~int [0;]',
         func: function(): boolean {
             let ammo = command.match(/\d+/);
             if (ammo && +ammo[0] > -1) {
@@ -419,7 +462,7 @@ let cmdList: {
     },
     {   // Time of day
         name: 'TIME ',
-        template: 'TIME ~y~~n~hours: int (0;23)~n~minutes: int (0;59)',
+        template: 'TIME ~y~~n~hours: int [0;23]~n~minutes: int [0;59]',
         func: function (): boolean {
             let time = command.match(/\d+/g);
             if (time && +time[0] > -1 && +time[0] < 24) {
@@ -436,7 +479,7 @@ let cmdList: {
     },
     {   // Weather
         name: 'WEATHER ',
-        template: 'WEATHER ~y~int (1;22)',
+        template: 'WEATHER ~y~int [1;22]',
         func: function (): boolean {
             let weatherId = command.match(/\d+/);
             if (weatherId && +weatherId[0] > 0 && +weatherId[0] < 23) {
@@ -464,7 +507,8 @@ let cmdList: {
         func: function (): boolean {
             carIndex = subMenu(vehicles, carIndex);
             return true;
-        }
+        },
+        lastState: null
     },
     {   // Fix vehicle
         name: 'FIX',
@@ -475,7 +519,8 @@ let cmdList: {
                 return true;
             }
             return false;
-        }
+        },
+        lastState: null
     },
     {   // Put car back on wheels
         name: 'UNFLIP',
@@ -488,7 +533,8 @@ let cmdList: {
                 return true;
             }
             return false;
-        }
+        },
+        lastState: null
     },
     {   // Car health
         name: 'CAR HEALTH ',
@@ -602,8 +648,11 @@ while (true) {
         if (toggle) {
             Text.PrintBigString('Console by ~y~Vital', 2000, TextStyle.MiddleSmaller);
             plr.setControl(false);
+            updateOutputString();
         } else {
-            Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundAmmunationBuyWeaponDenied);
+            Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundAmmunationBuyWeaponDenied);            
+            Text.ClearHelp();
+            FxtStore.delete('CONSOLE');
             // This crap turns all immunities off. Thanks to wmysterio for noticing it.
             plr.setControl(true);
         }
@@ -623,6 +672,22 @@ while (true) {
     // Update the command string on input
     if (Memory.ReadU8(lastChar, false) !== 0) {
         getInput();
+    }
+
+    // Process NumPad buttons
+    for (let button of numPadButtons) {
+        processActionButton(button.id, function () {
+            if (command.length < 50) {
+                command = command.substring(0, cursorPos)
+                    + button.char
+                    + command.substring(cursorPos);
+                output = command;
+                cursorPos++;
+                clampCursor();
+                updateOutputString();
+                Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundAmmunationGunCollision);
+            }
+        }, { func: drawConsole });
     }
 
     // Insert current command's template if it's found
@@ -652,6 +717,7 @@ while (true) {
         cursorPos = 0;
         command = '';
         output = '';
+        updateOutputString();
     }, { func:drawConsole });
 
     // Select previous command
@@ -686,6 +752,7 @@ while (true) {
             Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundCheckpointAmber);
             cursorPos = 0;
         }
+        updateOutputString();
     }, { func:drawConsole });
 
     // Put the cursor at the end of the input
@@ -694,6 +761,7 @@ while (true) {
             Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundCheckpointGreen);
             cursorPos = command.length;
         }
+        updateOutputString();
     }, { func:drawConsole });
 
     // Restore last command
@@ -704,16 +772,24 @@ while (true) {
             command = lastCmd;
             output = command;
         }
+        updateOutputString();
     }, { func:drawConsole });
 }
 
 
-function drawConsole() {
-    Text.PrintBigString(`~p~>~s~ ${
+function updateOutputString() {
+    FxtStore.insert('CONSOLE', `~p~>~s~ ${
         output.substring(0, cursorPos)
         + cursor
         + output.substring(cursorPos)
-    }~s~.`, 0, TextStyle.MiddleSmallerHigher);
+    }~s~`);
+    // Without this stupid ~s~ deleting the last character to the right doesn't update the output
+}
+
+function drawConsole() {
+    if (!Text.IsThisHelpMessageBeingDisplayed('CONSOLE')) {
+        Text.PrintHelpForever('CONSOLE');
+    }
 }
 
 function processActionButton(button: KeyCode, func: Function, options?: {
@@ -724,8 +800,8 @@ function processActionButton(button: KeyCode, func: Function, options?: {
         func();
 
         if (options.timer) {
-            if (Pad.IsKeyPressed(KeyCode.Shift) && options.timer > 33) {
-                options.timer = 33;
+            if (Pad.IsKeyPressed(KeyCode.Shift) && options.timer > 32) {
+                options.timer = 32;
             }
             TIMERA = 0;
 
@@ -847,6 +923,7 @@ function clampMenuIndex(change: int) {
         output = cmdList[index].template;
     }
     cursorPos = command.length;
+    updateOutputString();
 }
 
 function clampCursor(change?: int) {
@@ -857,18 +934,21 @@ function clampCursor(change?: int) {
     } else if (cursorPos < 0) {
         cursorPos = 0;
     }
+
+    updateOutputString();
 }
 
 function runCommand() {
     for (let cmd of cmdList) {
-        if (command.startsWith(cmd.name)) {
+        if (command.startsWith(cmd.name.trimEnd())) {
             if (cmd.func()) {
                 Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundAmmunationBuyWeapon);
-                cmd.lastState = command;
+                if (cmd.lastState !== null) cmd.lastState = command;
                 lastCmd = command;
+                updateOutputString();
             } else if (output !== cmd.template) {
                 Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundAmmunationBuyWeaponDenied);
-                Text.PrintBigString(cmd.template, 3000, TextStyle.MiddleSmaller);
+                Text.PrintStringNow(cmd.template, 3000);
             }
             return;
         }
@@ -878,6 +958,7 @@ function runCommand() {
     command = 'SEARCH ' + command;
     output = command;
     cursorPos = output.length;
+    updateOutputString();
 }
 
 function getInput() {
@@ -892,6 +973,7 @@ function getInput() {
         Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundAmmunationGunCollision);
     }
     Memory.WriteU8(lastChar, 0, false);
+    updateOutputString();
 }
 
 function deletePreviousChar() {
@@ -902,6 +984,7 @@ function deletePreviousChar() {
     cursorPos--;
     clampCursor();
     Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundBaseballBatHitPed);
+    updateOutputString();
 }
 
 function deleteNextChar() {
@@ -911,6 +994,7 @@ function deleteNextChar() {
     output = command;
     clampCursor();
     Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundBaseballBatHitPed);
+    updateOutputString();
 }
 
 function autocompletion() {
@@ -919,9 +1003,9 @@ function autocompletion() {
         command = hits[0].name;
         cursorPos = hits[0].name.length;
         output = hits[0].template;
-    } else {
-        output = command;
+        index = cmdList.indexOf(hits[0]);
     }
+    updateOutputString();
 }
 
 function switchProofsBit(isOnFoot: boolean, bitmask: Proofs): boolean {

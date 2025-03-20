@@ -10,6 +10,12 @@
 <summary>Version history</summary>
 
 ```diff
+v0.6 [21.03.2025]
++ Command line is now shown in the upper-left corner.
++ Search and autocompletion improvements.
++ `Never tired` command.
++ `Mere mortal` and `Parkour master` configs.
+
 v0.5 [17.03.2025]
 + Initial release with basic functions and configs.
 ```
@@ -28,6 +34,12 @@ v0.5 [17.03.2025]
 <summary>История изменений</summary>
 
 ```diff
+v0.6 [21.03.2025]
++ Командная строка перемещена в левый верхний угол.
++ Улучшени поиска и автозавершения.
++ Команда `Never tired` (бесконечный бег).
++ Конфигурации `Mere mortal` (сброс преимуществ) и `Parkour master` (бесконечный бег + нет урона от падения).
+
 v0.5 [17.03.2025]
 + Первая версия: базовые функции и конфигурации.
 ```

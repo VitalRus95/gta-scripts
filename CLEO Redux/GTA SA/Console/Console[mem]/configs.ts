@@ -5,6 +5,26 @@ export let configsInfo: {
     commands: string[]
 }[] = [
     {
+        name: 'Mere mortal',
+        description: 'Clears all proofs and other cheats',
+        commands: [
+            'BULLETPROOF 0',
+            'FIREPROOF 0',
+            'EXPLOSIONPROOF 0',
+            'COLLISIONPROOF 0',
+            'MELEEPROOF 0',
+            'NEVER TIRED 0',
+            'CAR BULLETPROOF 0',
+            'CAR FIREPROOF 0',
+            'CAR EXPLOSIONPROOF 0',
+            'CAR COLLISIONPROOF 0',
+            'CAR MELEEPROOF 0',
+            'TYRES BULLETPROOF 0',
+            'PETROL TANK BULLETPROOF 0',
+            'CAR HEAVY 0'
+        ]
+    },
+    {
         name: 'Terminator',
         description: 'Invulnerability and heavy cars',
         commands: [
@@ -21,6 +41,14 @@ export let configsInfo: {
             'TYRES BULLETPROOF 1',
             'PETROL TANK BULLETPROOF 1',
             'CAR HEAVY 1'
+        ]
+    },
+    {
+        name: 'Parkour master',
+        description: 'Infinite stamina, no fall damage',
+        commands: [
+            'COLLISIONPROOF 1',
+            'NEVER TIRED 1'
         ]
     },
     {
