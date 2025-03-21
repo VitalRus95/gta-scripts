@@ -18,7 +18,7 @@ enum Proofs {
 }
 
 // Constants
-const version: string = '0.6';
+const version: string = '0.61';
 const plr: Player = new Player(0);
 const plc: Char = plr.getChar();
 const plp: int = Memory.GetPedPointer(plc);
@@ -85,7 +85,9 @@ const numPadButtons: {
     { id: KeyCode.NumPad6, char: '6' },
     { id: KeyCode.NumPad7, char: '7' },
     { id: KeyCode.NumPad8, char: '8' },
-    { id: KeyCode.NumPad9, char: '9' }
+    { id: KeyCode.NumPad9, char: '9' },
+    { id: KeyCode.Subtract, char: '-' },
+    { id: KeyCode.Decimal, char: '.' },
 ];
 
 // Variables
@@ -631,6 +633,43 @@ let cmdList: {
             }
             return false;
         }
+    },
+    {   // Clear area
+        name: 'CLEAR AREA ',
+        template: 'CLEAR AREA ~y~radius: float',
+        func: function (): boolean {
+            let radius = command.match(/[\d.]+/);
+            if (radius) {
+                let pos = plc.getCoordinates();
+                World.ClearArea(pos.x, pos.y, pos.z, +radius[0], true);
+                return true;
+            }
+            return false;
+        }
+    },
+    {   // Pedestrians density
+        name: 'PED DENSITY ',
+        template: 'PED DENSITY ~y~float',
+        func: function (): boolean {
+            let density = command.match(/[\d.]+/);
+            if (density) {
+                World.SetPedDensityMultiplier(+density[0]);
+                return true;
+            }
+            return false;
+        }
+    },
+    {   // Car density
+        name: 'CAR DENSITY ',
+        template: 'CAR DENSITY ~y~float',
+        func: function (): boolean {
+            let density = command.match(/[\d.]+/);
+            if (density) {
+                World.SetCarDensityMultiplier(+density[0]);
+                return true;
+            }
+            return false;
+        }
     }
 ];
 
@@ -944,7 +983,7 @@ function runCommand() {
             if (cmd.func()) {
                 Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundAmmunationBuyWeapon);
                 if (cmd.lastState !== null) cmd.lastState = command;
-                lastCmd = command;
+                lastCmd = cmd.lastState !== null ? command : cmd.name;
                 updateOutputString();
             } else if (output !== cmd.template) {
                 Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundAmmunationBuyWeaponDenied);

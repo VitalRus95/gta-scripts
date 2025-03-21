@@ -10,6 +10,10 @@
 <summary>Version history</summary>
 
 ```diff
+v0.61 [22.03.2025]
++ NumPad support (0-9, `.`, `-`)
++ `CLEAR AREA`, `PED DENSITY`, `CAR DENSITY` commands
+
 v0.6 [21.03.2025]
 + Command line is now shown in the upper-left corner.
 + Search and autocompletion improvements.
@@ -34,6 +38,10 @@ v0.5 [17.03.2025]
 <summary>История изменений</summary>
 
 ```diff
+v0.61 [22.03.2025]
++ Поддержка NumPad (0-9, `.`, `-`)
++ Команды `CLEAR AREA`, `PED DENSITY`, `CAR DENSITY`
+
 v0.6 [21.03.2025]
 + Командная строка перемещена в левый верхний угол.
 + Улучшени поиска и автозавершения.
