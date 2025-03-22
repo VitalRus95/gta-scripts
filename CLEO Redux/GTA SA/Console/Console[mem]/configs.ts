@@ -94,5 +94,22 @@ export let configsInfo: {
             'WEAPON 34 30',
             'WEAPON 44 1'
         ]
+    },
+    {
+        name: 'Empty streets',
+        description: 'No pedestrians and traffic',
+        commands: [
+            'CLEAR AREA 100',
+            'PED DENSITY 0',
+            'CAR DENSITY 0'
+        ]
+    },
+    {
+        name: 'Living city',
+        description: 'Reset pedestrians and traffic',
+        commands: [
+            'PED DENSITY 1',
+            'CAR DENSITY 1'
+        ]
     }
 ];

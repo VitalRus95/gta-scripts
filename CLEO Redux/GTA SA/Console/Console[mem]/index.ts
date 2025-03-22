@@ -18,7 +18,7 @@ enum Proofs {
 }
 
 // Constants
-const version: string = '0.61';
+const version: string = '0.7';
 const plr: Player = new Player(0);
 const plc: Char = plr.getChar();
 const plp: int = Memory.GetPedPointer(plc);
@@ -462,6 +462,17 @@ let cmdList: {
             return false;
         }
     },
+    {   // Jetpack
+        name: 'JETPACK',
+        template: 'JETPACK',
+        func: function (): boolean {
+            if (!plc.isInAnyCar() && !plr.isUsingJetpack()) {
+                Task.Jetpack(plc);
+                return true;
+            }
+            return false;
+        }
+    },
     {   // Time of day
         name: 'TIME ',
         template: 'TIME ~y~~n~hours: int [0;23]~n~minutes: int [0;59]',
@@ -666,6 +677,78 @@ let cmdList: {
             let density = command.match(/[\d.]+/);
             if (density) {
                 World.SetCarDensityMultiplier(+density[0]);
+                return true;
+            }
+            return false;
+        }
+    },
+    {   // Burglary houses
+        name: 'BURLGARY HOUSES ',
+        template: 'BURLGARY HOUSES ~y~bool',
+        func: function (): boolean {
+            let flag = command.match(/[01]/);
+            if (flag) {
+                Game.EnableBurglaryHouses(+flag[0] === 1);
+                return true;
+            }
+            return false;
+        }
+    },
+    {   // Aircraft carrier defence
+        name: 'AIRCRAFT CARRIER DEFENCE ',
+        template: 'AIRCRAFT CARRIER DEFENCE ~y~bool',
+        func: function (): boolean {
+            let flag = command.match(/[01]/);
+            if (flag) {
+                Game.SetAircraftCarrierSamSite(+flag[0] === 1);
+                return true;
+            }
+            return false;
+        }
+    },
+    {   // Military base defence
+        name: 'MILITARY BASE DEFENCE ',
+        template: 'MILITARY BASE DEFENCE ~y~bool',
+        func: function (): boolean {
+            let flag = command.match(/[01]/);
+            if (flag) {
+                Game.SetArea51SamSite(+flag[0] === 1);
+                return true;
+            }
+            return false;
+        }
+    },
+    {   // Gang war
+        name: 'GANG WAR ',
+        template: 'GANG WAR ~y~bool',
+        func: function (): boolean {
+            let flag = command.match(/[01]/);
+            if (flag) {
+                Game.SetGangWarsActive(+flag[0] === 1);
+                return true;
+            }
+            return false;
+        }
+    },
+    {   // Free respray
+        name: 'FREE RESPRAY ',
+        template: 'FREE RESPRAY ~y~bool',
+        func: function (): boolean {
+            let flag = command.match(/[01]/);
+            if (flag) {
+                Game.SetFreeResprays(+flag[0] === 1);
+                return true;
+            }
+            return false;
+        }
+    },
+    {   // Disable respray
+        name: 'DISABLE RESPRAY ',
+        template: 'DISABLE RESPRAY ~y~bool',
+        func: function (): boolean {
+            let flag = command.match(/[01]/);
+            if (flag) {
+                Game.SetNoResprays(+flag[0] === 1);
                 return true;
             }
             return false;
