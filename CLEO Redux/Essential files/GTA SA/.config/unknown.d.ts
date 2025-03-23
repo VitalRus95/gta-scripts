@@ -1,4 +1,4 @@
-// Sanny Builder Library v0.225
+// Sanny Builder Library v0.236
 /// <reference no-default-lib="true"/>
 /// <reference lib="es2020" />
 /** Integer value */
@@ -122,6 +122,24 @@ declare class DynamicLibrary {
 }
 /** 
  * 
+ * https://library.sannybuilder.com/#/unknown_x86/classes/File */
+declare class File {
+    constructor(handle: number);
+    /** Opens the file at the specified path. Returns the file identifier (handle), which starts with 0 if the operation was successful, otherwise -1 will be returned
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=OPEN_FILE */
+    static Open(filePathName: string): File;
+    /** Closes the file and frees the memory
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=CLOSE_FILE */
+    close(): void;
+    /** Copies data from the source string to the file
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=WRITE_STRING_TO_FILE */
+    writeString(source: string): File;
+}
+/** 
+ * 
  * https://library.sannybuilder.com/#/unknown_x86/classes/Game */
 interface Game {
     /** Returns game FPS
@@ -150,6 +168,14 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_BEGIN_CHILD */
     BeginChild(uniqueId: string): void;
+    /** Creates a child window widget inside the main window
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_BEGIN_CHILDEX */
+    BeginChildEx(uniqueId: string, width: float, height: float, border: boolean, flags: int): void;
+    /** Disables ImGui widgets inside this block
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_BEGIN_DISABLED */
+    BeginDisabled(disabled: boolean): void;
     /** Creates a unique frame with its own space in memory. End it with 0C32. MUST BE UNIQUE!
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_BEGIN_FRAME */
@@ -157,7 +183,11 @@ interface ImGui {
     /** Creates the main menu bar
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_BEGIN_MAINMENUBAR */
-    BeginMainMenuBar(uniqueId: string): boolean;
+    BeginMainMenuBar(uniqueId: string): void;
+    /** Begins a ImGui menu block
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_BEGIN_MENU */
+    BeginMenu(label: string, enabled: boolean): boolean;
     /** Creates a bullet point
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_BULLET */
@@ -226,6 +256,10 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_END_CHILD */
     EndChild(): void;
+    /** Closes the ImGui disable block
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_END_DISABLED */
+    EndDisabled(): void;
     /** Ends unique ImGui frame
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_END_FRAME */
@@ -234,6 +268,10 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_END_MAINMENUBAR */
     EndMainMenuBar(): void;
+    /** Ends a ImGui menu block
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_END_MENU */
+    EndMenu(): void;
     /** Frees a loaded image data
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_FREE_IMAGE */
@@ -260,7 +298,7 @@ interface ImGui {
     /** Returns the ImGuiRedux version
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_GET_PLUGIN_VERSION */
-    GetPluginVersion(): float;
+    GetPluginVersion(): int;
     /** Returns the width and height scaling factor based on the window size
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_GET_SCALING_SIZE */
@@ -271,7 +309,7 @@ interface ImGui {
     /** Returns the ImGui version
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_GET_VERSION */
-    GetVersion(): string;
+    GetVersion(): int;
     /** Returns the content region width of the window
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_GET_WINDOW_CONTENT_REGION_WIDTH */
@@ -382,6 +420,10 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SEPARATOR */
     Separator(): void;
+    /** Sets the width of the column
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_COLUMN_WIDTH */
+    SetColumnWidth(index: int, width: float): void;
     /** Toggles the cursor
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_CURSOR_VISIBLE */
@@ -394,6 +436,18 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_IMAGE_TINT_COLOR */
     SetImageTintColor(r: float, g: float, b: float, a: float): void;
+    /** Sets the value of input float & slider float widget
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_ITEM_FLOAT */
+    SetItemValueFloat(id: string, val: float): void;
+    /** Sets the value of input int & slider int widget
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_ITEM_INT */
+    SetItemValueInt(id: string, val: int): void;
+    /** Sets value of input text widget
+    *
+    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_ITEM_TEXT */
+    SetItemValueText(id: string, val: string): void;
     /** Displays a text message on top left corner of the screen. Useful for games without `showTextBox(...)` support
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_MESSAGE */
@@ -414,18 +468,6 @@ interface ImGui {
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_TOOLTIP */
     SetTooltip(text: string): void;
-    /** Sets the value of input float & slider float widget
-    *
-    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_WIDGET_FLOAT */
-    SetWidgetValueFloat(id: string, val: float): void;
-    /** Sets the value of input int & slider int widget
-    *
-    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_WIDGET_INT */
-    SetWidgetValueInt(id: string, val: int): void;
-    /** Sets value of input text widget
-    *
-    * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_WIDGET_TEXT */
-    SetWidgetValueText(id: string, val: string): void;
     /** Sets the current window position. Must be called inside Begin()...End()
     *
     * https://library.sannybuilder.com/#/unknown_x86?q=IMGUI_SET_WINDOW_POS */
@@ -577,11 +619,20 @@ interface Memory {
     /** Writes a sequence of UTF-8 encoded characters to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    WriteUtf8(address: int, value: string, vp: boolean, ib: boolean): void;
+    WriteUtf8(address: int, value: string, vp: boolean): void;
     /** Writes a sequence of UTF-16 encoded characters to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    WriteUtf16(address: int, value: string, vp: boolean, ib: boolean): void;
+    WriteUtf16(address: int, value: string, vp: boolean): void;
+    /** Reads 1, 2, or 4 bytes from the memory
+    *
+    * https://re.cleo.li/docs/en/using-memory.html */
+    Read(address: int, size: int, vp: boolean): int;
+    /** Writes 1, 2, or 4 bytes to the memory. Can also be used as memset.
+    *
+    * https://re.cleo.li/docs/en/using-memory.html */
+    Write(address: int, size: int, value: int, vp: boolean): void;
+
 
     /** Cast 32-bit signed integer value to floating-point value (IEEE 754) 
     *
