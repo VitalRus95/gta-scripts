@@ -5,26 +5,6 @@ export let configsInfo: {
     commands: string[]
 }[] = [
     {
-        name: 'Mere mortal',
-        description: 'Clears all proofs and other cheats',
-        commands: [
-            'BULLETPROOF 0',
-            'FIREPROOF 0',
-            'EXPLOSIONPROOF 0',
-            'COLLISIONPROOF 0',
-            'MELEEPROOF 0',
-            'NEVER TIRED 0',
-            'CAR BULLETPROOF 0',
-            'CAR FIREPROOF 0',
-            'CAR EXPLOSIONPROOF 0',
-            'CAR COLLISIONPROOF 0',
-            'CAR MELEEPROOF 0',
-            'TYRES BULLETPROOF 0',
-            'PETROL TANK BULLETPROOF 0',
-            'CAR HEAVY 0'
-        ]
-    },
-    {
         name: 'Terminator',
         description: 'Invulnerability and heavy cars',
         commands: [
@@ -49,6 +29,26 @@ export let configsInfo: {
         commands: [
             'COLLISIONPROOF 1',
             'NEVER TIRED 1'
+        ]
+    },
+    {
+        name: 'Mere mortal',
+        description: 'Clears all proofs and other cheats',
+        commands: [
+            'BULLETPROOF 0',
+            'FIREPROOF 0',
+            'EXPLOSIONPROOF 0',
+            'COLLISIONPROOF 0',
+            'MELEEPROOF 0',
+            'NEVER TIRED 0',
+            'CAR BULLETPROOF 0',
+            'CAR FIREPROOF 0',
+            'CAR EXPLOSIONPROOF 0',
+            'CAR COLLISIONPROOF 0',
+            'CAR MELEEPROOF 0',
+            'TYRES BULLETPROOF 0',
+            'PETROL TANK BULLETPROOF 0',
+            'CAR HEAVY 0'
         ]
     },
     {
@@ -110,6 +110,24 @@ export let configsInfo: {
         commands: [
             'PED DENSITY 1',
             'CAR DENSITY 1'
+        ]
+    },
+    {
+        name: 'Hospitable military',
+        description: 'Walk freely in restricted areas',
+        commands: [
+            'DISABLE MILITARY ZONES WANTED LEVEL 1',
+            'AIRCRAFT CARRIER DEFENCE 0',
+            'MILITARY BASE DEFENCE 0'
+        ]
+    },
+    {
+        name: 'Hostile military',
+        description: 'Restricted areas are protected again',
+        commands: [
+            'DISABLE MILITARY ZONES WANTED LEVEL 0',
+            'AIRCRAFT CARRIER DEFENCE 1',
+            'MILITARY BASE DEFENCE 1'
         ]
     }
 ];

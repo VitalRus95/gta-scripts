@@ -10,6 +10,10 @@
 <summary>Version history</summary>
 
 ```diff
+v0.72 [24.03.2025]
++ `DISABLE MILITARY ZONES WANTED LEVEL`, `HELI WINCH`, `SENSITIVITY TO CRIME` commands
++ `Hospitable military` and `Hostile military` configs
+
 v0.7 [23.03.2025]
 + `JETPACK`, `BURLGARY HOUSES`, `AIRCRAFT CARRIER DEFENCE`, `MILITARY BASE DEFENCE`, `GANG WAR`, `FREE RESPRAY`, `DISABLE RESPRAY` commands
 + `Empty streets` and `Living city` configs
@@ -42,6 +46,10 @@ v0.5 [17.03.2025]
 <summary>История изменений</summary>
 
 ```diff
+v0.72 [24.03.2025]
++ Команды `DISABLE MILITARY ZONES WANTED LEVEL`, `HELI WINCH`, `SENSITIVITY TO CRIME`
++ Конфигурации `Hospitable military` (отключение запретных зон) и `Hostile military` (включение запретных зон)
+
 v0.7 [23.03.2025]
 + Команды `JETPACK`, `BURLGARY HOUSES`, `AIRCRAFT CARRIER DEFENCE`, `MILITARY BASE DEFENCE`, `GANG WAR`, `FREE RESPRAY`, `DISABLE RESPRAY`
 + Конфигурации `Empty streets` (убрать пешеходов и машины) и `Living city` (вернуть пешеходов и машины)

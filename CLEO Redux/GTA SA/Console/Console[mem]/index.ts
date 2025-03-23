@@ -18,7 +18,7 @@ enum Proofs {
 }
 
 // Constants
-const version: string = '0.7';
+const version: string = '0.72';
 const plr: Player = new Player(0);
 const plc: Char = plr.getChar();
 const plp: int = Memory.GetPedPointer(plc);
@@ -403,6 +403,18 @@ let cmdList: {
             return false;
         }
     },
+    {   // Sensitivity to crime
+        name: 'SENSITIVITY TO CRIME ',
+        template: 'SENSITIVITY TO CRIME ~y~float',
+        func: function (): boolean {
+            let sens = command.match(/[\d.]+/);
+            if (sens) {
+                Game.SetWantedMultiplier(+sens[0]);
+                return true;
+            }
+            return false;
+        }
+    },
     {   // Add money
         name: 'ADD MONEY ',
         template: 'ADD MONEY ~y~int',
@@ -645,6 +657,21 @@ let cmdList: {
             return false;
         }
     },
+    {   // Heli winch
+        name: 'HELI WINCH ',
+        template: `HELI WINCH ~y~bool`,
+        func: function (): boolean {
+            if (plc.isInAnyHeli()) {
+                let vehicle = new Heli(+plc.storeCarIsInNoSave());
+                let flag = command.match(/[01]/);
+                if (flag) {
+                    vehicle.attachWinch(+flag[0] === 1);
+                    return true;
+                }
+            }
+            return false;
+        }
+    },
     {   // Clear area
         name: 'CLEAR AREA ',
         template: 'CLEAR AREA ~y~radius: float',
@@ -713,6 +740,18 @@ let cmdList: {
             let flag = command.match(/[01]/);
             if (flag) {
                 Game.SetArea51SamSite(+flag[0] === 1);
+                return true;
+            }
+            return false;
+        }
+    },
+    {   // Disable military zones
+        name: 'DISABLE MILITARY ZONES WANTED LEVEL ',
+        template: 'DISABLE MILITARY ZONES WANTED LEVEL ~y~bool',
+        func: function (): boolean {
+            let flag = command.match(/[01]/);
+            if (flag) {
+                Zone.SetDisableMilitaryZones(+flag[0] === 1);
                 return true;
             }
             return false;
