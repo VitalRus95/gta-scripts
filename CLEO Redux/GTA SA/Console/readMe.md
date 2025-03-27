@@ -10,6 +10,10 @@
 <summary>Version history</summary>
 
 ```diff
+v0.73 [28.03.2025]
++ `OVERLAY` command
++ Autocompletion starts search if the command is not found
+
 v0.72 [24.03.2025]
 + `DISABLE MILITARY ZONES WANTED LEVEL`, `HELI WINCH`, `SENSITIVITY TO CRIME` commands
 + `Hospitable military` and `Hostile military` configs
@@ -46,6 +50,10 @@ v0.5 [17.03.2025]
 <summary>История изменений</summary>
 
 ```diff
+v0.73 [28.03.2025]
++ Команда `OVERLAY` (цветовое наложение на экране)
++ Автозавершение включает поиск, если команда не найдена
+
 v0.72 [24.03.2025]
 + Команды `DISABLE MILITARY ZONES WANTED LEVEL`, `HELI WINCH`, `SENSITIVITY TO CRIME`
 + Конфигурации `Hospitable military` (отключение запретных зон) и `Hostile military` (включение запретных зон)

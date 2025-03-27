@@ -18,7 +18,7 @@ enum Proofs {
 }
 
 // Constants
-const version: string = '0.72';
+const version: string = '0.73';
 const plr: Player = new Player(0);
 const plc: Char = plr.getChar();
 const plp: int = Memory.GetPedPointer(plc);
@@ -103,6 +103,9 @@ let carIndex: int = 0;
 let configIndex: int = 0;
 let playerProofs: int = 0; // Thanks to wmysterio for help with proofs resetting 'bug'
 let carProofs: int = 0;
+let overlay: { red: int, green: int, blue: int, alpha: int} = {
+    red: 0, green: 0, blue: 0, alpha: 0
+};
 let cmdList: {
     name: string,
     template: string,
@@ -310,7 +313,7 @@ let cmdList: {
     },
     {   // Position
         name: 'POS ',
-        template: 'POS ~y~float float float',
+        template: 'POS ~y~float[3]',
         func: function (): boolean {
             let pos = command.match(/[\d.-]+/g);
             if (pos && pos.length === 3) {
@@ -792,6 +795,42 @@ let cmdList: {
             }
             return false;
         }
+    },
+    {   // Colour overlay
+        name: 'OVERLAY ',
+        template: 'OVERLAY ~r~~n~red ~g~green ~b~blue~y~: int[3] [0;255]~n~alpha: int [0;240] (0 - disable)',
+        func: function (): boolean {
+            let colour = command.match(/[\d]+/g);
+            if (colour && colour.length === 4) {
+                overlay.red = +colour[0];
+                overlay.green = +colour[1];
+                overlay.blue = +colour[2];
+                overlay.alpha = +colour[3];
+
+                for (let col in overlay) {
+                    let max = col !== 'alpha' ? 255 : 240;
+                    overlay[col] = overlay[col] > max
+                        ? max
+                        : overlay[col] < 0
+                            ? 0
+                            : overlay[col];
+                }
+                return true;
+            } else if (command.trimEnd() === 'OVERLAY') {
+                command = `OVERLAY ${
+                    Math.RandomIntInRange(0, 256)
+                } ${
+                    Math.RandomIntInRange(0, 256)
+                } ${
+                    Math.RandomIntInRange(0, 256)
+                } ${
+                    Math.RandomIntInRange(0, 241)
+                }`;
+                output = command;
+                return true;
+            }
+            return false;
+        }
     }
 ];
 
@@ -799,7 +838,10 @@ while (true) {
     wait(0);
 
     if (!plr.isPlaying()) continue;
-    if (!toggle) setProofs();
+    if (!toggle) {
+        setProofs();
+        drawOverlay();
+    }
 
     // Toggle the console: ~ (`)
     if (Pad.IsKeyPressed(KeyCode.Oem3)) {
@@ -950,6 +992,18 @@ function updateOutputString() {
 function drawConsole() {
     if (!Text.IsThisHelpMessageBeingDisplayed('CONSOLE')) {
         Text.PrintHelpForever('CONSOLE');
+    }
+    drawOverlay();
+}
+
+function drawOverlay() {
+    if (overlay.alpha > 0) {
+        Text.UseCommands(true);
+        Hud.DrawRect(
+            320, 224, 640, 448,
+            overlay.red, overlay.green, overlay.blue, overlay.alpha
+        );
+        Text.UseCommands(false);
     }
 }
 
@@ -1107,10 +1161,11 @@ function runCommand() {
                 if (cmd.lastState !== null) cmd.lastState = command;
                 lastCmd = cmd.lastState !== null ? command : cmd.name;
                 updateOutputString();
-            } else if (output !== cmd.template) {
+            } else {
                 Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundAmmunationBuyWeaponDenied);
-                Text.PrintStringNow(cmd.template, 3000);
+                if (output !== cmd.template) Text.PrintStringNow(cmd.template, 3000);
             }
+            index = cmdList.indexOf(cmd);
             return;
         }
     }
@@ -1165,6 +1220,11 @@ function autocompletion() {
         cursorPos = hits[0].name.length;
         output = hits[0].template;
         index = cmdList.indexOf(hits[0]);
+    } else if (!command.startsWith('SEARCH')) {
+        command = 'SEARCH ' + command;
+        cursorPos = command.length;
+        output = command;
+        runCommand();
     }
     updateOutputString();
 }
