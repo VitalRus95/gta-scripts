@@ -18,7 +18,7 @@ enum Proofs {
 }
 
 // Constants
-const version: string = '0.73';
+const version: string = '0.731';
 const plr: Player = new Player(0);
 const plc: Char = plr.getChar();
 const plp: int = Memory.GetPedPointer(plc);
@@ -817,14 +817,18 @@ let cmdList: {
                 }
                 return true;
             } else if (command.trimEnd() === 'OVERLAY') {
+                overlay.red = Math.floor(Math.random() * 256);
+                overlay.green = Math.floor(Math.random() * 256);
+                overlay.blue = Math.floor(Math.random() * 256);
+                overlay.alpha = Math.floor(Math.random() * 201);
                 command = `OVERLAY ${
-                    Math.RandomIntInRange(0, 256)
+                    overlay.red
                 } ${
-                    Math.RandomIntInRange(0, 256)
+                    overlay.green
                 } ${
-                    Math.RandomIntInRange(0, 256)
+                    overlay.blue
                 } ${
-                    Math.RandomIntInRange(0, 241)
+                    overlay.alpha
                 }`;
                 output = command;
                 return true;
@@ -861,7 +865,7 @@ while (true) {
         }
 
         while (Pad.IsKeyPressed(KeyCode.Oem3)) {
-            if (toggle) drawConsole();
+            if (toggle) drawConsole(); else drawOverlay();
             wait(0);
         }
     }
@@ -870,6 +874,7 @@ while (true) {
     if (!toggle) continue;
     if (plr.isControlOn()) plr.setControl(false);
 
+    Memory.WriteU16(0xB73472, 0, false); // Disable changing camera view
     drawConsole();
 
     // Update the command string on input

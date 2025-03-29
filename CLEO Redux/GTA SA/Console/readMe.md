@@ -10,6 +10,10 @@
 <summary>Version history</summary>
 
 ```diff
+v0.731 [30.03.2025]
++ Improved randomness for `OVERLAY` command examples (generated when launched without user values)
++ Disabled camera change button during input
+
 v0.73 [28.03.2025]
 + `OVERLAY` command
 + Autocompletion starts search if the command is not found
@@ -50,6 +54,10 @@ v0.5 [17.03.2025]
 <summary>История изменений</summary>
 
 ```diff
+v0.731 [30.03.2025]
++ Улучшена случайность в примерах команды `OVERLAY` (при запуске её без ввода своих значений)
++ Смена камеры отключается на время ввода
+
 v0.73 [28.03.2025]
 + Команда `OVERLAY` (цветовое наложение на экране)
 + Автозавершение включает поиск, если команда не найдена
