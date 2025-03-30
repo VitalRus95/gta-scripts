@@ -10,6 +10,10 @@
 <summary>Version history</summary>
 
 ```diff
+v0.75 [31.03.2025]
++ `IGNORED BY POLICE`, `IGNORED BY PEDESTRIANS`, `DEATH PENALTIES`, `ARREST PENALTIES` commands
++ `Lose nothing` config
+
 v0.731 [30.03.2025]
 + Improved randomness for `OVERLAY` command examples (generated when launched without user values)
 + Disabled camera change button during input
@@ -54,6 +58,10 @@ v0.5 [17.03.2025]
 <summary>История изменений</summary>
 
 ```diff
+v0.75 [31.03.2025]
++ Команды `IGNORED BY POLICE`, `IGNORED BY PEDESTRIANS`, `DEATH PENALTIES`, `ARREST PENALTIES`
++ Конфигурация `Lose nothing` (не терять деньги и оружие после смерти и ареста)
+
 v0.731 [30.03.2025]
 + Улучшена случайность в примерах команды `OVERLAY` (при запуске её без ввода своих значений)
 + Смена камеры отключается на время ввода

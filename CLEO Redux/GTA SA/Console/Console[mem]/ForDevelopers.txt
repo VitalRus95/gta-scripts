@@ -1,0 +1,56 @@
+--- Commands ---
+01. HELP
+02. SEARCH ~y~string
+03. CONFIGURATIONS
+04. HEALTH ~y~int
+05. ARMOUR ~y~int [0;100]
+06. BULLETPROOF ~y~bool
+07. FIREPROOF ~y~bool
+08. EXPLOSIONPROOF ~y~bool
+09. COLLISIONPROOF ~y~bool
+10. MELEEPROOF ~y~bool
+11. NEVER TIRED ~y~bool
+12. POS ~y~float[3]
+13. TO MAP TARGET
+14. HEADING ~y~float [0;360]
+15. INTERIOR ~y~int [0;18]
+16. WANTED ~y~int [0;6]
+17. MAX WANTED ~y~int [0;6]
+18. SENSITIVITY TO CRIME ~y~float
+19. IGNORED BY POLICE ~y~bool
+20. IGNORED BY PEDESTRIANS ~y~bool
+21. ADD MONEY ~y~int
+22. SET MONEY ~y~int
+23. WEAPON ~y~~n~weapon: int [1;18]+[22;46]~n~ammo: int
+24. AMMO ~y~int [0;]
+25. JETPACK
+26. TIME ~y~~n~hours: int [0;23]~n~minutes: int [0;59]
+27. WEATHER ~y~int [1;22]
+28. SPEED ~y~float
+29. CAR SPAWN
+30. FIX ~y~current vehicle
+31. UNFLIP ~y~current vehicle
+32. CAR HEALTH ~y~int
+33. CAR BULLETPROOF ~y~bool
+34. CAR FIREPROOF ~y~bool
+35. CAR EXPLOSIONPROOF ~y~bool
+36. CAR COLLISIONPROOF ~y~bool
+37. CAR MELEEPROOF ~y~bool
+38. TYRES BULLETPROOF ~y~bool
+39. PETROL TANK BULLETPROOF ~y~bool
+40. CAR HEAVY ~y~bool
+41. CAR HYDRAULICS ~y~bool
+42. HELI WINCH ~y~bool
+43. CLEAR AREA ~y~radius: float
+44. PED DENSITY ~y~float
+45. CAR DENSITY ~y~float
+46. BURLGARY HOUSES ~y~bool
+47. AIRCRAFT CARRIER DEFENCE ~y~bool
+48. MILITARY BASE DEFENCE ~y~bool
+49. DISABLE MILITARY ZONES WANTED LEVEL ~y~bool
+50. GANG WAR ~y~bool
+51. DEATH PENALTIES ~y~bool
+52. ARREST PENALTIES ~y~bool
+53. FREE RESPRAY ~y~bool
+54. DISABLE RESPRAY ~y~bool
+55. OVERLAY ~r~~n~red ~g~green ~b~blue~y~: int[3] [0;255]~n~alpha: int [0;240] (0 - disable)

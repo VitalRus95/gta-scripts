@@ -4,7 +4,7 @@
     list of commands, hints, autocompletion, and search. 
     Turn on and off with ~
 */
-import { Button, CarLock, KeyCode, PadId, ScriptSound, TextStyle } from '../sa_enums';
+import { Button, CarLock, FileMode, KeyCode, PadId, ScriptSound, TextStyle } from '../sa_enums';
 import data from '../../data/vehicles.ide';
 import { configsInfo } from './configs';
 
@@ -18,7 +18,7 @@ enum Proofs {
 }
 
 // Constants
-const version: string = '0.731';
+const version: string = '0.75';
 const plr: Player = new Player(0);
 const plc: Char = plr.getChar();
 const plp: int = Memory.GetPedPointer(plc);
@@ -418,6 +418,30 @@ let cmdList: {
             return false;
         }
     },
+    {   // Ignored by police
+        name: 'IGNORED BY POLICE ',
+        template: 'IGNORED BY POLICE ~y~bool',
+        func: function (): boolean {
+            let flag = command.match(/[01]/);
+            if (flag) {
+                Game.SetPoliceIgnorePlayer(plr, +flag[0] === 1);
+                return true;
+            }
+            return false;
+        }
+    },
+    {   // Ignored by pedestrians
+        name: 'IGNORED BY PEDESTRIANS ',
+        template: 'IGNORED BY PEDESTRIANS ~y~bool',
+        func: function (): boolean {
+            let flag = command.match(/[01]/);
+            if (flag) {
+                Game.SetEveryoneIgnorePlayer(plr, +flag[0] === 1);
+                return true;
+            }
+            return false;
+        }
+    },
     {   // Add money
         name: 'ADD MONEY ',
         template: 'ADD MONEY ~y~int',
@@ -772,6 +796,30 @@ let cmdList: {
             return false;
         }
     },
+    {   // Death penalties
+        name: 'DEATH PENALTIES ',
+        template: 'DEATH PENALTIES ~y~bool',
+        func: function (): boolean {
+            let flag = command.match(/[01]/);
+            if (flag) {
+                Game.SwitchDeathPenalties(+flag[0] === 1);
+                return true;
+            }
+            return false;
+        }
+    },
+    {   // Arrest penalties
+        name: 'ARREST PENALTIES ',
+        template: 'ARREST PENALTIES ~y~bool',
+        func: function (): boolean {
+            let flag = command.match(/[01]/);
+            if (flag) {
+                Game.SwitchArrestPenalties(+flag[0] === 1);
+                return true;
+            }
+            return false;
+        }
+    },
     {   // Free respray
         name: 'FREE RESPRAY ',
         template: 'FREE RESPRAY ~y~bool',
@@ -837,6 +885,8 @@ let cmdList: {
         }
     }
 ];
+
+fillDevelopersFile();
 
 while (true) {
     wait(0);
@@ -984,6 +1034,17 @@ while (true) {
     }, { func:drawConsole });
 }
 
+
+function fillDevelopersFile() {
+    let forDevs: File = File.Open('CLEO/Console[mem][fs]/ForDevelopers.txt', FileMode.WriteText);
+
+    forDevs.writeString('--- Commands ---\n')
+    cmdList.forEach((c, i) => {
+        forDevs.writeString(`${(i + 1).toString().padStart(2, '0')}. ${c.template}\n`);
+    });
+
+    forDevs.close();
+}
 
 function updateOutputString() {
     FxtStore.insert('CONSOLE', `~p~>~s~ ${

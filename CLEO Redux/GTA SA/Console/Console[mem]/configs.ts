@@ -48,7 +48,13 @@ export let configsInfo: {
             'CAR MELEEPROOF 0',
             'TYRES BULLETPROOF 0',
             'PETROL TANK BULLETPROOF 0',
-            'CAR HEAVY 0'
+            'CAR HEAVY 0',
+            'DEATH PENALTIES 1',
+            'ARREST PENALTIES 1',
+            'AIRCRAFT CARRIER DEFENCE 1',
+            'MILITARY BASE DEFENCE 1',
+            'DISABLE MILITARY ZONES WANTED LEVEL 0',
+            'FREE RESPRAY 0'
         ]
     },
     {
@@ -110,6 +116,14 @@ export let configsInfo: {
         commands: [
             'PED DENSITY 1',
             'CAR DENSITY 1'
+        ]
+    },
+    {
+        name: 'Lose nothing',
+        description: 'You keep your money and weapons after death and arrest',
+        commands: [
+            'DEATH PENALTIES 0',
+            'ARREST PENALTIES 0'
         ]
     },
     {
