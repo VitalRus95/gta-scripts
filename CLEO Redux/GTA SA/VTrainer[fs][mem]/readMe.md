@@ -3,7 +3,7 @@
 * **Author**: Vital (Vitaly Pavlovich Ulyanov)
 * **Thanks for help to**: Seemann, Bloodriver
 * **Description**: A new multi-functional trainer for GTA: SA. Work in progress… To open the script menu, press `~`. The trainer features dynamic-speed sliders, three modes of precision in adjusting some values, tri-state switches (game's choice, always enabled, and always disabled), and more.
-* **Requirements**: CLEO Redux v1.1.3 or newer with ImGui Redux and IDE loader plugins (should be installed with CLEO).
+* **Requirements**: CLEO Redux v1.1.3 + CLEO 5.0.2 or newer with ImGui Redux and IDE loader plugins (should be installed with CLEO).
 * **Installation**: Put `VTrainer[fs][mem]` folder in your `GTA San Andreas\CLEO` directory.
 
 <details>
@@ -44,7 +44,7 @@ v2023-05-16
 * **Автор**: Vital (Виталий Павлович Ульянов)
 * **Благодарю за помощь**: Seemann, Bloodriver
 * **Описание**: Новый многофунцкиональный трейнер для GTA: SA. В разработке… Для открытия меню скрипта используйте `~`. Трейнер имеет ползунки с динамической скоростью, три режима точности изменения некоторых параметров, переключатели с тремя состояниями (на выбор игры, всегда включено, всегда выключено) и многое другое.
-* **Требования**: CLEO Redux v1.1.3 или новее и плагины ImGui Redux и IDE loader (должны установиться с CLEO).
+* **Требования**: CLEO Redux v1.1.3 + CLEO 5.0.2 или новее и плагины ImGui Redux и IDE loader (должны установиться с CLEO).
 * **Установка**: Поместите папку `VTrainer[fs][mem]` в каталог `GTA San Andreas\CLEO`.
 
 <details>
