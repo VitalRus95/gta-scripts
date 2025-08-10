@@ -1,0 +1,406 @@
+{$CLEO} //  Script by Vital (Vitaly Pavlovich Ulyanov)
+script_name 'VC_HUD'
+
+// Turn off the standard HUD in memory to preserve toggling it in scripts
+Memory.Write(0x58B156, 5, 0x90, true) // CHud__DrawVehicleName (I'm stupid so I'll just NOP drawing)
+Memory.Write(0x58AE5D, 5, 0x90, true) // CHud__DrawAreaName
+Memory.Write(0x58EC21, 5, 0x90, true) // NOP clock
+Memory.Write(0x58EE9A, 5, 0x90, true) // NOP health
+Memory.Write(0x58EF6B, 5, 0x90, true) // NOP armour
+Memory.Write(0x58F131, 5, 0x90, true) // NOP oxygen
+Memory.Write(0x58F607, 5, 0x90, true) // NOP money
+Memory.Write(0x58FA25, 5, 0x90, true) // NOP ammo
+Memory.Write(0x58FBDB, 5, 0x90, true) // NOP wanted level
+Memory.Write(0x866C84, 4, 0.069, true) // X offset for weapon icon (default = 0.17343046)
+//Memory.Write(0x5893B0, 1, 0xC3, true) // CHud::DrawAmmo
+//Memory.Write(0x58EAF0, 1, 0xC3, true) // CHud::DrawPlayerInfo
+//Memory.Write(0x58D9A0, 1, 0xC3, true) // CHud::DrawWanted
+//Memory.Write(0x58D7D0, 1, 0xC3, true) // CHud::DrawWeaponIcon
+//Memory.Write(0x5890A0, 1, 0xC3, true) // CHud::RenderArmorBar
+//Memory.Write(0x589190, 1, 0xC3, true) // CHud::RenderBreathBar
+//Memory.Write(0x589270, 1, 0xC3, true) // CHud::RenderHealthBar
+
+Text.AddLabel('VCHUDAM', '~1~/~1~')
+Text.AddLabel('VCHUDWL', ']')
+
+const
+    ROW_1 = 0.047
+    ROW_2 = 0.086
+    ROW_3 = 0.126
+    ROW_4 = 0.165
+    ROW_5 = 0.85
+    ROW_6 = 0.89
+    COLUMN_1 = 0.945
+    COLUMN_2 = 0.87
+    COLUMN_3 = 0.815
+    COLUMN_4 = 0.76
+    TEXT_WIDTH = 0.46
+    TEXT_HEIGHT = 2.0
+    GXT_NUMBER = 'NUMBER'
+    GXT_DOLLAR = 'DOLLAR'
+    GXT_TIME = 'TIME'
+    GXT_TIME_0 = 'TIME_0'
+    GXT_AMMO = 'VCHUDAM'
+    GXT_WANTED = 'VCHUDWL'
+end // const
+
+Char plc = Player.GetChar(0)
+int plp = Memory.GetPedPointer(plc)
+int hud_in_menu, hud_in_script, cutscene_on, wanted_level_before_parole
+
+wanted_level_before_parole = CWanted__FindPlayerWanted(-1)
+wanted_level_before_parole += 0x30
+
+while true
+    wait 0
+
+    hud_in_menu = Memory.Read(0xBA6769, 1, false)
+    hud_in_script = Memory.Read(0xA444A0, 1, false)
+    cutscene_on = Memory.Read(0xB6F065, 1, false)
+
+    if or
+        cutscene_on == true
+        hud_in_menu == false
+        hud_in_script == false
+        not Player.IsPlaying(0)
+    then
+        continue
+    end // if
+    
+    Text.UseCommands(true)
+        
+    DrawTime()
+    DrawWanted(wanted_level_before_parole)
+    DrawMoney()
+    DrawHealth(plc)
+    DrawArmour(plc)
+    DrawOxygen(plc)
+    DrawAmmo(plc, plp)
+    DrawCarName(plc)
+    DrawZone(plc)
+    
+    Text.UseCommands(false)
+end // while
+
+// --- Drawing HUD ---
+function DrawTime()
+    int h, m, a
+    string key
+
+    h, m = Clock.GetTimeOfDay()
+
+    if m > 9
+    then
+        DrawTextWithTwoNumbers(GXT_TIME, h, m, COLUMN_2, ROW_1, 97, 194, 247, 170, 1)
+    else
+        DrawTextWithTwoNumbers(GXT_TIME_0, h, m, COLUMN_2, ROW_1, 97, 194, 247, 170, 1)
+    end // if
+
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+function DrawWanted(wanted_level_before_parole: int)
+    int wl = Player.StoreWantedLevel(0)
+    int wlbp = Memory.Read(wanted_level_before_parole, 4, false)
+
+    if and
+        wl < 1
+        wlbp < 1
+    then
+        cleo_return {numRet} 0 {retParams}
+    end // if
+    
+    int star
+    float x = COLUMN_2
+    
+    for star = 1 to 6 // step 1
+        if or
+            star <= wl
+            star <= wlbp
+        then // This star should be coloured
+            if wlbp == 0
+            then // This star should not flash
+                DrawText(GXT_WANTED, x, ROW_4, 97, 194, 247, 130, 1)
+            else // This star should flash
+                if TIMERA > 749
+                then
+                    DrawText(GXT_WANTED, x, ROW_4, 27, 89, 130, 150, 1)
+                else
+                    DrawText(GXT_WANTED, x, ROW_4, 97, 194, 247, 150, 1)
+                end // if
+            end // if
+        else // This star should not be coloured
+            DrawText(GXT_WANTED, x, ROW_4, 27, 89, 130, 110, 1)
+        end // if
+        
+        x -= 0.021
+    end // for
+    
+    if TIMERA > 1499
+    then TIMERA = 0
+    end // if
+
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+function DrawMoney()
+    int money = Player.StoreScore(0)
+
+    if money >= 0
+    then
+        DrawTextWithNumber(GXT_DOLLAR, money, COLUMN_2, ROW_2, 0, 207, 133, 170, 1)
+    else
+        DrawTextWithNumber(GXT_DOLLAR, money, COLUMN_2, ROW_2, 200, 80, 80, 170, 1)
+    end // if
+
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+function DrawHealth(plc: Char)
+    int health = plc.GetHealth()
+    health = ClampInt(0, health, 175)
+
+    DrawTextWithNumber(GXT_NUMBER, health, COLUMN_2, ROW_3, 255, 150, 225, 170, 1)
+
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+function DrawArmour(plc: Char)
+    int armour = plc.GetArmor()
+
+    if armour < 1
+    then cleo_return {numRet} 0 {retParams}
+    end // if
+
+    DrawTextWithNumber(GXT_NUMBER, armour, COLUMN_3, ROW_3, 185, 185, 185, 170, 1)
+
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+function DrawOxygen(plc: Char)
+    if not plc.IsSwimming()
+    then cleo_return {numRet} 0 {retParams}
+    end // if
+
+    int armour = plc.GetArmor()
+    float oxygen = Memory.Read(0xB7CDE0, 4, false)
+    float modifier = CStats__GetFatAndMuscleModifier(8)
+    oxygen /= modifier
+    oxygen *= 100.0
+    
+    int i_oxygen =# oxygen
+    i_oxygen = ClampInt(0, i_oxygen, 100)
+
+    if armour > 0
+    then
+        DrawTextWithNumber(GXT_NUMBER, i_oxygen, COLUMN_4, ROW_3, 195, 230, 255, 170, 1)
+    else
+        DrawTextWithNumber(GXT_NUMBER, i_oxygen, COLUMN_3, ROW_3, 195, 230, 255, 170, 1)
+    end // if 
+
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+function DrawAmmo(plc: Char, plp: int)
+    int ammo_total, ammo_clip, slot, weapon_struct
+    float x = 0.917, y = ROW_4
+
+    slot = plp + 0x718
+    slot = Memory.Read(slot, 1, false)
+
+    if or
+        slot < 2 // Melee
+        slot == 10 // Gifts
+        slot == 11 // Goggles or parachute
+        slot == 12 // Detonator
+    then
+        cleo_return {numRet} 0 {retParams}
+    end // if
+
+    slot *= 28 // 28 bytes per slot
+
+    weapon_struct = plp + 0x5A0
+    weapon_struct += slot
+    weapon_struct += 8
+    ammo_clip = Memory.Read(weapon_struct, 4, false)
+
+    weapon_struct += 4
+    ammo_total = Memory.Read(weapon_struct, 4, false)
+    
+    x *= 640.0
+    y *= 448.0
+    
+    Text.SetCenter(true)
+    Text.SetFont(Font.Subtitles)
+    Text.SetScale(0.37, 1.7)
+    Text.SetColor(255, 150, 225, 170)
+    Text.SetDropshadow(1, 0, 0, 0, 150)
+    Text.SetDrawBeforeFade(true)
+
+    if ammo_total < 9999
+    then
+        ammo_total -= ammo_clip
+        Text.DisplayWith2Numbers(x, y, GXT_AMMO, ammo_clip, ammo_total)
+    else
+        Text.DisplayWithNumber(x, y, GXT_NUMBER, ammo_clip)
+    end // if
+
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+function DrawCarName(plc: Char)
+    if not plc.IsInAnyCar()
+    then cleo_return {numRet} 0 {retParams}
+    end // if
+
+    Car veh = plc.StoreCarIsInNoSave()
+    int model = veh.GetModel()
+    string car_name = Streaming.GetNameOfVehicleModel(model)
+
+    DrawText(car_name, COLUMN_1, ROW_5, 97, 194, 247, 50, 1)
+    
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+function DrawZone(plc: Char)
+    float x, y, z
+    int interior
+    string zone_name
+
+    interior = plc.GetAreaVisible()
+
+    if interior == 0
+    then
+        x, y, z = plc.GetCoordinates()
+        zone_name = Zone.GetTextKey(x, y, z)
+    else
+        zone_name = plc.GetNameOfEntryExitUsed()
+    end // if
+    
+    DrawText(zone_name, COLUMN_1, ROW_6, 45, 155, 90, 60, 1)
+
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+/// Draws a text with black background.
+function DrawText(gxt: string, x: float, y: float, r: int, g: int, b: int, a: int, alignment: int)
+    x *= 640.0
+    y *= 448.0
+    
+    if alignment == 0
+    then
+        Text.SetCenter(true)
+    else
+        if alignment == 1
+        then
+            Text.SetRightJustify(true)
+        else
+            Text.SetCenter(false)
+            Text.SetRightJustify(false)
+        end // if
+    end // if
+    
+    if not gxt == GXT_WANTED
+    then
+        Text.SetFont(Font.Menu)
+        Text.SetScale(0.365, 2.1)
+    else
+        Text.SetFont(Font.Menu)
+        Text.SetScale(TEXT_WIDTH, TEXT_HEIGHT)
+    end // if
+    
+    Text.SetColor(r, g, b, a)
+    Text.SetDropshadow(1, 0, 0, 0, a)
+    Text.SetDrawBeforeFade(true)
+    Text.Display(x, y, gxt)
+    
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+/// Draws a text with black background and a number.
+/// X and Y are in [0; 1] float range.
+/// Alignment: -1 - left, 0 - center, 1 - right.
+function DrawTextWithNumber(gxt: string, number: int, x: float, y: float, r: int, g: int, b: int, a: int, alignment: int)
+    x *= 640.0
+    y *= 448.0
+    
+    if alignment == 0
+    then
+        Text.SetCenter(true)
+    else
+        if alignment == 1
+        then
+            Text.SetRightJustify(true)
+        else
+            Text.SetCenter(false)
+            Text.SetRightJustify(false)
+        end // if
+    end // if
+    
+    Text.SetFont(Font.Pricedown)
+    Text.SetScale(TEXT_WIDTH, TEXT_HEIGHT)
+    Text.SetColor(r, g, b, a)
+    Text.SetDropshadow(1, 0, 0, 0, a)
+    Text.SetDrawBeforeFade(true)
+    Text.DisplayWithNumber(x, y, gxt, number)
+    
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+/// Draws a text with black background and two numbers.
+/// X and Y are in [0; 1] float range.
+/// Alignment: -1 - left, 0 - center, 1 - right.
+function DrawTextWithTwoNumbers(gxt: string, number_1: int, number_2: int, x: float, y: float, r: int, g: int, b: int, a: int, alignment: int)
+    x *= 640.0
+    y *= 448.0
+    
+    if alignment == 0
+    then
+        Text.SetCenter(true)
+    else
+        if alignment == 1
+        then
+            Text.SetRightJustify(true)
+        else
+            Text.SetCenter(false)
+            Text.SetRightJustify(false)
+        end // if
+    end // if
+    
+    Text.SetFont(Font.Pricedown)
+    Text.SetScale(TEXT_WIDTH, TEXT_HEIGHT)
+    Text.SetColor(r, g, b, a)
+    Text.SetDropshadow(1, 0, 0, 0, a)
+    Text.SetDrawBeforeFade(true)
+    Text.DisplayWith2Numbers(x, y, gxt, number_1, number_2)
+    
+    cleo_return {numRet} 0 {retParams}
+end
+
+
+function ClampInt(min: int, value: int, max: int): int
+    if value > max
+    then cleo_return {numRet} 1 {retParams} max
+    end // if
+    
+    if value < min
+    then cleo_return {numRet} 1 {retParams} min
+    end // if
+    
+    cleo_return {numRet} 1 {retParams} value
+end
+
+
+function CWanted__FindPlayerWanted<cdecl, 0x56E230>(player_number: int): int
+function CStats__GetFatAndMuscleModifier<cdecl, 0x559AF0>(statMod: int): float

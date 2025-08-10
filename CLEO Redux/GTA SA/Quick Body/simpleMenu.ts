@@ -170,20 +170,21 @@ export class SimpleMenu {
             && (Pad.IsButtonPressed(PadId.Pad1, Button.Cross)
                 || Pad.IsButtonPressed(PadId.Pad1, Button.Circle)
         )) {
-            if (!this.defaults.disableSounds) {
-                Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundShopBuy);
-            }
-            if (this.options[this.index].confirm) {
-                this.options[this.index].confirm();
-            } else {
-                this.defaults.confirm();
-            }
-
             while (Pad.IsButtonPressed(PadId.Pad1, Button.Cross)
                 || Pad.IsButtonPressed(PadId.Pad1, Button.Circle)
             ) {
                 this.displayCurrentOption();
                 wait(0);
+            }
+
+            if (!this.defaults.disableSounds) {
+                Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundShopBuy);
+            }
+
+            if (this.options[this.index].confirm) {
+                this.options[this.index].confirm();
+            } else {
+                this.defaults.confirm();
             }
         }
     }
