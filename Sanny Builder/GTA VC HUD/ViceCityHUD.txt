@@ -30,10 +30,10 @@ const
     ROW_4 = 0.165
     ROW_5 = 0.85
     ROW_6 = 0.89
-    COLUMN_1 = 0.945
-    COLUMN_2 = 0.87
-    COLUMN_3 = 0.815
-    COLUMN_4 = 0.76
+    COLUMN_1 = 0.94
+    COLUMN_2 = 0.865
+    COLUMN_3 = 0.81
+    COLUMN_4 = 0.755
     TEXT_WIDTH = 0.46
     TEXT_HEIGHT = 2.0
     GXT_NUMBER = 'NUMBER'
