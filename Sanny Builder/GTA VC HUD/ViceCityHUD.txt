@@ -131,7 +131,7 @@ function DrawWanted(wanted_level_before_parole: int)
                 end // if
             end // if
         else // This star should not be coloured
-            DrawText(GXT_WANTED, x, ROW_4, 27, 89, 130, 110, 1)
+            DrawText(GXT_WANTED, x, ROW_4, 27, 89, 130, 130, 1)
         end // if
         
         x -= 0.021
