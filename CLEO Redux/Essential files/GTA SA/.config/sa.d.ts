@@ -1,4 +1,4 @@
-// Sanny Builder Library v0.917
+// Sanny Builder Library v0.997
 /// <reference no-default-lib="true"/>
 /// <reference lib="es2020" />
 /** Integer value */
@@ -102,24 +102,6 @@ interface FxtStore {
 }
 
 declare const FxtStore: FxtStore;
-/** Class AsyncDownload
- * 
- * https://library.sannybuilder.com/#/sa/classes/AsyncDownload */
-interface AsyncDownload {
-    /** Downloads a file from the specified url source asynchronosly then saves it to filepath. Returns a handle to this file's AsyncDownload object for tracking purposes
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DOWNLOAD_FILE [0C65]*/
-    File(url: string, filepath: string): AsyncDownload;
-    /** Returns the download status of the AsyncDownload object
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_GET_DOWNLOAD_STATE [0C66]*/
-    getState(): int | undefined;
-    /** Frees an AsyncDownload object from memory
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RELEASE_DOWNLOAD [0C7D]*/
-    release(): boolean;
-}
-declare var AsyncDownload: AsyncDownload
 /** 
  * 
  * https://library.sannybuilder.com/#/sa/classes/Attractor */
@@ -312,112 +294,6 @@ declare class AudioStream {
     * https://library.sannybuilder.com/#/sa?q=SET_AUDIO_STREAM_VOLUME_WITH_TRANSITION [2504]*/
     setVolumeWithTransition(volume: float, timeMs: int): AudioStream;
 }
-/** Class Bitstream
- * 
- * https://library.sannybuilder.com/#/sa/classes/Bitstream */
-interface Bitstream {
-    /** Creates a new raknet bitstream object
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_CREATE_BITSTREAM [0B3D]*/
-    Create(): Bitstream;
-    /** Decrypts a compressed string (CString) from the bitstream and writes it to the buffer
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_DECODE_COMPRESSED_STRING [0BF4]*/
-    decodeCString(buffer: int, buffersize: int): boolean;
-    /** Remove's the specified bitstream object, freeing it from memory
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_DELETE_BITSTREAM [0B3E]*/
-    delete(): Bitstream | undefined;
-    /** Emulates the BitStream's data like an Incoming Packet
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_EMULATE_AS_INCOMING_PACKET [0BF7]*/
-    emulateAsPacketIn(id: int): boolean;
-    /** Emulates the BitStream's data like an incoming RPC
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_EMULATE_AS_INCOMING_RPC [0BF6]*/
-    emulateAsRpcIn(id: int): boolean;
-    /** Encrypts a string stored in the buffer and writes the compressed string (CString) to the bitstream
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_ENCODE_STRING [0BF5]*/
-    encodeString(buffer: int, bufferSize: int): boolean;
-    /** Returns the number of used bits in the BitStream
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_NUMBER_OF_BITS_USED [0BEE]*/
-    getBitsUsed(): int;
-    /** Returns the number of bytes used in the BitStream
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_NUMBER_OF_BYTES_USED [0BEF]*/
-    getBytesUsed(): int | undefined;
-    /** Returns a pointer to the BitStream's data
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_DATA_POINTER [0BF3]*/
-    getDataPtr(): int | undefined;
-    /** Returns the current read offset of the BitStream
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_READ_OFFSET [0BF2]*/
-    getReadOffset(): int | undefined;
-    /** Returns the number of unread bits in the BitStream
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_NUMBER_OF_UNREAD_BITS [0BF0]*/
-    getUnreadBits(): int | undefined;
-    /** Returns the current write offset of the BitStream
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_WRITE_OFFSET [0BF1]*/
-    getWriteOffset(): int | undefined;
-    /** Reads a value with datatype and datasize at the "read pointer" of the specified bitstream , then advances its "read pointer" by the same size
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_READ [0BE7]*/
-    read(dataType: int): int | undefined;
-    /** Stores an array of bytes from the Bitstream to buffer
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_READ_ARRAY [0BE8]*/
-    readArray(buffer: int, size: int): boolean;
-    /** Resets all parameters/clears BitStream
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_RESET_BITSTREAM [0B3F]*/
-    reset(): boolean;
-    /** Resets the read pointer of the BitStream. Setting "write offset = 0"
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_RESET_READ_POINTER [0BE9]*/
-    resetReadPtr(): boolean;
-    /** Resets (THIS COMMAND IS BUGGED, SETS THE WRITE POINTER AT THE BEGINNING OF THE DATA ( WRITE OFFSET = 0) WHICH IS WRONG. DO NOT USE) the value write pointer in the BitStream
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_RESET_WRITE_POINTER [0BEA]*/
-    resetWritePtr(): boolean;
-    /** Sends Packet BitStream to Server
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_SEND_PACKET [0B8B]*/
-    sendAsPacket(): boolean;
-    /** Sends a Packet BitStream with the specified parameters. Commonly used to send dacket data to server
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_SEND_PACKET_WITH_PARAMS [0B42]*/
-    sendAsPacketWithParams(priority: int, reliability: int, orderingChannel: int): boolean;
-    /** Sends BitStream as RPC to Server
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_SEND_RPC [0B8A]*/
-    sendAsRpc(rpcId: int): boolean;
-    /** Sends a BitStream as an RPC with the specified parameters
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_SEND_RPC_WITH_PARAMS [0B41]*/
-    sendAsRpcWithParams(rpc: int, priority: int, reliability: int, orderingChannel: int, shiftTimeStamp: int): boolean;
-    /** Sets the read offset of the BitStream
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_SET_READ_OFFSET [0BED]*/
-    setReadPtr(offset: int): boolean;
-    /** Sets the write offset of the BitStream
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_SET_WRITE_OFFSET [0BEC]*/
-    setWriteOffset(offset: int): boolean;
-    /** Increases both its "read pointer" and "write pointer" of the Bitstream by the specified bit count
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_SKIP_BITS [0BEB]*/
-    skipBits(bitCount: int): boolean;
-    /** Writes a specified value with datatype and datasize at the "write pointer" of the specified bitstream, then advances its "write pointer" by the same size
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_WRITE [0B40]*/
-    write(value: int, dataType: int, dataSize: int): boolean;
-}
-declare var Bitstream: Bitstream
 /** 
  * 
  * https://library.sannybuilder.com/#/sa/classes/Blip */
@@ -2066,7 +1942,7 @@ declare class Char {
     /** Returns the samp player's id controlling the character handle. Returns -1 if the character isn't controlled by any Player
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_ID [0B2B]*/
-    getSampId(): int;
+    getSampId(): SampPlayer;
     /** Returns the status of the specified script task of the character
     *
     * https://library.sannybuilder.com/#/sa?q=GET_SCRIPT_TASK_STATUS [062E]*/
@@ -2628,7 +2504,7 @@ declare class Char {
     *
     * https://library.sannybuilder.com/#/sa?q=PERFORM_SEQUENCE_TASK [0618]*/
     performSequence(sequence: Sequence): Char;
-    performSequenceFromProgress(sequence: Sequence, _p3: int, _p4: int): Char;
+    performSequenceFromProgress(sequence: Sequence, startTaskIndex: int, endTaskIndex: int): Char;
     /** Removes the characters weapons
     *
     * https://library.sannybuilder.com/#/sa?q=REMOVE_ALL_CHAR_WEAPONS [048F]*/
@@ -2842,7 +2718,7 @@ declare class Char {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_CHAR_SAY_CONTEXT [0947]*/
     setSayContext(phrase: int): int;
-    setSayContextImportant(phrase: int, _p3: boolean, _p4: boolean, _p5: boolean): int;
+    setSayContextImportant(phrase: int, overrideSilence: boolean, ignoreMute: boolean, frontEnd: boolean): int;
     setSayScript(_p2: int, _p3: boolean, _p4: boolean, _p5: boolean): Char;
     /** Sets this char as controlled by player two
     *
@@ -2885,7 +2761,7 @@ declare class Char {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_CHAR_WANTED_BY_POLICE [09B6]*/
     setWantedByPolice(state: boolean): Char;
-    /** Sets the characters fire arms wielding style
+    /** Sets the character's fire arms wielding style
     *
     * https://library.sannybuilder.com/#/sa?q=SET_CHAR_WEAPON_SKILL [081A]*/
     setWeaponSkill(skill: int): Char;
@@ -2917,7 +2793,7 @@ declare class Char {
     *
     * https://library.sannybuilder.com/#/sa?q=STORE_CAR_CHAR_IS_IN_NO_SAVE [03C0]*/
     storeCarIsInNoSave(): Car;
-    /** Stores the handles of a vehicle and ped closest to the char or -1 otherwise
+    /** Stores the handles of a vehicle and ped closest to the char or -1 otherwise. Ignores script created entities
     *
     * https://library.sannybuilder.com/#/sa?q=STORE_CLOSEST_ENTITIES [0AB5]*/
     storeClosestEntities(): {
@@ -3142,10 +3018,13 @@ interface Conversation {
     *
     * https://library.sannybuilder.com/#/sa?q=ENABLE_CONVERSATION [089C]*/
     Enable(handle: Char, state: boolean): void;
-    /** Begins a script-controlled conversation
+    /** Finalizes the current conversation sequence started with 0717. Selected answers will be subtitled
     *
     * https://library.sannybuilder.com/#/sa?q=FINISH_SETTING_UP_CONVERSATION [0719]*/
     FinishSettingUp(): void;
+    /** Finalizes the current conversation sequence started with 0717. Selected answers will not be subtitled
+    *
+    * https://library.sannybuilder.com/#/sa?q=FINISH_SETTING_UP_CONVERSATION_NO_SUBTITLES [0A47]*/
     FinishSettingUpNoSubtitles(): void;
     /** Returns true if the conversation is at the specified node
     *
@@ -3276,54 +3155,6 @@ interface Cutscene {
     WasSkipped(): boolean;
 }
 declare var Cutscene: Cutscene
-/** Class D3DFont
- * 
- * https://library.sannybuilder.com/#/sa/classes/D3DFont */
-interface D3DFont {
-    /** Creates a D3DFont Object
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_CREATE_FONT [0B6D]*/
-    Create(fontName: string, size: int, flags: int): D3DFont;
-    /** Destroys the specified font object, freeing it from memory
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DELETE_FONT [0B6E]*/
-    delete(): boolean;
-    /** Draws text using the specified font
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_TEXT_WITH_FONT [0B6F]*/
-    drawText(text: string, coordX: int, coordY: int, color: int): void;
-    /** Returns the height (in pixels) occupied by any text that uses the specified font
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_GET_FONT_DRAW_HEIGHT [0B6C]*/
-    getDrawHeight(): int;
-    /** Returns the width (in pixels) that will be occupied by the text with font
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_GET_DRAW_WIDTH_OF_TEXT_WITH_FONT [0B6B]*/
-    getDrawWidth(text: string): int;
-}
-declare var D3DFont: D3DFont
-/** Class D3DTexture
- * 
- * https://library.sannybuilder.com/#/sa/classes/D3DTexture */
-interface D3DTexture {
-    /** Loads a file (any image, or txd) as D3DTexture Object
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_LOAD_TEXTURE_FROM_FILE [0B71]*/
-    Load(filePath: string): D3DTexture | undefined;
-    /** Loads a texture from a file located in memory buffer
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_LOAD_TEXTURE_FROM_FILE_IN_MEMORY [0C8C]*/
-    LoadTextureFromFileMemory(buffer: int, bufferSize: int): D3DTexture | undefined;
-    /** Draws the texture on the screen
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_TEXTURE [0B73]*/
-    draw(coordX: int, coordY: int, width: int, height: int, heading: float, contrast: int): void;
-    /** Releases the D3DTexture Object, freeing it from memory
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_RELEASE_TEXTURE [0B72]*/
-    release(): boolean;
-}
-declare var D3DTexture: D3DTexture
 /** 
  * 
  * https://library.sannybuilder.com/#/sa/classes/Debugger */
@@ -3365,184 +3196,6 @@ declare class DecisionMaker {
     * https://library.sannybuilder.com/#/sa?q=REMOVE_DECISION_MAKER [065C]*/
     remove(): void;
 }
-/** Class DxutDialog
- * 
- * https://library.sannybuilder.com/#/sa/classes/DxutDialog */
-interface DxutDialog {
-    /** Creates a DXUTDialog Object with Title
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_CREATE_DIALOG [0B80]*/
-    Create(title: string): DxutDialog;
-    /** Adds a button on the DXUTDialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_BUTTON [0B82]*/
-    addButton(id: int, text: string, relCoordX: int, relCoordY: int, width: int, height: int): void;
-    /** Creates a checkbox on the DxutDialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_CHECKBOX [0B83]*/
-    addCheckbox(id: int, text: string, relCoordX: int, relCoordY: int, width: int, height: int): void;
-    /** Creates a text input field on a DxutDialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_EDITBOX [0B88]*/
-    addEditbox(id: int, initialText: string, coordX: int, coordY: int, width: int, height: int): void;
-    /** Creates a listbox on the dialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_LISTBOX [0B99]*/
-    addListbox(id: int, relCoordX: int, relCoordY: int, width: int, height: int): void;
-    /** Creates a horizontal slider on the DxutDialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_SLIDER [0B96]*/
-    addSlider(id: int, relCoordX: int, relCoordY: int, width: int, height: int, maxValue: int): void;
-    /** Adds a static text control in the DxutDialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_STATIC_TEXT [0B91]*/
-    addStaticText(id: int, text: string, relCoordX: int, relCoordY: int, width: int, height: int): void;
-    /** Deletes the DxutDialog and frees the memory allocated for it
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_DELETE [0BA4]*/
-    delete(): void;
-    /** Removes a DxutDialog's control with ID and frees the memory allocated for it
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_DELETE_CONTROL [0BA3]*/
-    deleteControl(id: int): void;
-    /** Removes the element found at the specified index from the DxutDialog's listbox with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_DELETE_LISTBOX_ELEMENT [0B9C]*/
-    deleteListboxElement(id: int, index: int): boolean;
-    /** Evaluates as logical true if the specified DxutDialog exists
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_EXIST [0BAB]*/
-    doesExist(): boolean;
-    /** Returns the window position of a DxutDialog control
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_COORDS_OF_CONTROL [0BA9]*/
-    getControlCoords(id: int): {
-        coordX: int;
-        coordY: int;
-    };
-    /** Returns the dimensions of the DxutDialog control with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_DIMS_OF_CONTROL [0BA7]*/
-    getControlDims(id: int): {
-        width: int;
-        height: int;
-    };
-    /** Returns the text of a control using its ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_TEXT_OF_CONTROL [0B89]*/
-    getControlText(id: int): int | undefined;
-    /** Returns the Coordinates and Dimensions of the DxutDialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_COORDS_AND_DIMS [0B85]*/
-    getCoordsAndDims(): {
-        coordX: int;
-        coordY: int;
-        width: int;
-        height: int;
-    };
-    /** Returns the text and data associated with the DxutDialog's listbox element by index
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_LISTBOX_ELEMENT [0B9D]*/
-    getListboxElement(id: int, index: int): {
-        text: string;
-        data: int;
-    } | undefined;
-    /** Returns the index of the selected element and the count/number of elements in the DxutDialog's listbox with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_SELECTED_LISTBOX_ELEMENT [0B9B]*/
-    getSelectedListboxElement(id: int): {
-        index: int;
-        count: int;
-    };
-    /** Returns the thumb position value of the DxutDialog's slider with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_SLIDER_VALUE [0B97]*/
-    getSliderValue(id: int): int;
-    /** Inserts a new element into the DxutDialog's listbox with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_INSERT_LISTBOX_ELEMENT [0B9A]*/
-    insertListboxElement(id: int, text: int, data: int, index: int): boolean;
-    /** Evaluates as logical true if the checkbox control of the DxutDialog is checked
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_IS_CHECKBOX_CHECKED [0B92]*/
-    isCheckBoxChecked(checkboxId: int): boolean;
-    /** Evaluates as true if the DxutDialog's control element with ID is visible
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_IS_CONTROL_VISIBLE [0B95]*/
-    isControlVisible(id: int): boolean;
-    /** Returns logical true if the DxutDialog is minimized
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_IS_MINIMIZED [0BA2]*/
-    isMinimized(): boolean;
-    /** Evaluates as logical true if the DxutDialog's title is visible
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_IS_TITLE_VISIBLE [0BA0]*/
-    isTitleVisible(): boolean;
-    /** Checks if the DxutDialog is visible
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_IS_VISIBLE [0B87]*/
-    isVisible(): boolean;
-    /** Returns the last event and component ID that occurred with the specified dialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_POP [0B81]*/
-    pop(): {
-        eventId: int;
-        controlId: int;
-    } | undefined;
-    /** Sets the background color of the DxutDialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_BACKGROUND_COLOR [0B93]*/
-    setBgColor(color: int): void;
-    /** Sets the color of DxutDialog's checkbox control with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_COLOR_OF_CHECKBOX [0BAA]*/
-    setCheckboxColor(id: int, color: int): void;
-    /** Sets the status of a checkbox
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_DIALOG_SET_STATUS_OF_CHECKBOX [0B9E]*/
-    setCheckboxStatus(id: int, isChecked: boolean): void;
-    /** Sets the window position of the DxutDialog control with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_COORDS_OF_CONTROL [0BA8]*/
-    setControlCoords(id: int, relCoordX: int, relCoordY: int): void;
-    /** Sets the text of a control using its ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_TEXT_OF_CONTROL [0B94]*/
-    setControlText(id: int, text: string): boolean;
-    /** Sets the coordinates and dimensions of the DxutDialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_COORDS_AND_DIMS [0B84]*/
-    setCoordsAndDims(coordX: int, coordY: int, width: int, height: int): void;
-    /** Changes the dimensions of the DxutDialog control with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_DIMS_OF_CONTROL [0BA6]*/
-    setDims(id: int, width: int, height: int): void;
-    /** Sets the minimized status of the DxutDialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_MINIMIZED [0BA1]*/
-    setMinimized(isMinimized: boolean): void;
-    /** Sets the thumb position value of the DxutDialog's slider with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_SLIDER_VALUE [0B98]*/
-    setSliderValue(id: int, value: int): void;
-    /** Sets the visibility of the DxutDialog's title
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_TITLE_VISIBILITY [0B9F]*/
-    setTitleVisibility(isVisible: boolean): void;
-    /** Sets the visibility of the DXUTDialog's control element with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_VISIBILITY_OF_CONTROL [0B90]*/
-    setVisibilityOfControl(controlId: int, isVisible: int): void;
-    /** Sets the focus of user interaction to a specific DxutDialog control with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_FOCUSED_CONTROL [0BA5]*/
-    toggleControlFocus(id: int): void;
-    /** Sets the visibility status of the DxutDialog
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_VISIBILITY [0B86]*/
-    visibility(isVisible: boolean): void;
-}
-declare var DxutDialog: DxutDialog
 /** Loading DLL files and finding exported functions
  * 
  * https://library.sannybuilder.com/#/sa/classes/DynamicLibrary */
@@ -3768,9 +3421,9 @@ interface Fx {
     *
     * https://library.sannybuilder.com/#/sa?q=ADD_FX_SYSTEM_PARTICLE [0EC0]*/
     AddParticle(particle: Particle, posX: float, posY: float, posZ: float, velX: float, velY: float, velZ: float, size: float, brightness: float, r: float, g: float, b: float, a: float, lastFactor: float): void;
-    AddSmokeParticle(x: float, y: float, z: float, velocityX: float, velocityY: float, velocityZ: float, red: int, green: int, blue: int, alpha: int, size: float, lastFactor: float): void;
+    AddSmokeParticle(x: float, y: float, z: float, velocityX: float, velocityY: float, velocityZ: float, red: float, green: float, blue: float, alpha: float, size: float, lastFactor: float): void;
     AddSparks(x: float, y: float, z: float, velocityX: float, velocityY: float, velocityZ: float, density: int): void;
-    /** Displays a corona at the specified location
+    /** Displays a corona with fade in-out effect at the specified location
     *
     * https://library.sannybuilder.com/#/sa?q=DRAW_CORONA [024F]*/
     DrawCorona(x: float, y: float, z: float, size: float, coronaType: int, flareType: int, r: int, g: int, b: int): void;
@@ -4922,28 +4575,6 @@ interface List {
     reverse(): void;
 }
 declare var List: List
-/** Class LocalChatCmd
- * 
- * https://library.sannybuilder.com/#/sa/classes/LocalChatCmd */
-interface LocalChatCmd {
-    /** Registers a callback hooked from a client sided chat command
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_HOOK_CHAT_COMMAND_AS_LOCAL [0B34]*/
-    Hook(chatCommand: string, callback: int): boolean;
-    /** Evaluates as logical true if the specified command is localized by a callback hook
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_CHAT_COMMAND_HOOKED [0C90]*/
-    IsHooked(chatCommand: string): boolean;
-    /** Sets the description for the local command
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_LOCAL_CHAT_COMMAND_DESCRIPTION [0C7F]*/
-    SetDescription(chatCommand: string, decription: string): void;
-    /** Removes all callbacks hooked from a client sided chat command created by SAMP_REGISTER_CLIENTSIDE_COMMAND, suppressing all its callback's operation 
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_UNHOOK_LOCAL_CHAT_COMMAND [0B63]*/
-    Unhook(chatCommand: string): boolean;
-}
-declare var LocalChatCmd: LocalChatCmd
 /** 
  * 
  * https://library.sannybuilder.com/#/sa/classes/Math */
@@ -5323,35 +4954,35 @@ interface Memory {
     /** Reads a floating-point value (IEEE 754) from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    ReadFloat(address: int, vp: boolean): float;
+    ReadFloat(address: int, vp?: boolean): float;
     /** Writes a floating-point value (IEEE 754) to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    WriteFloat(address: int, value: float, vp: boolean): void;
+    WriteFloat(address: int, value: float, vp?: boolean): void;
     /** Reads a 8-bit signed integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    ReadI8(address: int, vp: boolean): int;
+    ReadI8(address: int, vp?: boolean): int;
     /** Reads a 16-bit signed integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    ReadI16(address: int, vp: boolean): int;
+    ReadI16(address: int, vp?: boolean): int;
     /** Reads a 32-bit signed integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    ReadI32(address: int, vp: boolean): int;
+    ReadI32(address: int, vp?: boolean): int;
     /** Reads a 8-bit unsigned integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    ReadU8(address: int, vp: boolean): int;
+    ReadU8(address: int, vp?: boolean): int;
     /** Reads a 16-bit unsigned integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    ReadU16(address: int, vp: boolean): int;
+    ReadU16(address: int, vp?: boolean): int;
     /** Reads a 32-bit unsigned integer value from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    ReadU32(address: int, vp: boolean): int;
+    ReadU32(address: int, vp?: boolean): int;
     /** Reads a null-terminated UTF-8 encoded string from the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
@@ -5363,43 +4994,43 @@ interface Memory {
     /** Writes a 8-bit signed integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    WriteI8(address: int, value: int, vp: boolean): void;
+    WriteI8(address: int, value: int, vp?: boolean): void;
     /** Writes a 16-bit signed integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    WriteI16(address: int, value: int, vp: boolean): void;
+    WriteI16(address: int, value: int, vp?: boolean): void;
     /** Writes a 32-bit signed integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    WriteI32(address: int, value: int, vp: boolean): void;
+    WriteI32(address: int, value: int, vp?: boolean): void;
     /** Writes a 8-bit unsigned integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    WriteU8(address: int, value: int, vp: boolean): void;
+    WriteU8(address: int, value: int, vp?: boolean): void;
     /** Writes a 16-bit unsigned integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    WriteU16(address: int, value: int, vp: boolean): void;
+    WriteU16(address: int, value: int, vp?: boolean): void;
     /** Writes a 32-bit unsigned integer value to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    WriteU32(address: int, value: int, vp: boolean): void;
+    WriteU32(address: int, value: int, vp?: boolean): void;
     /** Writes a sequence of UTF-8 encoded characters to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    WriteUtf8(address: int, value: string, vp: boolean): void;
+    WriteUtf8(address: int, value: string, vp?: boolean): void;
     /** Writes a sequence of UTF-16 encoded characters to the memory 
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    WriteUtf16(address: int, value: string, vp: boolean): void;
+    WriteUtf16(address: int, value: string, vp?: boolean): void;
     /** Reads 1, 2, or 4 bytes from the memory
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    Read(address: int, size: int, vp: boolean): int;
+    Read(address: int, size: int, vp?: boolean): int;
     /** Writes 1, 2, or 4 bytes to the memory. Can also be used as memset.
     *
     * https://re.cleo.li/docs/en/using-memory.html */
-    Write(address: int, size: int, value: int, vp: boolean): void;
+    Write(address: int, size: int, value: int, vp?: boolean): void;
 
 
     /** Cast 32-bit signed integer value to floating-point value (IEEE 754) 
@@ -5438,6 +5069,14 @@ interface Memory {
     *
     * https://re.cleo.li/docs/en/using-memory.html */
     Translate(symbol: string): int;
+    /** Allocates a block of memory and returns its address
+    *
+    * https://re.cleo.li/docs/en/using-memory.html */
+    Allocate(size: int): int;
+    /** Deallocates a block of memory previously allocated with Memory.Allocate
+    *
+    * https://re.cleo.li/docs/en/using-memory.html */
+    Free(address: int): void;
 
     /** Convenience methods for invoking different types of functions */
     Fn: {
@@ -5621,19 +5260,19 @@ interface Memory {
     /** Calls a function at the address with the given arguments and the calling convention defined by the pop parameter where 0 means 'stdcall' and a value equal to numParams means  'cdecl'
     *
     * https://library.sannybuilder.com/#/sa?q=CALL_FUNCTION [0AA5]*/
-    CallFunction(address: int, numParams: int, pop: int, ...funcParams: number[]): void;
+    CallFunction(address: int, numArgs: int, pop: int, ...args: number[]): void;
     /** Calls a function similarly to 0AA5 and writes the result into the variable following the arguments list
     *
     * https://library.sannybuilder.com/#/sa?q=CALL_FUNCTION_RETURN [0AA7]*/
-    CallFunctionReturn(address: int, numParams: int, pop: int, ...funcParams: number[]): int;
+    CallFunctionReturn(address: int, numArgs: int, pop: int, ...args: number[]): int;
     /** Calls a method of the object (struct) with the given arguments and the 'thiscall' calling convention (pop is always 0)
     *
     * https://library.sannybuilder.com/#/sa?q=CALL_METHOD [0AA6]*/
-    CallMethod(address: int, struct: int, numParams: int, pop: int, ...funcParams: number[]): void;
+    CallMethod(address: int, struct: int, numArgs: int, pop: int, ...args: number[]): void;
     /** Calls a method of the object (struct) similarly to 0AA6 and writes the result into the variable following the arguments list
     *
     * https://library.sannybuilder.com/#/sa?q=CALL_METHOD_RETURN [0AA8]*/
-    CallMethodReturn(address: int, struct: int, numParams: int, pop: int, ...funcParams: number[]): int;
+    CallMethodReturn(address: int, struct: int, numArgs: int, pop: int, ...args: number[]): int;
     /** Copies a block of memory from src address to dest address. src and dest regions may overlap (memmove behavior)
     *
     * https://library.sannybuilder.com/#/sa?q=COPY_MEMORY [2400]*/
@@ -5878,10 +5517,34 @@ declare var Mouse: Mouse
  * 
  * https://library.sannybuilder.com/#/sa/classes/Pad */
 interface Pad {
+    /** Simulates key press event
+    *
+    * https://library.sannybuilder.com/#/sa?q=EMULATE_KEY_PRESS [2083]*/
+    EmulateKeyPress(keyCode: int): void;
+    /** Simulates key release event
+    *
+    * https://library.sannybuilder.com/#/sa?q=EMULATE_KEY_RELEASE [2084]*/
+    EmulateKeyRelease(keyCode: int): void;
+    /** Returns n-th alternate key assigned to pad's action. If no key is bound then return value is unchanged and logical result is false
+    *
+    * https://library.sannybuilder.com/#/sa?q=GET_CONTROLLER_KEY [2085]*/
+    GetControllerKey(action: int, altKey: int): int | undefined;
     /** Returns the controller mode
     *
     * https://library.sannybuilder.com/#/sa?q=GET_CONTROLLER_MODE [0293]*/
     GetControllerMode(): int;
+    /** Gets code of first just pressed key in range between minKeyCode and maxKeyCode. If no key was pressed return value is unmodified and logical result is set to false
+    *
+    * https://library.sannybuilder.com/#/sa?q=GET_KEY_JUST_PRESSED_IN_RANGE [2082]*/
+    GetKeyJustPressedInRange(minKeyCode: int, maxKeyCode: int): int | undefined;
+    /** Returns keyboard/mouse key name text of specified keyCode. If key code has no name return value is unchanged and logical result is false
+    *
+    * https://library.sannybuilder.com/#/sa?q=GET_KEY_NAME [2086]*/
+    GetKeyName(keyCode: int): string | undefined;
+    /** Gets code of first currently hold down key in range between minKeyCode and maxKeyCode. If no key is pressed return value is unmodified and logical result is set to false
+    *
+    * https://library.sannybuilder.com/#/sa?q=GET_KEY_PRESSED_IN_RANGE [2081]*/
+    GetKeyPressedInRange(minKeyCode: int, maxKeyCode: int): int | undefined;
     /** Returns the code of the last pressed button
     *
     * https://library.sannybuilder.com/#/sa?q=GET_LAST_KEY */
@@ -5929,7 +5592,7 @@ interface Pad {
     IsKeyDown(keyCode: int): boolean;
     /** Returns true if the player has just started to press a specified key this frame
     *
-    * https://library.sannybuilder.com/#/sa?q=IS_KEY_JUST_PRESSED [0E3D]*/
+    * https://library.sannybuilder.com/#/sa?q=IS_KEY_JUST_PRESSED [2080]*/
     IsKeyJustPressed(keyCode: int): boolean;
     /** Returns true if the player is pressing a keyboard button with the specified code
     *
@@ -6128,21 +5791,27 @@ interface Path {
     *
     * https://library.sannybuilder.com/#/sa?q=RELEASE_PATH_NODES [0607]*/
     ReleaseNodes(): void;
+    /** Reverts all changes to ped paths done with SWITCH_PED_ROADS_ON and SWITCH_PED_ROADS_OFF
+    *
+    * https://library.sannybuilder.com/#/sa?q=SWITCH_PED_ROADS_BACK_TO_ORIGINAL [091E]*/
     SwitchPedRoadsBackToOriginal(leftBottomX: float, leftBottomY: float, leftBottomZ: float, rightTopX: float, rightTopY: float, rightTopZ: float): void;
-    /** Forbids pedestrians to walk into the specified area
+    /** Disables all ped paths in the given area
     *
     * https://library.sannybuilder.com/#/sa?q=SWITCH_PED_ROADS_OFF [022B]*/
     SwitchPedRoadsOff(leftBottomX: float, leftBottomY: float, leftBottomZ: float, rightTopX: float, rightTopY: float, rightTopZ: float): void;
-    /** Allows pedestrians to walk into the specified area
+    /** Enables all ped paths in the given area
     *
     * https://library.sannybuilder.com/#/sa?q=SWITCH_PED_ROADS_ON [022A]*/
     SwitchPedRoadsOn(leftBottomX: float, leftBottomY: float, leftBottomZ: float, rightTopX: float, rightTopY: float, rightTopZ: float): void;
+    /** Reverts all changes to car paths done with SWITCH_ROADS_ON and SWITCH_ROADS_OFF
+    *
+    * https://library.sannybuilder.com/#/sa?q=SWITCH_ROADS_BACK_TO_ORIGINAL [091D]*/
     SwitchRoadsBackToOriginal(leftBottomX: float, leftBottomY: float, leftBottomZ: float, rightTopX: float, rightTopY: float, rightTopZ: float): void;
-    /** Prevents cars from driving on roads in the specified 3D area
+    /** Disables all car paths in the given area
     *
     * https://library.sannybuilder.com/#/sa?q=SWITCH_ROADS_OFF [01E8]*/
     SwitchRoadsOff(leftBottomX: float, leftBottomY: float, leftBottomZ: float, rightTopX: float, rightTopY: float, rightTopZ: float): void;
-    /** Allows cars to drive in the specified 3D area
+    /** Enables all car paths in the given area
     *
     * https://library.sannybuilder.com/#/sa?q=SWITCH_ROADS_ON [01E7]*/
     SwitchRoadsOn(leftBottomX: float, leftBottomY: float, leftBottomZ: float, rightTopX: float, rightTopY: float, rightTopZ: float): void;
@@ -6336,11 +6005,11 @@ declare class Player {
     *
     * https://library.sannybuilder.com/#/sa?q=GIVE_PLAYER_CLOTHES_OUTSIDE_SHOP [087B]*/
     giveClothesOutsideShop(textureName: string, modelName: string, bodyPart: int): Player;
-    /** Increases the players armor by the specified amount
+    /** Increases the player's max armor by the specified value and changes current armor to the new maximum
     *
     * https://library.sannybuilder.com/#/sa?q=INCREASE_PLAYER_MAX_ARMOUR [055F]*/
     increaseMaxArmor(value: int): Player;
-    /** Increases the players maximum health by the specified amount
+    /** Increases the player's max health by the specified value and changes current health to the new maximum
     *
     * https://library.sannybuilder.com/#/sa?q=INCREASE_PLAYER_MAX_HEALTH [055E]*/
     increaseMaxHealth(value: int): Player;
@@ -6389,7 +6058,7 @@ declare class Player {
     *
     * https://library.sannybuilder.com/#/sa?q=IS_SCORE_GREATER [010A]*/
     isScoreGreater(money: int): boolean;
-    /** Returns true if the specified player is aiming at anything using autoaim
+    /** Returns true if the specified player is auto-aiming at a ped or object
     *
     * https://library.sannybuilder.com/#/sa?q=IS_PLAYER_TARGETTING_ANYTHING [068C]*/
     isTargetingAnything(): boolean;
@@ -6445,6 +6114,9 @@ declare class Player {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_FREE_HEALTH_CARE [0414]*/
     setFreeHealthCare(state: boolean): Player;
+    /** Sets the player's ability to recruit new members to the group
+    *
+    * https://library.sannybuilder.com/#/sa?q=SET_PLAYER_GROUP_RECRUITMENT [07B4]*/
     setGroupRecruitment(state: boolean): Player;
     /** Controls the players ability to tell their group to wait and automatically orders any group members to continue following
     *
@@ -6483,48 +6155,6 @@ declare class Player {
     * https://library.sannybuilder.com/#/sa?q=PLAYER_TAKE_OFF_GOGGLES [09EB]*/
     takeOffGoggles(animate: boolean): Player;
 }
-/** Class RakNet
- * 
- * https://library.sannybuilder.com/#/sa/classes/RakNet */
-interface RakNet {
-    /** Returns the hook parameter's value of the currently executing callback
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_GET_PARAM [0BE5]*/
-    GetHookParam(type: int): int | undefined;
-    /** Returns a pointer to the Packet ID's Name
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_GET_PACKET_NAME [0BF9]*/
-    GetPacketName(id: int): int | undefined;
-    /** Returns a pointer to the RPC ID's Name
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_GET_RPC_NAME [0BF8]*/
-    GetRpcName(id: int): string | undefined;
-    /** Redirects all incoming packets to the specified callback(label) for subsequent processing before acceptance on the local client
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_INCOMING_PACKET [0BE4]*/
-    HookPacketIn(callbackLabel: int): boolean;
-    /** Redirects all outgoing Packets to the specified callback(label) for subsequent processing before sending to the server
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_OUTCOMING_PACKET [0BE2]*/
-    HookPacketOut(callbackLabel: int): boolean;
-    /** Redirects all incoming RPCs to the specified callback(label) for subsequent processing before acceptance on the local client
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_INCOMING_RPC [0BE3]*/
-    HookRpcIn(callbackLabel: int): boolean;
-    /** Redirects all outgoing RPCs to the specified callback(label) for subsequent processing before sending to the server
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_OUTCOMING_RPC [0BE1]*/
-    HookRpcOut(callbackLabel: int): boolean;
-    /** Returns the flow of control to RakNet and decides wether the currently intercepted data will be processed by RakNet or not
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_RETURN [0BE0]*/
-    Return(unblockData: boolean): void;
-    /** Sets the hook parameter's value of the currently executing callback
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_SET_HOOK_PARAM [0BE6]*/
-    SetHookParam(type: int, value: int): boolean;
-}
-declare var RakNet: RakNet
 /** 
  * 
  * https://library.sannybuilder.com/#/sa/classes/Rc */
@@ -6621,22 +6251,6 @@ declare var Restart: Restart
  * 
  * https://library.sannybuilder.com/#/sa/classes/Samp */
 interface Samp {
-    /** Adds one line of colored message to the chat
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_ADD_MESSAGE_TO_CHAT [0AF8]*/
-    AddChatMessage(format: string, color: int, ...args: number[]): void;
-    /** Returns true if SAMP structures were initialized. Used when checking if gta sa is running on SAMP or in Single Player
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_AVAILABLE [0AFA]*/
-    Available(): boolean;
-    /** Checks if the chat box input is open/visible
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_CHAT_INPUT_VISIBLE [0B21]*/
-    ChatInputVisible(): boolean;
-    /** Evaluates as logical true if chat lines are visible
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_CHAT_VISIBLE [0BDB]*/
-    ChatVisible(): boolean;
     /** Closes the active dialog by pressing the specified button programmatically
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_CLOSE_ACTIVE_DIALOG_WITH_BUTTON [0B47]*/
@@ -6645,39 +6259,43 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_CONNECT [0B38]*/
     Connect(serverIp: string, port: int): void;
-    /** Checks if the mouse cursor were both visible and movable
+    /** Sends SampPacket.AimSync containing our current aim data, to server
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_CURSOR_ACTIVE [0B8C]*/
-    CursorActive(): boolean;
-    /** Deletes the specified textdraw
+    * https://library.sannybuilder.com/#/sa?q=SAMP_FORCE_AIM_SYNC [0C84]*/
+    ForceAimSync(): void;
+    /** Sends SampPacket.DrivingSync to server about our character driving a car with ID
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_DELETE_TEXTDRAW [0C5E]*/
-    DeleteTextdraw(id: int): boolean;
-    /** Evaluates as logical true if the specified dialog with id is currently visible
+    * https://library.sannybuilder.com/#/sa?q=SAMP_FORCE_DRIVING_SYNC [0C81]*/
+    ForceDrivingSync(id: int): void;
+    /** Sends SampPacket.OnFootSync to server about our character being onfoot
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_DIALOG_ACTIVE [0B4C]*/
-    DialogActive(id: int): boolean;
-    /** Evaluates as logical true if the active dialog is has a client side attribute
+    * https://library.sannybuilder.com/#/sa?q=SAMP_FORCE_ONFOOT_SYNC [0C83]*/
+    ForceOnfootSync(): void;
+    /** Sends SampPacket.PassengerSync to server about our character sitting at seatId of a car with carId
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_ACTIVE_DIALOG_CLIENTSIDE [0BDA]*/
-    DialogClientSide(): boolean;
-    /** Returns logical true if the last submitted SAMP Dialog is equal to the specified dialogid
+    * https://library.sannybuilder.com/#/sa?q=SAMP_FORCE_PASSENGER_SYNC [0C86]*/
+    ForcePassengerSync(carId: int, seatId: int): void;
+    /** Sends SampPacket.StatsUpdate containing our current money and drunk level, to server
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_HAS_DIALOG_RESPONDED [0B3C]*/
-    DialogResponded(dialogId: int): {
-        buttonId: int;
-        listItemId: int;
-        inputTextBuffer: int;
-    } | undefined;
-    /** Sends SampRpc.Spawn to SAMP Server. Teleports our char to spawn as well
+    * https://library.sannybuilder.com/#/sa?q=SAMP_FORCE_STATS_SYNC [0C87]*/
+    ForceStatsSync(): void;
+    /** Sends SampPacket.TrailerSync to server about a trailer with ID being attached to our player
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SPAWN_LOCAL_PLAYER [0AF6]*/
-    ForceSpawn(): void;
+    * https://library.sannybuilder.com/#/sa?q=SAMP_FORCE_TRAILER_SYNC [0C85]*/
+    ForceTrailerSync(id: int): void;
+    /** Sends SampPacket.UnoccupiedCarSync to server about a seatId of a car with carId being unoccupied
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_FORCE_UNOCCUPIED_SYNC [0C82]*/
+    ForceUnnocupiedSync(carId: int, seatId: int): void;
+    /** Sends SampPacket.WeaponsUpdate containing our character's current weapons, to server
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_FORCE_WEAPONS_SYNC [0C88]*/
+    ForceWeaponsSync(): void;
     /** Returns the Animation SAMP ID using its name and the file it was loaded from
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_ANIMATION_ID [0B59]*/
     GetAnimId(animName: string, fileName: string): int | undefined;
-    /** Writes the filename and animname of the animation using its SAMP ID
+    /** Stores the filename and animname of the animation using its SAMP ID
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_ANIMATION_NAME [0B58]*/
     GetAnimName(animId: int): {
@@ -6696,31 +6314,10 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_CAR_POOL_POINTER [0BB8]*/
     GetCarPoolPtr(): int;
-    /** Returns the character handle using the Player ID. Returns -1 if the player is not in the stream zone
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_CHAR_BY_ID [0B20]*/
-    GetChar(id: int): Char;
-    /** Returns the current chat display mode
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_CHAT_DISPLAY_MODE [0BDC]*/
-    GetChatDisplayMode(): int;
     /** Returns the pointer to samp chat input field structure
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_CHAT_INPUT_INFO_POINTER [0BAF]*/
     GetChatInfoPtr(): int;
-    /** Returns the current text in the chat input box
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_CHAT_INPUT_TEXT [0B77]*/
-    GetChatInputText(): string | undefined;
-    /** Returns the chat line's text parameters
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_CHAT_LINE [0B75]*/
-    GetChatLine(index: int): {
-        bodyBuffer: string;
-        prefixBuffer: string;
-        bodyColor: int;
-        prefixColor: int;
-    } | undefined;
     /** Returns the current mouse cursor mode
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_CURSOR_MODE [0B8E]*/
@@ -6729,7 +6326,7 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_DIALOG_CONTENT [0BD7]*/
     GetDialogContent(buffer: string): void;
-    /** Writes the text from the input field of the active dialog to the buffer
+    /** Stores the text from the input field of the active dialog to the buffer
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_ACTIVE_DIALOG_EDITBOX_TEXT [0B4A]*/
     GetDialogEditboxText(): string | undefined;
@@ -6741,7 +6338,7 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_DIALOG_INFO_POINTER [0BB0]*/
     GetDialogInfoPtr(): int;
-    /** Writes the text of an item with specific id from the active dialog's list, to buffer. If the dialog is not opened, the last opened dialog is evaluated instead
+    /** Stores the text of an item with specific id from the active dialog's list, to buffer. If the dialog is not opened, the last opened dialog is evaluated instead
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_DIALOG_LIST_ITEM_TEXT [0B5B]*/
     GetDialogItemText(itemId: int): string | undefined;
@@ -6757,10 +6354,14 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_DIALOG_STYLE [0B4D]*/
     GetDialogStyle(): int | undefined;
-    /** Writes the title of the active dialog to buffer. If the dialog is not opened, the last opened dialog is evaluated instead
+    /** Stores the title of the active dialog to buffer. If the dialog is not opened, the last opened dialog is evaluated instead
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_DIALOG_TITLE [0BD8]*/
     GetDialogTitle(buffer: string): void;
+    /** Returns our connection status towards the server
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_GAMESTATE [0B4F]*/
+    GetGamestate(): int;
     /** Returns a pointer to the pool of samp allocated territories (gang territories)
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_GANGZONE_POOL_POINTER [0BB5]*/
@@ -6793,54 +6394,14 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PICKUP_POOL_POINTER [0BB9]*/
     GetPickupPoolPtr(): int;
-    /** Returns the SAMP ID of the animation currently being played by the specified player
+    /** Returns the number of players that are currently streamed if streamedOnly = true. Else, returns the number of players allowed in the server
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_ANIMATION [0B57]*/
-    GetPlayerAnim(playerId: int): int | undefined;
-    /** Gets the amount of armor the specified player has
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_ARMOR [0B26]*/
-    GetPlayerArmor(id: int): int;
-    /** Returns the color of the specified player in 0xAARRGGBB format
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_COLOR [0B37]*/
-    GetPlayerColor(id: int): int;
-    /** Gets the amount of health the specified player has
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_HEALTH [0B25]*/
-    GetPlayerHealth(id: int): int;
-    /** Returns a pointer to the nickname of the specified player
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_NICKNAME [0B36]*/
-    GetPlayerName(id: int): int;
-    /** Returns the ping of the specified player with ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_PING [0B2A]*/
-    GetPlayerPing(id: int): int;
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_COUNT [0C8B]*/
+    GetPlayerCount(streamedOnly: boolean): int;
     /** Returns the pointer to player pool structure
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_POOL_POINTER [0BB7]*/
     GetPlayerPoolPtr(): int;
-    /** Returns the player's samp structure. Returns 0 (NULL Pointer) if player isn't connected
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_POINTER [0B24]*/
-    GetPlayerPtr(id: int): int;
-    /** Returns the current score of the specified player
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_SCORE [0B65]*/
-    GetPlayerScore(id: int): int | undefined;
-    /** Returns the special action ID of the specified player
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_SPECIAL_ACTION [0B62]*/
-    GetPlayerSpecialAction(playerId: int): int | undefined;
-    /** Returns the 3D Coordinates of a player who is outside the stream zone, if the server allows it
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_STREAMED_OUT_PLAYER_COORDS [0B2F]*/
-    GetPlayerStreamedOutCoords(id: int): {
-        x: float;
-        y: float;
-        z: float;
-    };
     /** Returns the pointer to samp pools structure
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_POOLS_POINTER [0BAD]*/
@@ -6865,14 +6426,14 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_RPC_NODE_BY_INDEX [0B7E]*/
     GetRpcNode(index: int): int | undefined;
-    /** Returns the server's port and writes server's IP address to buffer
+    /** Returns the server's port and stores server's IP address to buffer
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_SERVER_ADDRESS [0B39]*/
     GetServerAddress(): {
         buffer: string;
         port: int;
     };
-    /** Writes the server name to buffer
+    /** Stores the server name to buffer
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_SERVER_NAME [0B3A]*/
     GetServerName(): string;
@@ -6880,19 +6441,6 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_SERVER_SETTINGS_POINTER [0BAC]*/
     GetServerSettingsPtr(): int;
-    /** Sets the alignment of the text in the textdraw
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_ALIGNMENT [0C54]*/
-    GetTextDrawAlignment(id: int): int | undefined;
-    /** Returns the parameters of the "box" (rectangle) of the specified text draw
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_BOX [0C53]*/
-    GetTextDrawBox(id: int): {
-        isVisible: boolean;
-        color: int;
-        width: float;
-        height: float;
-    } | undefined;
     /** Returns the pointer to samp textdraw pool structure
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_POOL_POINTER [0BB3]*/
@@ -6901,71 +6449,42 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTLABEL_POOL_POINTER [0BB6]*/
     GetTextLabelPoolPtr(): int;
-    /** Returns the size and color property of all characters in the textdraw
+    /** Returns logical true if the last submitted SAMP Dialog is equal to the specified dialogid
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_CHARACTER_PROPERTIES [0C5C]*/
-    GetTextdrawCharacterProperties(id: int): {
-        width: float;
-        height: float;
-        color: int;
+    * https://library.sannybuilder.com/#/sa?q=SAMP_HAS_DIALOG_RESPONDED [0B3C]*/
+    HasDialogResponded(dialogId: int): {
+        buttonId: int;
+        listItemId: int;
+        inputTextBuffer: int;
     } | undefined;
-    /** Returns the gamescreen coordinates of the textdraw
+    /** Evaluates as logical true if SAMP structures was initialized. Used when checking if gta sa is running on SAMP or in Single Player
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_COORDS [0C5B]*/
-    GetTextdrawCoords(id: int): {
-        coordX: float;
-        coordY: float;
-    } | undefined;
-    /** Returns the properties of the text draw as a model (style 5)
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_AVAILABLE [0AFA]*/
+    IsAvailable(): boolean;
+    /** Checks if the mouse cursor were both visible and movable
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_MODEL [0C59]*/
-    GetTextdrawModel(id: int): {
-        model: int;
-        rotPitch: float;
-        rotRoll: float;
-        rotYaw: float;
-        camZoomRange: float;
-        primaryColor: int;
-        secondaryColor: int;
-    } | undefined;
-    /** Returns the tickness and color property of the text draw's outline
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_CURSOR_ACTIVE [0B8C]*/
+    IsCursorActive(): boolean;
+    /** Evaluates as logical true if the specified dialog with id is currently visible
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_OUTLINE [0C58]*/
-    GetTextdrawOutline(id: int): {
-        tickness: int;
-        color: int;
-    } | undefined;
-    /** Returns true if the text scaling status is proportional to the text draw
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_DIALOG_ACTIVE [0B4C]*/
+    IsDialogActive(id: int): boolean;
+    /** Evaluates as logical true if the active dialog is has a client side attribute
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_PROPORTIONALITY [0C55]*/
-    GetTextdrawProportionality(id: int): boolean | undefined;
-    /** Returns the tickness and color property of the text draw's shadow
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_ACTIVE_DIALOG_CLIENTSIDE [0BDA]*/
+    IsDialogClientSide(): boolean;
+    /** Evaluates as logical true if the scoreboard is visible
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_SHADOW [0C57]*/
-    GetTextdrawShadow(id: int): {
-        tickness: int;
-        color: int;
-    } | undefined;
-    /** Returns the text draw style
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_SCOREBOARD_VISIBLE [0BD5]*/
+    IsScoreboardVisible(): boolean;
+    /** Returns the maximum player ID currently streamed if streamedOnly = true. Else, returns the maximum player ID allowed in the server
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_STYLE [0C56]*/
-    GetTextdrawStyle(id: int): int | undefined;
-    /** Modifies a textdraw with the specified parameters, creating it if it doesn't exist
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_MAX_PLAYER_ID [0C8A]*/
+    MaxPlayerId(streamedOnly: boolean): int | undefined;
+    /** Reads the value with size from samp.dll+offset memory
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_MODIFY_TEXTDRAW [0C48]*/
-    ModifyTextDraw(id: int, text: string, coordX: float, coordY: float): boolean;
-    /** Checks if the specified player is an NPC
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_PLAYER_NPC [0B64]*/
-    Npc(id: int): boolean;
-    /** Evaluates as logical true if the specified player is in paused state (or AFK)
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_PLAYER_PAUSED [0B5C]*/
-    PlayerPaused(playerId: int): boolean;
-    /** Returns true if REMOTE Player with the given ID is connected
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_REMOTE_PLAYER_CONNECTED [0B23]*/
-    RemotePlayerConnected(id: int): boolean;
+    * https://library.sannybuilder.com/#/sa?q=SAMP_READ_SAMP_MEMORY_WITH_OFFSET [0B2E]*/
+    ReadSampMemoryWithOffset(offset: int, size: int): int;
     /** Selects the id of an element in the dialog list
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SELECT_ACTIVE_DIALOG_LIST_ITEM [0B49]*/
@@ -6973,31 +6492,43 @@ interface Samp {
     /** Sends SampPacket.AimSync to the server
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_AIM_DATA [0BC3]*/
-    SendAimData(stAimData: int): void;
+    SendPktAimData(stAimData: int): void;
     /** Sends SampPacket.BulletSync to the server
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_BULLET_DATA [0BC4]*/
-    SendBulletData(stBulletData: int): void;
-    /** Sends SampRpc.Chat containing the message or command to the server
+    SendPktBulletData(stBulletData: int): void;
+    /** Sends SampPacket.DrivingSync to the server
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_CHAT_MESSAGE [0AF9]*/
-    SendChatMsg(format: string, ...args: number[]): void;
-    /** Sends SampPacket.DriverSync to the server
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_INCAR_DATA [0BC1]*/
-    SendInCarData(stInCarData: int): void;
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_DRIVING_DATA [0BC1]*/
+    SendPktDrivingData(stInCarData: int): void;
     /** Sends SampPacket.OnFootSync to the server
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_ONFOOT_DATA [0BC0]*/
-    SendOnFootData(stOnFootData: int): void;
+    SendPktOnFootData(stOnFootData: int): void;
     /** Sends SampPacket.PassengerSync to the server
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_PASSENGER_DATA [0BC2]*/
-    SendPassengerData(stPassengerData: int): void;
+    SendPktPassengerData(stPassengerData: int): void;
+    /** Sends SampPacket.SpectatorSync to the server
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_SPECTATOR_DATA [0BC7]*/
+    SendPktSpectatorData(stSpectatorData: int): void;
+    /** Sends SampPacket.TrailerSync to the server
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_TRAILER_DATA [0BC5]*/
+    SendPktTrailerData(stTrailerData: int): void;
+    /** Sends SampPacket.UnoccupiedCarSync to the server
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_UNOCCUPIEDCAR_DATA [0BC6]*/
+    SendPktUnoccupiedCarData(stUnoccupiedData: int): void;
     /** Sends SampRpc.CarDestroyed about destruction of a specific car (exploded or drenched in water)
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_CAR_DESTROYED [0BD4]*/
     SendRpcCarDestroyed(id: int): void;
+    /** Sends SampRpc.Chat containing the message or command to the server
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_CHAT_MESSAGE [0AF9]*/
+    SendRpcChat(format: string, ...args: number[]): void;
     /** Sends SampRpc.ClickPlayer about double click on player (from Scoreboard for example)
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_CLICK_PLAYER [0BC8]*/
@@ -7042,6 +6573,10 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_GIVE_DAMAGE [0BCB]*/
     SendRpcGiveDamage(playerId: int, floatDamage: int, weapon: int, bodyPart: int): void;
+    /** Sends SampRpc.MenuSelect about selecting an item in a menu (GTA:SA menu)
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_MENU_SELECT_ROW [0BD2]*/
+    SendRpcMenuSelectRow(elementId: int): void;
     /** Sends SampRpc.PickedUpPickup to take a pickup
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_PICKED_UP_PICKUP [0BD1]*/
@@ -7078,34 +6613,6 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_TAKE_DAMAGE [0BCC]*/
     SendRpcTakeDamage(playerId: int, floatDamage: int, weapon: int, bodyPart: int): void;
-    /** Sends SampPacket.SpectatorSync to the server
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_SPECTATOR_DATA [0BC7]*/
-    SendSpectatorData(stSpectatorData: int): void;
-    /** Sends SampPacket.TrailerSync to the server
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_TRAILER_DATA [0BC5]*/
-    SendTrailerData(stTrailerData: int): void;
-    /** Sends SampPacket.UnoccupiedCarSync to the server
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SEND_UNOCCUPIEDCAR_DATA [0BC6]*/
-    SendUnoccupiedCarData(stUnoccupiedData: int): void;
-    /** Sets the chat display mode
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_CHAT_DISPLAY_MODE [0BDD]*/
-    SetChatDisplayMode(mode: int): void;
-    /** Overwrites the content written at the chat input box
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_CHAT_INPUT_TEXT [0B76]*/
-    SetChatInputText(text: string): void;
-    /** Sets the visibility status (open/closed) of the chat input box
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_CHAT_INPUT_VISIBILITY [0B79]*/
-    SetChatInputVisibility(isVisible: boolean): void;
-    /** Changes the chat line's text into a custom one
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_CHAT_LINE [0B74]*/
-    SetChatLine(chatLinIid: int, body: string, prefix: string, bodyColor: int, prefixColor: int): boolean;
     /** Sets the cursor mode
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SET_CURSOR_MODE [0B8D]*/
@@ -7114,7 +6621,7 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SET_CURSOR_VISIBILITY [0B5D]*/
     SetCursorVisibility(isVisible: boolean): void;
-    /** Sets the text of the edit field of the dialog box
+    /** Sets the text of the edit field of the active dialog's box
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SET_ACTIVE_DIALOG_EDITBOX_TEXT [0B4B]*/
     SetDialogEditboxText(text: string): boolean;
@@ -7126,10 +6633,10 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SET_GAMESTATE [0B27]*/
     SetGameState(id: int): void;
-    /** Changes our Local Nickname
+    /** Sets the visibility of the scoreboard
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_LOCAL_NICKNAME [0B29]*/
-    SetMyName(nickname: string): void;
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_SCOREBOARD_VISIBILITY [0BD6]*/
+    SetScoreboardVisibility(isVisible: boolean): void;
     /** Sets the periodic delay (in milliseconds) of sending specific data type to Server
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SET_SEND_RATE [0B22]*/
@@ -7138,76 +6645,515 @@ interface Samp {
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SET_SPECIAL_ACTION [0AFD]*/
     SetSpecialAction(id: int): void;
-    /** Sets the alignment of the text in the textdraw
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_ALIGNMENT [0C4A]*/
-    SetTextDrawAlignment(id: int, alignment: int): boolean;
-    /** Sets the parameters of the "box" (rectangle) of the text draw
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_BOX [0C49]*/
-    SetTextDrawBox(textDrawId: int, isVisible: boolean, color: int, width: float, height: float): boolean;
-    /** Sets the size and color property of all characters in the textdraw
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_CHARACTER_PROPERTIES [0C52]*/
-    SetTextDrawCharacterProperties(id: int, width: float, height: float, color: int): boolean;
-    /** Sets the gamescreen coordinates of the textdraw
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_COORDS [0C51]*/
-    SetTextDrawCoords(id: int, coordX: float, coordY: float): boolean;
-    /** Sets the outline of the text draw
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_OUTLINE [0C4E]*/
-    SetTextDrawOutline(id: int, tickness: int, color: int): boolean;
-    /** Sets wether the text scaling status is proportional to the text draw or not
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_PROPORTIONALITY [0C4B]*/
-    SetTextDrawProportionality(id: int, isProportional: boolean): boolean;
-    /** Sets a shadow on the text draw
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_SHADOW [0C4D]*/
-    SetTextDrawShadow(id: int, tickness: int, color: int): boolean;
-    /** Sets the text draw style
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_STYLE [0C4C]*/
-    SetTextDrawStyle(id: int, style: int): boolean;
-    /** Sets the text of the textdraw
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_TEXT [0C50]*/
-    SetTextDrawText(id: int, text: string): boolean;
     /** Shows an artificial SAMP dialog with specified parameter attributes
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_SHOW_DIALOG [0B3B]*/
     ShowDialog(id: int, title: string, content: string, leftOrMiddleButtonName: string, rightButtonName: string, style: int): void;
-    /** Writes the specified player's aimData structure to the buffer
+    /** Writes the value with size to samp.dll+offset memory
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_WRITE_SAMP_MEMORY_WITH_OFFSET [0B2D]*/
+    WriteSampMemoryWithOffset(offset: int, value: int, size: int): void;
+}
+declare var Samp: Samp
+/** Class SampBitstream
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SampBitstream */
+interface SampBitstream {
+    /** Creates a new raknet bitstream object
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_CREATE_BITSTREAM [0B3D]*/
+    Create(): SampBitstream;
+    /** Decrypts a compressed string (CString) from the bitstream then stores this to the buffer
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_DECODE_COMPRESSED_STRING [0BF4]*/
+    decodeCString(buffer: int, buffersize: int): boolean;
+    /** Remove's the specified bitstream object, freeing it from memory
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_DELETE_BITSTREAM [0B3E]*/
+    delete(): boolean;
+    /** Emulates the BitStream's data like an Incoming Packet
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_EMULATE_AS_INCOMING_PACKET [0BF7]*/
+    emulateAsPacketIn(id: int): boolean;
+    /** Emulates the BitStream's data like an incoming RPC
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_EMULATE_AS_INCOMING_RPC [0BF6]*/
+    emulateAsRpcIn(id: int): boolean;
+    /** Encrypts a string stored in the buffer then stores this compressed string (CString) to the bitstream
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_ENCODE_STRING [0BF5]*/
+    encodeString(buffer: int, bufferSize: int): boolean;
+    /** Returns the number of used bits in the BitStream
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_NUMBER_OF_BITS_USED [0BEE]*/
+    getBitsUsed(): int;
+    /** Returns the number of bytes used in the BitStream
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_NUMBER_OF_BYTES_USED [0BEF]*/
+    getBytesUsed(): int | undefined;
+    /** Returns a pointer to the BitStream's data
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_DATA_POINTER [0BF3]*/
+    getDataPtr(): int | undefined;
+    /** Returns the current read offset of the BitStream
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_READ_OFFSET [0BF2]*/
+    getReadOffset(): int | undefined;
+    /** Returns the number of unread bits in the BitStream
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_NUMBER_OF_UNREAD_BITS [0BF0]*/
+    getUnreadBits(): int | undefined;
+    /** Returns the current write offset of the BitStream
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_GET_WRITE_OFFSET [0BF1]*/
+    getWriteOffset(): int | undefined;
+    /** Reads a value with datatype and datasize at the "read pointer" of the specified bitstream , then advances its "read pointer" by the same size
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_READ [0BE7]*/
+    read(dataType: int): int | undefined;
+    /** Stores an array of bytes from the Bitstream to buffer
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_READ_ARRAY [0BE8]*/
+    readArray(buffer: int, size: int): boolean;
+    /** Resets all parameters/clears BitStream
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_RESET_BITSTREAM [0B3F]*/
+    reset(): boolean;
+    /** Resets the read pointer of the BitStream. Setting "write offset = 0"
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_RESET_READ_POINTER [0BE9]*/
+    resetReadPtr(): boolean;
+    /** Resets (THIS COMMAND IS BUGGED, SETS THE WRITE POINTER AT THE BEGINNING OF THE DATA ( WRITE OFFSET = 0) WHICH IS WRONG. DO NOT USE) the value write pointer in the BitStream
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_RESET_WRITE_POINTER [0BEA]*/
+    resetWritePtr(): boolean;
+    /** Sends Packet BitStream to Server
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_SEND_PACKET [0B8B]*/
+    sendAsPacket(): boolean;
+    /** Sends a Packet BitStream with the specified parameters. Commonly used to send dacket data to server
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_SEND_PACKET_WITH_PARAMS [0B42]*/
+    sendAsPacketWithParams(priority: int, reliability: int, orderingChannel: int): boolean;
+    /** Sends BitStream as RPC to Server
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_SEND_RPC [0B8A]*/
+    sendAsRpc(rpcId: int): boolean;
+    /** Sends a BitStream as an RPC with the specified parameters
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_SEND_RPC_WITH_PARAMS [0B41]*/
+    sendAsRpcWithParams(rpc: int, priority: int, reliability: int, orderingChannel: int, shiftTimeStamp: int): boolean;
+    /** Sets the read offset of the BitStream
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_SET_READ_OFFSET [0BED]*/
+    setReadPtr(offset: int): boolean;
+    /** Sets the write offset of the BitStream
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_SET_WRITE_OFFSET [0BEC]*/
+    setWriteOffset(offset: int): boolean;
+    /** Increases both its "read pointer" and "write pointer" of the Bitstream by the specified bit count
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_SKIP_BITS [0BEB]*/
+    skipBits(bitCount: int): boolean;
+    /** Writes a specified value with datatype and datasize at the "write pointer" of the specified bitstream, then advances its "write pointer" by the same size
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_BITSTREAM_WRITE [0B40]*/
+    write(value: int, dataType: int, dataSize: int): boolean;
+}
+declare var SampBitstream: SampBitstream
+/** Class SampChat
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SampChat */
+interface SampChat {
+    /** Adds one line of colored message to the chat
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_ADD_MESSAGE_TO_CHAT [0AF8]*/
+    AddMsg(format: string, color: int, ...args: number[]): void;
+    /** Returns the current chat display mode
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_CHAT_DISPLAY_MODE [0BDC]*/
+    GetDisplayMode(): int;
+    /** Returns the chat line's text parameters
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_CHAT_LINE [0B75]*/
+    GetLine(index: int): {
+        bodyBuffer: string;
+        prefixBuffer: string;
+        bodyColor: int;
+        prefixColor: int;
+    } | undefined;
+    /** Evaluates as logical true if chat lines are visible
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_CHAT_VISIBLE [0BDB]*/
+    IsVisible(): boolean;
+    /** Sets the chat display mode
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_CHAT_DISPLAY_MODE [0BDD]*/
+    SetDisplayMode(mode: int): void;
+    /** Changes the chat line's text into a custom one
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_CHAT_LINE [0B74]*/
+    SetLine(chatLineid: int, body: string, prefix: string, bodyColor: int, prefixColor: int): boolean;
+}
+declare var SampChat: SampChat
+/** Class SampChatInput
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SampChatInput */
+interface SampChatInput {
+    /** Returns the current text in the chat input box
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_CHAT_INPUT_TEXT [0B77]*/
+    GetText(): string | undefined;
+    /** Checks if the chat box input is open/visible
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_CHAT_INPUT_VISIBLE [0B21]*/
+    IsVisible(): boolean;
+    /** Processes a message by SAMPFUNCS callbacks, then sent to server as SampRpc.Chat
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_PROCESS_CHAT_INPUT [0C8F]*/
+    Process(text: string): void;
+    /** Overwrites the content written at the chat input box
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_CHAT_INPUT_TEXT [0B76]*/
+    SetText(text: string): void;
+    /** Sets the visibility status (open/closed) of the chat input box
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_CHAT_INPUT_VISIBILITY [0B79]*/
+    SetVisibility(isVisible: boolean): void;
+}
+declare var SampChatInput: SampChatInput
+/** Class SampLocalChatCmd
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SampLocalChatCmd */
+interface SampLocalChatCmd {
+    /** Registers a callback hooked from a client sided chat command
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_HOOK_CHAT_COMMAND_AS_LOCAL [0B34]*/
+    Hook(chatCommand: string, callback: int): boolean;
+    /** Evaluates as logical true if the specified command is localized by a callback hook
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_CHAT_COMMAND_HOOKED [0C90]*/
+    IsHooked(chatCommand: string): boolean;
+    /** Sets the description for the local command
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_LOCAL_CHAT_COMMAND_DESCRIPTION [0C7F]*/
+    SetDescription(chatCommand: string, decription: string): void;
+    /** Removes all callbacks hooked from a client sided chat command created by SAMP_REGISTER_CLIENTSIDE_COMMAND, suppressing all its callback's operation 
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_UNHOOK_LOCAL_CHAT_COMMAND [0B63]*/
+    Unhook(chatCommand: string): boolean;
+}
+declare var SampLocalChatCmd: SampLocalChatCmd
+/** Class SampMyPlayer
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SampMyPlayer */
+interface SampMyPlayer {
+    /** Sends SampRpc.Spawn to SAMP Server. Teleports our character to spawn as well
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_FORCE_SPAWN_MY_PLAYER [0AF6]*/
+    ForceSpawn(): void;
+    /** Evaluates as logical true if our player has been spawned already
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_MY_PLAYER_SPAWNED [0B61]*/
+    IsSpawned(): boolean;
+    /** Changes our nickname (visually)
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_MY_NICKNAME [0B29]*/
+    SetNickname(nickname: string): void;
+}
+declare var SampMyPlayer: SampMyPlayer
+/** Class SampPlayer
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SampPlayer */
+interface SampPlayer {
+    /** Returns the SAMP ID of the animation currently being played by the specified player
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_ANIMATION [0B57]*/
+    getAnim(): int | undefined;
+    /** Gets the amount of armor the specified player has
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_ARMOR [0B26]*/
+    getArmor(): int;
+    /** Returns the character handle using the Player ID. Returns -1 if the player is not in the stream zone
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_CHAR_BY_ID [0B20]*/
+    getChar(): Char;
+    /** Returns the color of the specified player in 0xAARRGGBB format
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_COLOR [0B37]*/
+    getColor(): int;
+    /** Gets the amount of health the specified player has
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_HEALTH [0B25]*/
+    getHealth(): int;
+    /** Returns a pointer to the nickname of the specified player
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_NICKNAME [0B36]*/
+    getName(): int;
+    /** Returns the ping of the specified player with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_PING [0B2A]*/
+    getPing(): int;
+    /** Returns the player's samp structure. Returns 0 (NULL Pointer) if player isn't connected
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_POINTER [0B24]*/
+    getPtr(): int;
+    /** Returns the current score of the specified player
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_SCORE [0B65]*/
+    getScore(): int | undefined;
+    /** Returns the special action ID of the specified player
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_PLAYER_SPECIAL_ACTION [0B62]*/
+    getSpecialAction(): int | undefined;
+    /** Returns the 3D Coordinates of a player who is outside the stream zone, if the server allows it
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_STREAMED_OUT_PLAYER_COORDS [0B2F]*/
+    getStreamedOutCoords(): {
+        x: float;
+        y: float;
+        z: float;
+    };
+    /** Checks if the specified player is an NPC
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_PLAYER_NPC [0B64]*/
+    isNpc(): boolean;
+    /** Evaluates as logical true if the specified player is in paused state (or AFK)
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_PLAYER_PAUSED [0B5C]*/
+    isPaused(): boolean;
+    /** Returns true if REMOTE Player with the given ID is connected
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_REMOTE_PLAYER_CONNECTED [0B23]*/
+    isRemotelyConnected(): boolean;
+    /** Stores the specified player's aimData structure to the buffer
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_STORE_PLAYER_AIM_DATA [0BBE]*/
-    StoreAimData(id: int): int | undefined;
-    /** Writes the current player's inCarData structure to the buffer
+    storeAimData(): int | undefined;
+    /** Stores the player's current inCarData structure to the buffer
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_STORE_PLAYER_INCAR_DATA [0BBB]*/
-    StoreInCarData(id: int): int | undefined;
-    /** Writes the current player's onFootData structure to the buffer
+    * https://library.sannybuilder.com/#/sa?q=SAMP_STORE_PLAYER_DRIVING_DATA [0BBB]*/
+    storeDrivingData(): int | undefined;
+    /** Stores the current player's onFootData structure to the buffer
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_STORE_PLAYER_ONFOOT_DATA [0BBA]*/
-    StoreOnFootData(id: int): int | undefined;
-    /** Writes the current passengerData structure of the player to the buffer
+    storeOnFootData(): int | undefined;
+    /** Stores the current passengerData structure of the player to the buffer
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_STORE_PLAYER_PASSENGER_DATA [0BBC]*/
-    StorePassengerData(id: int): int | undefined;
-    /** Stores the textdraw's text to stringBuffer
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_STORE_TEXTDRAW_TEXT [0C5A]*/
-    StoreTextdrawText(id: int): string | undefined;
-    /** Writes the player's current trailerData structure to the buffer
+    storePassengerData(): int | undefined;
+    /** Stores the player's current trailerData structure to the buffer
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_STORE_PLAYER_TRAILER_DATA [0BBD]*/
-    StoreTrailerData(id: int): int | undefined;
+    storeTrailerData(): int | undefined;
+}
+declare var SampPlayer: SampPlayer
+/** Class SampRaknet
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SampRaknet */
+interface SampRaknet {
+    /** Returns the hook parameter's value of the currently executing callback
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_GET_PARAM [0BE5]*/
+    GetHookParam(type: int): int | undefined;
+    /** Returns a pointer to the Packet ID's Name
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_GET_PACKET_NAME [0BF9]*/
+    GetPacketName(id: int): int | undefined;
+    /** Returns a pointer to the RPC ID's Name
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_GET_RPC_NAME [0BF8]*/
+    GetRpcName(id: int): string | undefined;
+    /** Redirects all incoming packets to the specified callback for subsequent processing before acceptance on the local client
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_INCOMING_PACKET [0BE4]*/
+    HookPacketIn(callback: int): boolean;
+    /** Redirects all outgoing Packets to the specified callback for subsequent processing before sending to the server
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_OUTCOMING_PACKET [0BE2]*/
+    HookPacketOut(callback: int): boolean;
+    /** Redirects all incoming RPCs to the specified callback for subsequent processing before acceptance on the local client
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_INCOMING_RPC [0BE3]*/
+    HookRpcIn(callback: int): boolean;
+    /** Redirects all outgoing RPCs to the specified callback for subsequent processing before sending to the server
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_OUTCOMING_RPC [0BE1]*/
+    HookRpcOut(callback: int): boolean;
+    /** Returns the flow of control to RakNet and decides whether the currently intercepted data will be processed by RakNet or not
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_HOOK_RETURN [0BE0]*/
+    Return(processData: boolean): void;
+    /** Sets the hook parameter's value of the currently executing callback
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_RAKNET_SET_HOOK_PARAM [0BE6]*/
+    SetHookParam(type: int, value: int): boolean;
+}
+declare var SampRaknet: SampRaknet
+/** Class SampTextDraw
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SampTextDraw */
+interface SampTextDraw {
+    /** Modifies a textdraw with the specified parameters, creating it if it doesn't exist
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_CREATE_TEXTDRAW [0C48]*/
+    Create(id: SampTextDraw, text: string, coordX: float, coordY: float): boolean;
+    /** Deletes the specified textdraw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_DELETE_TEXTDRAW [0C5E]*/
+    delete(): boolean;
     /** Evaluates as logical true if the specified textdraw exists
     *
     * https://library.sannybuilder.com/#/sa?q=SAMP_DOES_TEXTDRAW_EXIST [0C5D]*/
-    TextDrawExist(id: int): boolean;
+    doesExist(): boolean;
+    /** Sets the alignment of the text in the textdraw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_ALIGNMENT [0C54]*/
+    getAlignment(): int | undefined;
+    /** Returns the parameters of the "box" (rectangle) of the specified text draw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_BOX [0C53]*/
+    getBox(): {
+        isVisible: boolean;
+        color: int;
+        width: float;
+        height: float;
+    } | undefined;
+    /** Returns the size and color property of all characters in the textdraw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_CHARACTER_PROPERTIES [0C5C]*/
+    getCharProps(): {
+        width: float;
+        height: float;
+        color: int;
+    } | undefined;
+    /** Returns the gamescreen coordinates of the textdraw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_COORDS [0C5B]*/
+    getCoords(): {
+        coordX: float;
+        coordY: float;
+    } | undefined;
+    /** Returns the properties of the text draw as a model (style 5)
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_MODEL [0C59]*/
+    getModel(): {
+        model: int;
+        rotPitch: float;
+        rotRoll: float;
+        rotYaw: float;
+        camZoomRange: float;
+        primaryColor: int;
+        secondaryColor: int;
+    } | undefined;
+    /** Returns the tickness and color property of the text draw's outline
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_OUTLINE [0C58]*/
+    getOutline(): {
+        tickness: int;
+        color: int;
+    } | undefined;
+    /** Returns true if the text scaling status is proportional to the text draw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_PROPORTIONALITY [0C55]*/
+    getProportionality(): boolean | undefined;
+    /** Returns the tickness and color property of the text draw's shadow
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_SHADOW [0C57]*/
+    getShadow(): {
+        tickness: int;
+        color: int;
+    } | undefined;
+    /** Returns the text draw style
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_TEXTDRAW_STYLE [0C56]*/
+    getStyle(): int | undefined;
+    /** Sets the alignment of the text in the textdraw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_ALIGNMENT [0C4A]*/
+    setAlignment(alignment: int): boolean;
+    /** Sets the parameters of the "box" (rectangle) of the text draw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_BOX [0C49]*/
+    setBox(isVisible: boolean, color: int, width: float, height: float): boolean;
+    /** Sets the size and color property of all characters in the textdraw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_CHARACTER_PROPERTIES [0C52]*/
+    setCharProps(width: float, height: float, color: int): boolean;
+    /** Sets the gamescreen coordinates of the textdraw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_COORDS [0C51]*/
+    setCoords(coordX: float, coordY: float): boolean;
+    /** Sets the model (object, auto) of the text draw for style 5
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_MODEL [0C4F]*/
+    setModel(model: int, rotPitch: float, rotRoll: float, rotYaw: float, camZoomRange: float, primaryColor: int, secondaryColor: int): boolean;
+    /** Sets the outline of the text draw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_OUTLINE [0C4E]*/
+    setOutline(tickness: int, color: int): boolean;
+    /** Sets whether the text scaling status is proportional to the text draw or not
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_PROPORTIONALITY [0C4B]*/
+    setProportionality(isProportional: boolean): boolean;
+    /** Sets a shadow on the text draw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_SHADOW [0C4D]*/
+    setShadow(tickness: int, color: int): boolean;
+    /** Sets the text draw style
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_STYLE [0C4C]*/
+    setStyle(style: int): boolean;
+    /** Sets the text of the textdraw
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_TEXT [0C50]*/
+    setText(text: string): boolean;
+    /** Stores the textdraw's text to stringBuffer
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_STORE_TEXTDRAW_TEXT [0C5A]*/
+    storeText(): string | undefined;
 }
-declare var Samp: Samp
+declare var SampTextDraw: SampTextDraw
+/** Class SampTextLabel3D
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SampTextLabel3D */
+interface SampTextLabel3D {
+    /** Creates an artificial SAMP 3D text with the specified parameter attributes
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_CREATE_3D_TEXT [0B44]*/
+    Create(text: string, color: int, coordX: float, coordY: float, coordZ: float, visibilityRadius: float, showBehindWalls: boolean, attachedPlayerId: int, attachedCarId: int): SampTextLabel3D | undefined;
+    /** Creates/overwrites a 3D text with the specified ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_CREATE_3D_TEXT_WITH_ID [0C45]*/
+    CreateWithId(idAsHandle: SampTextLabel3D, text: int, color: int, coordX: float, coordY: float, coordZ: float, visibilityRadius: float, showBehindWalls: boolean, attachedPlayerId: int, attachedCarId: int): void;
+    /** Destroys a 3D text using it's ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_DELETE_3D_TEXT [0B45]*/
+    delete(): boolean;
+    /** Returns logical true if the specified 3D text exists
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_DOES_3D_TEXT_EXIST [0B46]*/
+    doesExist(): boolean;
+    /** Returns all the informations about a SampTextLabel3D using its ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_3D_TEXT_PARAMS [0C46]*/
+    getParams(): {
+        text: string;
+        color: int;
+        coordX: float;
+        coordY: float;
+        coordZ: float;
+        visibilityRadius: float;
+        showBehindWalls: boolean;
+        attachedPlayerId: int;
+        attachedCarId: int;
+    } | undefined;
+    /** Sets new text for 3D text
+    *
+    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_3D_TEXT [0C47]*/
+    setText(text: string): boolean;
+}
+declare var SampTextLabel3D: SampTextLabel3D
 /** 
  * 
  * https://library.sannybuilder.com/#/sa/classes/ScriptFire */
@@ -7740,6 +7686,10 @@ interface Sf {
     *
     * https://library.sannybuilder.com/#/sa?q=SF_ABS [0C00]*/
     Abs(number: int): int;
+    /** Converts an ANSI string to Unicode string then stores it to ansiStringBuffer
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_ANSI_TO_UNICODE [0C69]*/
+    AnsiToUnicode(ansiString: string, unicodeStringBuffer: int, buffersize: int): boolean;
     /** mixes color channels into 0xAARRGGBB colorcode format
     *
     * https://library.sannybuilder.com/#/sa?q=SF_ARGB_TO_HEX [0B67]*/
@@ -7752,14 +7702,19 @@ interface Sf {
     *
     * https://library.sannybuilder.com/#/sa?q=SF_ATOI [0C1A]*/
     AtoI(ascii: string): int;
+    /** Converts the basis vectors of a rotation matrix into quaternion values
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_AXES_TO_QUAT [0C32]*/
+    AxesToQuat(pitchVectorX: float, pitchVectorY: float, pitchVectorZ: float, rollVectorX: float, rollVectorY: float, rollVectorZ: float, yawVectorX: float, yawVectorY: float, yawVectorZ: float): {
+        quaternionW: float;
+        quaternionX: float;
+        quaternionY: float;
+        quaternionZ: float;
+    };
     /** Converts binary text to hexadecimal text and stores at stringBuffer. Can be used as a condition which evaluates as logical false if the bufferSize is not enough to contain the converted hexadecimal text
     *
     * https://library.sannybuilder.com/#/sa?q=SF_BIN_TO_HEX [0C22]*/
     BintoHex(binaryString: string, stringBuffer: string, bufferSize: int): boolean;
-    /** Calls a registered custom global function with name
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_CALL_CUSTOM_GLOBAL_FUNCTION [0C35]*/
-    CallGFunc(name: string, numParam: int, ...params: number[]): boolean;
     /** Returns the rounded-up result the specified number
     *
     * https://library.sannybuilder.com/#/sa?q=SF_CEIL [0C0A]*/
@@ -7772,54 +7727,14 @@ interface Sf {
     *
     * https://library.sannybuilder.com/#/sa?q=SF_WRITE_TEXT_TO_CLIPBOARD [0C8D]*/
     ClipboardWriteText(text: string): void;
-    /** Marks the end of a console command's callback or a chat command's callback. Used as its returning statement
+    /** Marks the end of a command callback. Used as its returning statement
     *
     * https://library.sannybuilder.com/#/sa?q=SF_COMMAND_RETURN [0B43]*/
     CmdRet(): void;
-    /** Executes the specified command in the SAMPFUNCS console
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_EXECUTE_CONSOLE_COMMAND [0C62]*/
-    ConsoleExecCmd(command: string): void;
-    /** Returns logical true if the specified console command is registered
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_IS_CONSOLE_COMMAND_REGISTERED [0C91]*/
-    ConsoleHasCmd(command: string): boolean;
-    /** Evaluates as logical true if the SAMPFUNCS console is open
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_IS_CONSOLE_OPEN [0C7E]*/
-    ConsoleIsOpen(): boolean;
-    /** Adds a line to the SAMPFUNCS console and logs it
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_LOG_TO_CONSOLE [0B78]*/
-    ConsoleLog(format: string, ...args: number[]): void;
-    /** Registers a callback hooked on a SAMPFUNCS console command with maximum length of 64 characters
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_REGISTER_CONSOLE_COMMAND [0C63]*/
-    ConsoleRegCmd(command: string, callback: int): boolean;
-    /** Removes the specified SAMPFUNCS console command. This command does nothing if the the specified command isn't a registered in the SAMPFUNCS console then evaluates as logical false if used as a condition
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_UNREGISTER_CONSOLE_COMMAND [0C64]*/
-    ConsoleUnregCmd(command: string): boolean;
     /** Returns the cosine of the specified radians
     *
     * https://library.sannybuilder.com/#/sa?q=SF_COS [0C05]*/
     Cos(radians: float): float;
-    /** Draws a rectangular area with border at the specified coordinates
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_BORDERED_BOX [0B6A]*/
-    D3DDrawBorderedBox(coordX: int, coordY: int, width: int, height: int, color: int, borderSize: int, borderColor: int): void;
-    /** Draws a rectangular area at the specified coordinates
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_BORDERLESS_BOX [0B69]*/
-    D3DDrawBorderlessBox(coordX: int, coordY: int, width: int, height: int, color: int): void;
-    /** Draws a line between two window screen coordinates
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_LINE [0B68]*/
-    D3DDrawLine(fromCoordX: int, fromCoordY: int, toCoordX: int, toCoordY: int, tickness: int, color: int): void;
-    /** Draws a polygon with the specified parameters
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_POLYGON [0B70]*/
-    D3DDrawPolygon(coordX: int, coordY: int, width: int, height: int, cornerCount: int, heading: float, color: int): void;
     /** Converts degrees to radians
     *
     * https://library.sannybuilder.com/#/sa?q=SF_DEGREES_TO_RADIANS [0C02]*/
@@ -7828,10 +7743,10 @@ interface Sf {
     *
     * https://library.sannybuilder.com/#/sa?q=SF_FLOOR [0C0B]*/
     Floor(number: float): float;
-    /** Converts the screen coordinate system to the game 3D coordinate system with the specified depth
+    /** Converts window screen coordinates (pixels) to world's 3D coordinates with the specified depth
     *
     * https://library.sannybuilder.com/#/sa?q=SF_WINDOW_SCREEN_COORDS_TO_WORLD_COORDS [0B8F]*/
-    From2Dto3D(screenCoordX: int, screenCoordY: int, depth: float): {
+    From2DTo3DCoords(screenCoordX: int, screenCoordY: int, depth: float): {
         worldCoordX: float;
         worldCoordY: float;
         worldCoordZ: float;
@@ -7839,58 +7754,28 @@ interface Sf {
     /** Converts 3D coordinates from the world into window screen coordinates (pixels)
     *
     * https://library.sannybuilder.com/#/sa?q=SF_WORLD_COORDS_TO_WINDOW_SCREEN_COORDS [0B55]*/
-    From3DTo2D(worldCoordX: float, worldCoordY: float, worldCoordZ: float): {
+    From3DTo2DCoords(worldCoordX: float, worldCoordY: float, worldCoordZ: float): {
         screenCoordX: int;
         screenCoordY: int;
     } | undefined;
     /** Returns the WindowScreen Coordinates counterpart of the specified GameScreen Coordinates
     *
     * https://library.sannybuilder.com/#/sa?q=SF_GAME_SCREEN_COORDS_TO_WINDOW_SCREEN_COORDS [0B60]*/
-    FromGameToWinScreen(gameScreenCoordX: float, gameScreenCoordY: float): {
+    FromGameToWindowScreenCoords(gameScreenCoordX: float, gameScreenCoordY: float): {
         windowScreenCoordX: int;
         windowScreenCoordY: int;
     };
     /** Returns the GameScreen Coordinates counterpart of the specified WindowScreen Coordinates
     *
     * https://library.sannybuilder.com/#/sa?q=SF_WINDOW_SCREEN_COORDS_TO_GAME_SCREEN_COORDS [0B5F]*/
-    FromWinToGameScreen(windowScreenCoordX: int, windowScreenCoordY: int): {
+    FromWindowToGameScreenCoords(windowScreenCoordX: int, windowScreenCoordY: int): {
         gameScreenCoordX: float;
         gameScreenCoordY: float;
     };
-    /** Returns the origin informations of a custom global function with name
+    /** Returns the installed version of CLEO
     *
-    * https://library.sannybuilder.com/#/sa?q=SF_CUSTOM_GLOBAL_FUNCTION_GET_ORIGIN [0C38]*/
-    GFuncGetOrigin(name: string): {
-        hostThreadAddress: int;
-        functionAddress: int;
-    } | undefined;
-    /** Evaluates as logical true if the specified name is registered a custom global function
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_IS_CUSTOM_GLOBAL_FUNCTION_REGISTERED [0C37]*/
-    GFuncRegistered(name: string): boolean;
-    /** Returns the flow of the execution to the next instruction after the custom global function call, optionally returning one or more parameters as result
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_CUSTOM_GLOBAL_FUNCTION_RETURN [0C36]*/
-    GFuncRet(numRet: int, ...retParams: number[]): boolean;
-    /** Removes the currently registered custom global function. Allowing its name to be re-registered by SF_REGISTER_CUSTOM_GLOBAL_FUNCTION command
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_UNREGISTER_CUSTOM_GLOBAL_FUNCTION [0C39]*/
-    GFuncUnreg(name: string): void;
-    /** Evaluates as logical true if a custom global variable with specified name existed
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_IS_CUSTOM_GLOBAL_VARIABLE_DEFINED [0C5F]*/
-    GVarDefined(name: string): boolean;
-    /** Returns the specified script thread's read/write permissions to the specified custom global variable
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_GVAR_GET_THREAD_SCOPE [0C61]*/
-    GVarGetThreadScope(gVarName: int, threadPtr: int): {
-        canRead: boolean;
-        canWrite: boolean;
-    } | undefined;
-    /** Sets wether the specified script thread can read or write to the specified custom global variable
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_GVAR_SET_THREAD_SCOPE [0C60]*/
-    GVarSetThreadScope(gVarName: string, threadPtr: int, canRead: boolean, canWrite: boolean): boolean;
+    * https://library.sannybuilder.com/#/sa?q=SF_GET_CLEO_LIBRARY_VERSION [0C92]*/
+    GetCleoLibVer(): int;
     /** Returns a pointer to a string containing the parameters of the last command entered at console or SAMP Chat
     *
     * https://library.sannybuilder.com/#/sa?q=SF_GET_PARAMS_OF_LAST_TRIGGERED_COMMAND [0B35]*/
@@ -7906,10 +7791,18 @@ interface Sf {
     *
     * https://library.sannybuilder.com/#/sa?q=SF_GET_ELEMENT_POINTER_OF_BUFFER_ARRAY [0C1F]*/
     GetElementPointerOfBufferArray(array: int, index: int, size: int): int;
-    /** Returns the value of the custom global variable with name
+    /** Returns the handle of a loaded module with name (moduleName)
     *
-    * https://library.sannybuilder.com/#/sa?q=SF_GET_CUSTOM_GLOBAL_VARIABLE [0BFD]*/
-    GetGVar(name: string): int | undefined;
+    * https://library.sannybuilder.com/#/sa?q=SF_GET_LOADED_MODULE [0C70]*/
+    GetModule(moduleName: string): int | undefined;
+    /** Returns a pointer (functionPtr) to specified functionName inside the moduleHandle
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_GET_MODULE_PROCEDURE [0C71]*/
+    GetModuleProc(moduleHandle: int, functionName: string): int | undefined;
+    /** Stores the contents of the specified Windows variable (or environment variable) name to buffer
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_STORE_OS_ENVIRONMENT_VARIABLE [0C67]*/
+    GetOsEnv(varName: string, stringBuffer: string, buffersize: int): boolean;
     /** Returns the current window screen resolution in pixels
     *
     * https://library.sannybuilder.com/#/sa?q=SF_GET_SCREEN_RESOLUTION [0B5A]*/
@@ -7934,17 +7827,21 @@ interface Sf {
     *
     * https://library.sannybuilder.com/#/sa?q=SF_HEX_TO_BIN [0C23]*/
     HextoBin(hexString: string, stringBuffer: string, bufferSize: int): boolean;
-    /** Evaluates as logical true if our local player has been spawned already
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_LOCAL_PLAYER_SPAWNED [0B61]*/
-    ImSpawned(): boolean;
-    /** Converts a baseN integer into an ascii string then writes it to stringBuffer
+    /** Converts a baseN integer into an ascii string then stores it to stringBuffer
     *
     * https://library.sannybuilder.com/#/sa?q=SF_ITOA [0C1C]*/
     ItoA(integer: int, radix: int): string;
-    /** Converts the quaternion values into matrix vectors
+    /** Evaluates as logical true if the specified virtual keyCode has been pressed just now
     *
-    * https://library.sannybuilder.com/#/sa?q=SF_QUAT_TO_MATRIX_VECTORS [0C33]*/
+    * https://library.sannybuilder.com/#/sa?q=SF_KEY_JUST_PRESSED [0C89]*/
+    KeyJustPressed(keyCode: int): boolean;
+    /** Makes the script where this command is executed invisible across other scripts
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_MAKE_SCRIPT_PRIVATE [1337]*/
+    MakeScriptPrivate(isPrivate: int): void;
+    /** Converts the quaternion values into basis vectors of a rotation matrix
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_QUAT_TO_AXES [0C33]*/
     MathQuatToMatrixVectors(quaternionW: float, quaternionX: float, quaternionY: float, pitchVectorZ: float): {
         pitchVectorX: float;
         pitchVectorY: float;
@@ -7960,40 +7857,23 @@ interface Sf {
     *
     * https://library.sannybuilder.com/#/sa?q=SF_MATRIX_TO_QUAT [0C30]*/
     MatrixToQuat(matrix: int): int;
-    /** Converts the matrix vectors into quaternion values
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_MATRIX_VECTORS_TO_QUAT [0C32]*/
-    MatrixVectorsToQuat(pitchVectorX: float, pitchVectorY: float, pitchVectorZ: float, rollVectorX: float, rollVectorY: float, rollVectorZ: float, yawVectorX: float, yawVectorY: float, yawVectorZ: float): {
-        quaternionW: float;
-        quaternionX: float;
-        quaternionY: float;
-        quaternionZ: float;
-    };
     /** Copies a memory block with size from source address to destination address
     *
     * https://library.sannybuilder.com/#/sa?q=SF_MEMCPY [0C10]*/
     MemCpy(destination: int, source: int, size: int): boolean;
     /** Evaluates as logical true if both memory blocks have the same content
     *
-    * https://library.sannybuilder.com/#/sa?q=SF_EQUAL_MEMORY_BLOCKS [0C12]*/
-    MemEq(address1: int, address2: int, size: int): boolean;
+    * https://library.sannybuilder.com/#/sa?q=SF_MEMEQ [0C12]*/
+    MemEq(addressA: int, addressB: int, size: int): boolean;
     /** Fills a sized memory block with value byte-by-byte
     *
     * https://library.sannybuilder.com/#/sa?q=SF_MEMFILL [0C11]*/
     MemFill(address: int, byteValue: int, size: int): boolean;
-    /** Reads the value with size from memory address with offset
+    /** Sets the specified script's isActive parameter to 0
     *
-    * https://library.sannybuilder.com/#/sa?q=SF_READ_MEMORY_OFFSET [0C0C]*/
-    MemoryReadOffset(address: int, offset: int, size: int): int | undefined;
-    /** Writes the value with size to memory address with offset
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_WRITE_MEMORY_OFFSET [0C0D]*/
-    MemoryWriteOffset(address: int, offset: int, size: int, value: int): boolean;
-    /** Sets the specified thread's isActive parameter to 0
-    *
-    * https://library.sannybuilder.com/#/sa?q=SF_PAUSE_THREAD [0BDE]*/
-    PauseThread(threadId: int): void;
-    /** Restores all previously saved local variables by SF_PUSH_LOCAL_VARIABLES to the local variables of the currently executing thread (Main Thread or a Function)
+    * https://library.sannybuilder.com/#/sa?q=SF_PAUSE_SCRIPT [0BDE]*/
+    PauseScript(scriptId: int): void;
+    /** Restores all previously saved local variables by SF_PUSH_LOCAL_VARIABLES to the local variables of the currently executing script (Main Script or a Function)
     *
     * https://library.sannybuilder.com/#/sa?q=SF_POP_LOCAL_VARIABLES [0BFB]*/
     PopLocalVars(): void;
@@ -8008,7 +7888,7 @@ interface Sf {
         colPointPtr: int;
         entityPtr: int;
     } | undefined;
-    /** Saves the values ​​of all local variables from the currently executing thread (Main Thread or a Function) to a separate memory that can be recovered later on by SF_POP_LOCAL_VARIABLES
+    /** Saves the values of all local variables from the currently executing script (Main Script or a Function) to a separate memory that can be recovered later on by SF_POP_LOCAL_VARIABLES
     *
     * https://library.sannybuilder.com/#/sa?q=SF_PUSH_LOCAL_VARIABLES [0BFA]*/
     PushLocalVars(): void;
@@ -8028,26 +7908,26 @@ interface Sf {
     *
     * https://library.sannybuilder.com/#/sa?q=SF_READ_ELEMENT_OF_SIZED_ARRAY [0C1D]*/
     ReadElementOfSizedArray(array: int, index: int, size: int): int | undefined;
-    /** Registers the name of a custom global function allowing other scripts to call it using SF_CALL_CUSTOM_GLOBAL_FUNCTION command
+    /** Reads the value with size from memory address with offset
     *
-    * https://library.sannybuilder.com/#/sa?q=SF_REGISTER_CUSTOM_GLOBAL_FUNCTION [0C34]*/
-    RegGFunc(name: string, label: int): boolean;
-    /** Sets the specified thread's isActive parameter to 1
+    * https://library.sannybuilder.com/#/sa?q=SF_READ_MEMORY_WITH_OFFSET [0C0C]*/
+    ReadMemoryWithOffset(address: int, offset: int, size: int): int | undefined;
+    /** Sets the specified script's isActive parameter to 1
     *
-    * https://library.sannybuilder.com/#/sa?q=SF_RESUME_THREAD [0BDF]*/
-    ResumeThread(threadId: int): void;
+    * https://library.sannybuilder.com/#/sa?q=SF_RESUME_SCRIPT [0BDF]*/
+    ResumeScript(scriptId: int): void;
     /** Sets the press status of a game (NOT keyboard) key
     *
     * https://library.sannybuilder.com/#/sa?q=SF_SET_BUTTON [0B56]*/
     SetButton(buttonId: int, behaviorValue: int): void;
-    /** Sets the value of the custom global variable with name
+    /** Sets whether a specific virtual key represented in ascii character format is pressed or not
     *
-    * https://library.sannybuilder.com/#/sa?q=SF_SET_CUSTOM_GLOBAL_VARIABLE [0BFC]*/
-    SetGVar(name: string, value: int): boolean;
-    /** Sets the model (object, auto) of the text draw for style 5
+    * https://library.sannybuilder.com/#/sa?q=SF_SET_CHARACTER_KEY_STATUS [0C73]*/
+    SetCharKeyStatus(ascii: int, isPressed: boolean): void;
+    /** Sets whether a specific virtual key code is pressed or not
     *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_TEXTDRAW_MODEL [0C4F]*/
-    SetTextDrawModel(textDrawId: int, model: int, rotPitch: float, rotRoll: float, rotYaw: float, camZoomRange: float, primaryColor: int, secondaryColor: int): boolean;
+    * https://library.sannybuilder.com/#/sa?q=SF_SET_KEY_STATUS [0C72]*/
+    SetKeyStatus(keyCode: int, isPressed: boolean): void;
     /** Returns the sine of the specified radians
     *
     * https://library.sannybuilder.com/#/sa?q=SF_SIN [0C03]*/
@@ -8070,8 +7950,8 @@ interface Sf {
     StrCspn(source: string, characterList: string): int | undefined;
     /** Evaluates as logical true if both case-sensitive strings are equal
     *
-    * https://library.sannybuilder.com/#/sa?q=SF_EQUAL_STRINGS [0C14]*/
-    StrEq(string1: string, string2: string): boolean;
+    * https://library.sannybuilder.com/#/sa?q=SF_STREQ [0C14]*/
+    StrEq(stringA: string, stringB: string): boolean;
     /** Returns the length of a string
     *
     * https://library.sannybuilder.com/#/sa?q=SF_STRLEN [0C17]*/
@@ -8121,8 +8001,8 @@ interface Sf {
     StrUpr(source: string): string;
     /** Evaluates as logical true if both case-insensitive strings are equal
     *
-    * https://library.sannybuilder.com/#/sa?q=SF_EQUAL_INSENSITIVE_STRINGS [0C21]*/
-    StriEq(string1: string, string2: string): boolean;
+    * https://library.sannybuilder.com/#/sa?q=SF_STRIEQ [0C21]*/
+    StriEq(stringA: string, stringB: string): boolean;
     /** Returns a pointer to the first case-insensitive occurence of the specified substring in the source string
     *
     * https://library.sannybuilder.com/#/sa?q=SF_STRISTR [0C29]*/
@@ -8137,12 +8017,16 @@ interface Sf {
     StrnCpy(stringBuffer: int, source: int, bufferSize: int): void;
     /** Evaluates as logical true if all characters with length at the beginning of both case-sensitive strings are equal
     *
-    * https://library.sannybuilder.com/#/sa?q=SF_EQUAL_SUBSTRINGS [0C25]*/
-    StrnEq(string1: string, string2: string, length: int): boolean;
+    * https://library.sannybuilder.com/#/sa?q=SF_STRNEQ [0C25]*/
+    StrnEq(stringA: string, stringB: string, length: int): boolean;
     /** Returns the tangent of the specified radians
     *
     * https://library.sannybuilder.com/#/sa?q=SF_TAN [0C07]*/
     Tan(radians: float): float;
+    /** Converts a Unicode string to ANSI string then stores it to ansiStringBuffer
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_UNICODE_TO_ANSI [0C68]*/
+    UnicodeToAnsi(unicodeString: int, ansiStringBuffer: string, bufferSize: int): boolean;
     /** Writes the value to the specified element index of an array
     *
     * https://library.sannybuilder.com/#/sa?q=SF_WRITE_ELEMENT_OF_4BYTES_ARRAY [0C0F]*/
@@ -8151,17 +8035,458 @@ interface Sf {
     *
     * https://library.sannybuilder.com/#/sa?q=SF_WRITE_ELEMENT_OF_SIZED_ARRAY [0C1E]*/
     WriteElementOfSizedArray(array: int, index: int, size: int, value: int): boolean;
+    /** Writes the value with size to memory address with offset
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_WRITE_MEMORY_WITH_OFFSET [0C0D]*/
+    WriteMemoryWithOffset(address: int, offset: int, size: int, value: int): boolean;
     /** Writes a string at the buffer element of an array of sized buffers using its element index
     *
     * https://library.sannybuilder.com/#/sa?q=SF_WRITE_STRING_TO_ELEMENT_OF_BUFFER_ARRAY [0C20]*/
     WriteStringToElementOfBufferArray(array: int, index: int, size: int, string: string): void;
 }
 declare var Sf: Sf
+/** Class SfConsole
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SfConsole */
+interface SfConsole {
+    /** Executes the specified command in the SAMPFUNCS console
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_EXECUTE_CONSOLE_COMMAND [0C62]*/
+    ExecCmd(command: string): void;
+    /** Returns logical true if the specified console command is registered
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_IS_CONSOLE_COMMAND_REGISTERED [0C91]*/
+    IsCmdRegistered(command: string): boolean;
+    /** Evaluates as logical true if the SAMPFUNCS console is open
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_IS_CONSOLE_OPEN [0C7E]*/
+    IsOpen(): boolean;
+    /** Adds a line to the SAMPFUNCS console and logs it
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_LOG_TO_CONSOLE [0B78]*/
+    Log(format: string, ...args: number[]): void;
+    /** Registers a callback hooked on a SAMPFUNCS console command with maximum length of 64 characters
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_REGISTER_CONSOLE_COMMAND [0C63]*/
+    RegisterCmd(command: string, callback: int): boolean;
+    /** Sets the description for the console command
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_SET_CONSOLE_COMMAND_DESCRIPTION [0C80]*/
+    SetCmdDesc(command: string, description: string): void;
+    /** Removes the specified SAMPFUNCS console command. This command does nothing if the the specified command isn't a registered in the SAMPFUNCS console then evaluates as logical false if used as a condition
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_UNREGISTER_CONSOLE_COMMAND [0C64]*/
+    UnregisterCmd(command: string): boolean;
+}
+declare var SfConsole: SfConsole
+/** Class SfD3D
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SfD3D */
+interface SfD3D {
+    /** Draws a rectangular area with border at the specified coordinates
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_BORDERED_BOX [0B6A]*/
+    DrawBorderedBox(coordX: int, coordY: int, width: int, height: int, color: int, borderSize: int, borderColor: int): void;
+    /** Draws a rectangular area at the specified coordinates
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_BORDERLESS_BOX [0B69]*/
+    DrawBorderlessBox(coordX: int, coordY: int, width: int, height: int, color: int): void;
+    /** Draws a line between two window screen coordinates
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_LINE [0B68]*/
+    DrawLine(fromCoordX: int, fromCoordY: int, toCoordX: int, toCoordY: int, tickness: int, color: int): void;
+    /** Draws a polygon with the specified parameters
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_POLYGON [0B70]*/
+    DrawPolygon(coordX: int, coordY: int, width: int, height: int, cornerCount: int, heading: float, color: int): void;
+}
+declare var SfD3D: SfD3D
+/** Class SfD3DFont
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SfD3DFont */
+interface SfD3DFont {
+    /** Creates a D3DFont Object
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_CREATE_FONT [0B6D]*/
+    Create(fontName: string, size: int, flags: int): SfD3DFont;
+    /** Destroys the specified font object, freeing it from memory
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DELETE_FONT [0B6E]*/
+    delete(): boolean;
+    /** Draws text using the specified font
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_TEXT_WITH_FONT [0B6F]*/
+    drawText(text: string, coordX: int, coordY: int, color: int): void;
+    /** Returns the height (in pixels) occupied by any text that uses the specified font
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_GET_FONT_DRAW_HEIGHT [0B6C]*/
+    getDrawHeight(): int;
+    /** Returns the width (in pixels) that will be occupied by the text with font
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_GET_DRAW_WIDTH_OF_TEXT_WITH_FONT [0B6B]*/
+    getDrawWidth(text: string): int;
+}
+declare var SfD3DFont: SfD3DFont
+/** Class SfD3DTexture
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SfD3DTexture */
+interface SfD3DTexture {
+    /** Loads a file (any image, or txd) as D3DTexture Object
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_LOAD_TEXTURE_FROM_FILE [0B71]*/
+    Load(filePath: string): SfD3DTexture | undefined;
+    /** Loads a texture from a file located in memory buffer
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_LOAD_TEXTURE_FROM_FILE_IN_MEMORY [0C8C]*/
+    LoadTextureFromFileMemory(buffer: int, bufferSize: int): SfD3DTexture | undefined;
+    /** Draws the texture on the screen
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_DRAW_TEXTURE [0B73]*/
+    draw(coordX: int, coordY: int, width: int, height: int, heading: float, contrast: int): void;
+    /** Releases the D3DTexture Object, freeing it from memory
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_D3D_RELEASE_TEXTURE [0B72]*/
+    release(): boolean;
+}
+declare var SfD3DTexture: SfD3DTexture
+/** Class SfDownload
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SfDownload */
+interface SfDownload {
+    /** Downloads a file from the specified url source asynchronosly then saves it to filepath. Returns a handle to this file's SfDownload object for tracking purposes
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DOWNLOAD_FILE [0C65]*/
+    File(url: string, filePath: string): SfDownload;
+    /** Returns the download status of the SfDownload object
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_GET_DOWNLOAD_STATE [0C66]*/
+    getState(): int | undefined;
+    /** Frees an SfDownload object from memory
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_RELEASE_DOWNLOAD [0C7D]*/
+    release(): boolean;
+}
+declare var SfDownload: SfDownload
+/** Class SfDxutDialog
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SfDxutDialog */
+interface SfDxutDialog {
+    /** Creates a DXUTDialog Object with Title
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_CREATE_DIALOG [0B80]*/
+    Create(title: string): SfDxutDialog;
+    /** Adds a button on the DXUTDialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_BUTTON [0B82]*/
+    addButton(id: int, text: string, relCoordX: int, relCoordY: int, width: int, height: int): void;
+    /** Creates a checkbox on the DxutDialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_CHECKBOX [0B83]*/
+    addCheckbox(id: int, text: string, relCoordX: int, relCoordY: int, width: int, height: int): void;
+    /** Creates a text input field on a DxutDialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_EDITBOX [0B88]*/
+    addEditbox(id: int, initialText: string, coordX: int, coordY: int, width: int, height: int): void;
+    /** Creates a listbox on the dialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_LISTBOX [0B99]*/
+    addListbox(id: int, relCoordX: int, relCoordY: int, width: int, height: int): void;
+    /** Creates a horizontal slider on the DxutDialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_SLIDER [0B96]*/
+    addSlider(id: int, relCoordX: int, relCoordY: int, width: int, height: int, maxValue: int): void;
+    /** Adds a static text control in the DxutDialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_ADD_STATIC_TEXT [0B91]*/
+    addStaticText(id: int, text: string, relCoordX: int, relCoordY: int, width: int, height: int): void;
+    /** Deletes the DxutDialog and frees the memory allocated for it
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_DELETE [0BA4]*/
+    delete(): void;
+    /** Removes a DxutDialog's control with ID and frees the memory allocated for it
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_DELETE_CONTROL [0BA3]*/
+    deleteControl(id: int): void;
+    /** Removes the element found at the specified index from the DxutDialog's listbox with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_DELETE_LISTBOX_ELEMENT [0B9C]*/
+    deleteListboxElement(id: int, index: int): boolean;
+    /** Evaluates as logical true if the specified DxutDialog exists
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_EXIST [0BAB]*/
+    doesExist(): boolean;
+    /** Returns the window position of a DxutDialog control
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_COORDS_OF_CONTROL [0BA9]*/
+    getControlCoords(id: int): {
+        coordX: int;
+        coordY: int;
+    };
+    /** Returns the dimensions of the DxutDialog control with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_DIMS_OF_CONTROL [0BA7]*/
+    getControlDims(id: int): {
+        width: int;
+        height: int;
+    };
+    /** Returns the text of a control using its ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_TEXT_OF_CONTROL [0B89]*/
+    getControlText(id: int): int | undefined;
+    /** Returns the Coordinates and Dimensions of the DxutDialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_COORDS_AND_DIMS [0B85]*/
+    getCoordsAndDims(): {
+        coordX: int;
+        coordY: int;
+        width: int;
+        height: int;
+    };
+    /** Returns the text and data associated with the DxutDialog's listbox element by index
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_LISTBOX_ELEMENT [0B9D]*/
+    getListboxElement(id: int, index: int): {
+        text: string;
+        data: int;
+    } | undefined;
+    /** Returns the index of the selected element and the count/number of elements in the DxutDialog's listbox with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_SELECTED_LISTBOX_ELEMENT [0B9B]*/
+    getSelectedListboxElement(id: int): {
+        index: int;
+        count: int;
+    };
+    /** Returns the thumb position value of the DxutDialog's slider with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_GET_SLIDER_VALUE [0B97]*/
+    getSliderValue(id: int): int;
+    /** Inserts a new element into the DxutDialog's listbox with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_INSERT_LISTBOX_ELEMENT [0B9A]*/
+    insertListboxElement(id: int, text: int, data: int, index: int): boolean;
+    /** Evaluates as logical true if the checkbox control of the DxutDialog is checked
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_IS_CHECKBOX_CHECKED [0B92]*/
+    isCheckBoxChecked(checkboxId: int): boolean;
+    /** Evaluates as true if the DxutDialog's control element with ID is visible
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_IS_CONTROL_VISIBLE [0B95]*/
+    isControlVisible(id: int): boolean;
+    /** Returns logical true if the DxutDialog is minimized
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_IS_MINIMIZED [0BA2]*/
+    isMinimized(): boolean;
+    /** Evaluates as logical true if the DxutDialog's title is visible
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_IS_TITLE_VISIBLE [0BA0]*/
+    isTitleVisible(): boolean;
+    /** Checks if the DxutDialog is visible
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_IS_VISIBLE [0B87]*/
+    isVisible(): boolean;
+    /** Returns the last event and component ID that occurred with the specified dialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_POP [0B81]*/
+    pop(): {
+        eventId: int;
+        controlId: int;
+    } | undefined;
+    /** Sets the background color of the DxutDialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_BACKGROUND_COLOR [0B93]*/
+    setBgColor(color: int): void;
+    /** Sets the color of DxutDialog's checkbox control with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_COLOR_OF_CHECKBOX [0BAA]*/
+    setCheckboxColor(id: int, color: int): void;
+    /** Sets the status of a checkbox
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_STATUS_OF_CHECKBOX [0B9E]*/
+    setCheckboxStatus(id: int, isChecked: boolean): void;
+    /** Sets the window position of the DxutDialog control with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_COORDS_OF_CONTROL [0BA8]*/
+    setControlCoords(id: int, relCoordX: int, relCoordY: int): void;
+    /** Sets the text of a control using its ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_TEXT_OF_CONTROL [0B94]*/
+    setControlText(id: int, text: string): boolean;
+    /** Sets the coordinates and dimensions of the DxutDialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_COORDS_AND_DIMS [0B84]*/
+    setCoordsAndDims(coordX: int, coordY: int, width: int, height: int): void;
+    /** Changes the dimensions of the DxutDialog control with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_DIMS_OF_CONTROL [0BA6]*/
+    setDims(id: int, width: int, height: int): void;
+    /** Sets the minimized status of the DxutDialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_MINIMIZED [0BA1]*/
+    setMinimized(isMinimized: boolean): void;
+    /** Sets the thumb position value of the DxutDialog's slider with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_SLIDER_VALUE [0B98]*/
+    setSliderValue(id: int, value: int): void;
+    /** Sets the visibility of the DxutDialog's title
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_TITLE_VISIBILITY [0B9F]*/
+    setTitleVisibility(isVisible: boolean): void;
+    /** Sets the visibility of the DXUTDialog's control element with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_VISIBILITY_OF_CONTROL [0B90]*/
+    setVisibilityOfControl(controlId: int, isVisible: int): void;
+    /** Sets the focus of user interaction to a specific DxutDialog control with ID
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_FOCUSED_CONTROL [0BA5]*/
+    toggleControlFocus(id: int): void;
+    /** Sets the visibility status of the DxutDialog
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DXUT_DIALOG_SET_VISIBILITY [0B86]*/
+    visibility(isVisible: boolean): void;
+}
+declare var SfDxutDialog: SfDxutDialog
+/** Class SfGFunc
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SfGFunc */
+interface SfGFunc {
+    /** Calls a registered custom global function with name
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_CALL_CUSTOM_GLOBAL_FUNCTION [0C35]*/
+    Call(name: string, numArgs: int, ...args: number[]): boolean;
+    /** Returns the origin informations of a custom global function with name
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_CUSTOM_GLOBAL_FUNCTION_GET_ORIGIN [0C38]*/
+    GetOrigin(name: string): {
+        hostThreadAddress: int;
+        functionAddress: int;
+    } | undefined;
+    /** Evaluates as logical true if the specified name is registered a custom global function
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_IS_CUSTOM_GLOBAL_FUNCTION_REGISTERED [0C37]*/
+    IsRegistered(name: string): boolean;
+    /** Registers the name of a custom global function allowing other scripts to call it using SF_CALL_CUSTOM_GLOBAL_FUNCTION command
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_REGISTER_CUSTOM_GLOBAL_FUNCTION [0C34]*/
+    Register(name: string, label: int): boolean;
+    /** Returns the flow of the execution to the next instruction after the custom global function call, optionally returning one or more parameters as result
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_CUSTOM_GLOBAL_FUNCTION_RETURN [0C36]*/
+    Return(numRet: int, ...retParams: number[]): boolean;
+    /** Removes the currently registered custom global function. Allowing its name to be re-registered by SF_REGISTER_CUSTOM_GLOBAL_FUNCTION command
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_UNREGISTER_CUSTOM_GLOBAL_FUNCTION [0C39]*/
+    Unregister(name: string): void;
+}
+declare var SfGFunc: SfGFunc
+/** Class SfGVar
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SfGVar */
+interface SfGVar {
+    /** Evaluates as logical true if a custom global variable with specified name existed
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DOES_CUSTOM_GLOBAL_VARIABLE_EXIST [0C5F]*/
+    DoesExist(name: string): boolean;
+    /** Returns the value of the custom global variable with name
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_GET_CUSTOM_GLOBAL_VARIABLE [0BFD]*/
+    Get(name: string): int | undefined;
+    /** Returns the specified script's read/write permissions to the specified custom global variable
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_GET_CUSTOM_GLOBAL_VARIABLE_SCOPE [0C61]*/
+    GetScope(gVarName: int, scriptPtr: int): {
+        canRead: boolean;
+        canWrite: boolean;
+    } | undefined;
+    /** Sets the value of the custom global variable with name
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_SET_CUSTOM_GLOBAL_VARIABLE [0BFC]*/
+    Set(name: string, value: int): boolean;
+    /** Sets whether the specified script can read or write to the specified custom global variable
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_SET_CUSTOM_GLOBAL_VARIABLE_SCOPE [0C60]*/
+    SetScope(gVarName: string, scriptPtr: int, canRead: boolean, canWrite: boolean): boolean;
+}
+declare var SfGVar: SfGVar
+/** Class SfScript
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SfScript */
+interface SfScript {
+    /** Starts a new script from the specified scriptLabel then stores its pointer at newScriptPtrTo parameter
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_START_NEW_SCRIPT_FROM_LABEL [0C6A]*/
+    RunFromLabel(scriptLabel: int, newScriptPtrTo: SfScript, ...passedValues: number[]): void;
+    /** Starts a new script from the specified memory location where a script binary data is stored (scriptBin) then stores its pointer at newScriptPtrTo parameter
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_START_NEW_SCRIPT_FROM_POINTER [0C6B]*/
+    RunFromPtr(scriptBin: int, newScriptPtrTo: SfScript, ...passedValues: number[]): void;
+    /** Returns the value of a local variable in the specified script
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_GET_SCRIPT_LOCAL_VARIABLE [0C6D]*/
+    getLVar(varIndex: int): int;
+    /** Restarts a script pointed by the address
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_RESTART_SCRIPT [0C6F]*/
+    restart(...passedValues: number[]): void;
+    /** Sets the values for a local variable in the specified script
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_SET_SCRIPT_LOCAL_VARIABLE [0C6C]*/
+    setLVar(varIndex: int, value: int): void;
+    /** Terminates a script pointed by the address
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_TERMINATE_SCRIPT [0C6E]*/
+    terminate(): void;
+}
+declare var SfScript: SfScript
+/** Class SfTimer
+ * 
+ * https://library.sannybuilder.com/#/sa/classes/SfTimer */
+interface SfTimer {
+    /** Creates and starts an SfTimer object that periodically executes its callback upon expiration
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_CREATE_TIMER [0C74]*/
+    Create(interval: int, callback: int): SfTimer | undefined;
+    /** Removes the specified SfTimer object, freeing it from memory
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_DELETE_TIMER [0C75]*/
+    delete(): boolean;
+    /** Returns the number of milliseconds that have passed since the last SfTimer reset (including after the interval has passed)
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_GET_TIMER_ELAPSED_TIME [0C7B]*/
+    getElapsedTime(): int | undefined;
+    /** Returns the SfTimer's configured interval
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_GET_TIMER_INTERVAL [0C7A]*/
+    getInterval(): int | undefined;
+    /** Returns the number of milliseconds remaining before the SfTimer expires (decremented if the timer is active)
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_GET_TIMER_TIME_LEFT [0C7C]*/
+    getTimeLeft(): int | undefined;
+    /** Evaluates as logical true if the SfTimer is active
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_IS_TIMER_ACTIVE [0C79]*/
+    isActive(): boolean;
+    /** Resets the expiration time of the SfTimer, restarting its trigger countdown
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_RESET_TIMER [0C76]*/
+    reset(): boolean;
+    /** Sets a new interval for the SfTimer
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_SET_TIMER_INTERVAL [0C77]*/
+    setInterval(interval: int): boolean;
+    /** Activates or pauses an SfTimer's functionality
+    *
+    * https://library.sannybuilder.com/#/sa?q=SF_SET_TIMER_STATUS [0C78]*/
+    setStatus(isActive: boolean): boolean;
+}
+declare var SfTimer: SfTimer
 /** 
  * 
  * https://library.sannybuilder.com/#/sa/classes/Shopping */
 interface Shopping {
-    AddPriceModifier(itemId: int, modifier: int): void;
+    /** Sets a new base price for the shopping.dat item
+    *
+    * https://library.sannybuilder.com/#/sa?q=ADD_PRICE_MODIFIER [08C8]*/
+    AddPriceModifier(itemId: int, price: int): void;
     /** Charges the player for the purchase of the item and in many cases, automatically gives the item to the player
     *
     * https://library.sannybuilder.com/#/sa?q=BUY_ITEM [0790]*/
@@ -8188,6 +8513,9 @@ interface Shopping {
     HasPlayerBoughtItem(itemId: int): boolean;
     Load(name: string): void;
     LoadPrices(sectionName: string): void;
+    /** Restores the base price for a shopping.dat item altered by ADD_PRICE_MODIFIER
+    *
+    * https://library.sannybuilder.com/#/sa?q=REMOVE_PRICE_MODIFIER [08C9]*/
     RemovePriceModifier(itemId: int): void;
 }
 declare var Shopping: Shopping
@@ -8613,7 +8941,7 @@ interface StuckCarCheck {
     /** Attempts to automatically restore vehicles that get stuck or flipped
     *
     * https://library.sannybuilder.com/#/sa?q=ADD_STUCK_CAR_CHECK_WITH_WARP [072F]*/
-    AddWithWarp(vehicle: Car, distance: float, time: int, stuck: boolean, flipped: boolean, warp: boolean, pathId: int): void;
+    AddWithWarp(vehicle: Car, distance: float, time: int, stuck: boolean, flipped: boolean, inWater: boolean, numNodesToCheck: int): void;
     /** Returns true if the car is stuck
     *
     * https://library.sannybuilder.com/#/sa?q=IS_CAR_STUCK [03CE]*/
@@ -8731,11 +9059,11 @@ interface Task {
     /** Makes the character go to the specified coordinates
     *
     * https://library.sannybuilder.com/#/sa?q=TASK_FOLLOW_PATH_NODES_TO_COORD [05F5]*/
-    FollowPathNodesToCoord(handle: Char, x: float, y: float, z: float, walkSpeed: int, time: int): void;
+    FollowPathNodesToCoord(handle: Char, x: float, y: float, z: float, speed: int, time: int): void;
     /** Makes the specified character run in panic to the specified position
     *
     * https://library.sannybuilder.com/#/sa?q=TASK_FOLLOW_PATH_NODES_TO_COORD_WITH_RADIUS [0A2E]*/
-    FollowPathNodesToCoordWithRadius(handle: Char, x: float, y: float, z: float, mode: int, time: int, radius: float): void;
+    FollowPathNodesToCoordWithRadius(handle: Char, x: float, y: float, z: float, speed: int, time: int, radius: float): void;
     /** Assigns the character to the patrol path
     *
     * https://library.sannybuilder.com/#/sa?q=TASK_FOLLOW_PATROL_ROUTE [0817]*/
@@ -9301,10 +9629,10 @@ interface Text {
     * https://library.sannybuilder.com/#/sa?q=STRING_FIND [0EC4]*/
     StringFind(stringFind: int, stringOrigin: string, strFind: string): int | undefined;
     StringFloatFormat(number: float, format: string): string;
-    /** Formats a text according to the format string and given arguments and writes it in the buffer
+    /** Formats a text according to the format string and given arguments and writes it in the result
     *
     * https://library.sannybuilder.com/#/sa?q=STRING_FORMAT [0AD3]*/
-    StringFormat(buffer: int, format: string, ...args: number[]): void;
+    StringFormat(result: string, format: string, ...args: number[]): void;
     /** Unloads GXT labels defined in selected Fxt file
     *
     * https://library.sannybuilder.com/#/sa?q=UNLOAD_FXT [2607]*/
@@ -9315,46 +9643,6 @@ interface Text {
     UseCommands(state: boolean): void;
 }
 declare var Text: Text
-/** Class TextLabel3D
- * 
- * https://library.sannybuilder.com/#/sa/classes/TextLabel3D */
-interface TextLabel3D {
-    /** Creates an artificial SAMP 3D text with the specified parameter attributes
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_CREATE_3D_TEXT [0B44]*/
-    Create(text: string, color: int, coordX: float, coordY: float, coordZ: float, visibilityRadius: float, showBehindWalls: boolean, attachedPlayerId: int, attachedCarId: int): TextLabel3D | undefined;
-    /** Creates/overwrites a 3D text with the specified ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_CREATE_3D_TEXT_WITH_ID [0C45]*/
-    CreateWithId(idAsHandle: TextLabel3D, text: int, color: int, coordX: float, coordY: float, coordZ: float, visibilityRadius: float, showBehindWalls: boolean, attachedPlayerId: int, attachedCarId: int): void;
-    /** Destroys a 3D text using it's ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_DELETE_3D_TEXT [0B45]*/
-    delete(): boolean;
-    /** Returns logical true if the specified 3D text exists
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_IS_3D_TEXT_EXIST [0B46]*/
-    doesExist(): boolean;
-    /** Returns all the informations about a TextLabel3D using its ID
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_GET_3D_TEXT_PARAMS [0C46]*/
-    getParams(): {
-        text: string;
-        color: int;
-        coordX: float;
-        coordY: float;
-        coordZ: float;
-        visibilityRadius: float;
-        showBehindWalls: boolean;
-        attachedPlayerId: int;
-        attachedCarId: int;
-    } | undefined;
-    /** Sets new text for 3D text
-    *
-    * https://library.sannybuilder.com/#/sa?q=SAMP_SET_3D_TEXT [0C47]*/
-    setText(text: string): boolean;
-}
-declare var TextLabel3D: TextLabel3D
 /** Class Texture
  * 
  * https://library.sannybuilder.com/#/sa/classes/Texture */
@@ -9579,7 +9867,7 @@ interface Weather {
     *
     * https://library.sannybuilder.com/#/sa?q=SET_RAIN_INTENSITY [0E07]*/
     SetRainIntensity(intensity: float): void;
-    /** Sets the current weather ID according to the game clock and the players current town number
+    /** Sets the weather appropriate to the weather region the player is currently in
     *
     * https://library.sannybuilder.com/#/sa?q=SET_WEATHER_TO_APPROPRIATE_TYPE_NOW [0915]*/
     SetToAppropriateTypeNow(): void;
@@ -9765,7 +10053,7 @@ interface World {
     *
     * https://library.sannybuilder.com/#/sa?q=GET_RANDOM_CHAR_IN_SPHERE_NO_BRAIN [08E5]*/
     GetRandomCharInSphereNoBrain(x: float, y: float, z: float, radius: float): Char;
-    GetRandomCharInSphereNoSaveRecursive(x: float, y: float, z: float, radius: float, findNext: boolean, skipDead: boolean): Char | undefined;
+    GetRandomCharInSphereNoSaveRecursive(x: float, y: float, z: float, radius: float, findNext: boolean, filter: int): Char | undefined;
     /** Loops through the ped pool and returns the first character that is within the specified radius and has the "buys drugs" flag set in peds
     *
     * https://library.sannybuilder.com/#/sa?q=GET_RANDOM_CHAR_IN_SPHERE_ONLY_DRUGS_BUYERS [089E]*/
@@ -10145,7 +10433,10 @@ declare class Plane extends Car {
     *
     * https://library.sannybuilder.com/#/sa?q=PLANE_ATTACK_PLAYER [070E]*/
     attackPlayer(handle: Player, radius: float): Plane;
-    attackPlayerUsingDogFight(player: Player, radius: float): Plane;
+    /** Sets the plane mission to attack the player while maintaining the minimum altitude
+    *
+    * https://library.sannybuilder.com/#/sa?q=PLANE_ATTACK_PLAYER_USING_DOG_FIGHT [08A2]*/
+    attackPlayerUsingDogFight(player: Player, altitude: float): Plane;
     flyInDirection(heading: float, minAltitude: float, maxAltitude: float): Plane;
     followEntity(char: Char, vehicle: Car, altitude: float): Plane;
     getUndercarriagePosition(): float;

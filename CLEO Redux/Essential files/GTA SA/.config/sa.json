@@ -1,7 +1,7 @@
 {
   "meta": {
-    "last_update": 1742497999756,
-    "version": "0.917",
+    "last_update": 1752276909381,
+    "version": "0.997",
     "url": "https://library.sannybuilder.com/#/sa"
   },
   "extensions": [
@@ -8418,7 +8418,7 @@
           "member": "SwitchRoadsOn",
           "name": "SWITCH_ROADS_ON",
           "num_params": 6,
-          "short_desc": "Allows cars to drive in the specified 3D area"
+          "short_desc": "Enables all car paths in the given area"
         },
         {
           "input": [
@@ -8455,7 +8455,7 @@
           "member": "SwitchRoadsOff",
           "name": "SWITCH_ROADS_OFF",
           "num_params": 6,
-          "short_desc": "Prevents cars from driving on roads in the specified 3D area"
+          "short_desc": "Disables all car paths in the given area"
         },
         {
           "input": [
@@ -9588,7 +9588,7 @@
           "member": "SwitchPedRoadsOn",
           "name": "SWITCH_PED_ROADS_ON",
           "num_params": 6,
-          "short_desc": "Allows pedestrians to walk into the specified area"
+          "short_desc": "Enables all ped paths in the given area"
         },
         {
           "input": [
@@ -9625,7 +9625,7 @@
           "member": "SwitchPedRoadsOff",
           "name": "SWITCH_PED_ROADS_OFF",
           "num_params": 6,
-          "short_desc": "Forbids pedestrians to walk into the specified area"
+          "short_desc": "Disables all ped paths in the given area"
         },
         {
           "id": "022C",
@@ -10102,7 +10102,7 @@
           "member": "DrawCorona",
           "name": "DRAW_CORONA",
           "num_params": 9,
-          "short_desc": "Displays a corona at the specified location"
+          "short_desc": "Displays a corona with fade in-out effect at the specified location"
         },
         {
           "id": "0250",
@@ -21721,7 +21721,7 @@
           "member": "IncreaseMaxHealth",
           "name": "INCREASE_PLAYER_MAX_HEALTH",
           "num_params": 2,
-          "short_desc": "Increases the players maximum health by the specified amount"
+          "short_desc": "Increases the player's max health by the specified value and changes current health to the new maximum"
         },
         {
           "input": [
@@ -21739,7 +21739,7 @@
           "member": "IncreaseMaxArmor",
           "name": "INCREASE_PLAYER_MAX_ARMOUR",
           "num_params": 2,
-          "short_desc": "Increases the players armor by the specified amount"
+          "short_desc": "Increases the player's max armor by the specified value and changes current armor to the new maximum"
         },
         {
           "input": [
@@ -24274,8 +24274,8 @@
               "type": "float"
             },
             {
-              "name": "walkSpeed",
-              "type": "int"
+              "name": "speed",
+              "type": "MoveState"
             },
             {
               "name": "time",
@@ -26617,54 +26617,54 @@
           }
         },
         {
+          "input": [
+            {
+              "name": "text",
+              "type": "string"
+            }
+          ],
           "id": "0662",
           "name": "WRITE_DEBUG",
           "num_params": 1,
           "short_desc": "Outputs debug text",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            }
-          ],
           "attrs": {
             "is_nop": true
           }
         },
         {
+          "input": [
+            {
+              "name": "text",
+              "type": "string"
+            },
+            {
+              "name": "number",
+              "type": "int"
+            }
+          ],
           "id": "0663",
           "name": "WRITE_DEBUG_WITH_INT",
           "num_params": 2,
           "short_desc": "Outputs a string with an integer",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ],
           "attrs": {
             "is_nop": true
           }
         },
         {
+          "input": [
+            {
+              "name": "text",
+              "type": "string"
+            },
+            {
+              "name": "number",
+              "type": "float"
+            }
+          ],
           "id": "0664",
           "name": "WRITE_DEBUG_WITH_FLOAT",
           "num_params": 2,
           "short_desc": "Does nothing",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            },
-            {
-              "name": "_p2",
-              "type": "any"
-            }
-          ],
           "attrs": {
             "is_nop": true
           }
@@ -27814,7 +27814,7 @@
           "id": "068C",
           "name": "IS_PLAYER_TARGETTING_ANYTHING",
           "num_params": 1,
-          "short_desc": "Returns true if the specified player is aiming at anything using autoaim",
+          "short_desc": "Returns true if the specified player is auto-aiming at a ped or object",
           "attrs": {
             "is_condition": true
           },
@@ -29244,16 +29244,16 @@
           }
         },
         {
+          "input": [
+            {
+              "name": "state",
+              "type": "bool"
+            }
+          ],
           "id": "06CF",
           "name": "DISPLAY_TIMER_BARS",
           "num_params": 1,
           "short_desc": "Does nothing",
-          "input": [
-            {
-              "name": "_p1",
-              "type": "any"
-            }
-          ],
           "attrs": {
             "is_nop": true
           }
@@ -30759,7 +30759,7 @@
           "id": "0719",
           "name": "FINISH_SETTING_UP_CONVERSATION",
           "num_params": 0,
-          "short_desc": "Begins a script-controlled conversation",
+          "short_desc": "Finalizes the current conversation sequence started with 0717. Selected answers will be subtitled",
           "class": "Conversation",
           "member": "FinishSettingUp",
           "attrs": {
@@ -31182,11 +31182,11 @@
               "type": "bool"
             },
             {
-              "name": "warp",
+              "name": "inWater",
               "type": "bool"
             },
             {
-              "name": "pathId",
+              "name": "numNodesToCheck",
               "type": "int"
             }
           ],
@@ -33231,10 +33231,6 @@
           }
         },
         {
-          "id": "07A0",
-          "name": "PERFORM_SEQUENCE_TASK_FROM_PROGRESS",
-          "num_params": 4,
-          "short_desc": "",
           "input": [
             {
               "name": "self",
@@ -33245,14 +33241,18 @@
               "type": "Sequence"
             },
             {
-              "name": "_p3",
+              "name": "startTaskIndex",
               "type": "int"
             },
             {
-              "name": "_p4",
+              "name": "endTaskIndex",
               "type": "int"
             }
           ],
+          "id": "07A0",
+          "name": "PERFORM_SEQUENCE_TASK_FROM_PROGRESS",
+          "num_params": 4,
+          "short_desc": "",
           "class": "Char",
           "member": "PerformSequenceFromProgress"
         },
@@ -33629,10 +33629,6 @@
           "member": "SetDefaultTaskAllocator"
         },
         {
-          "id": "07B4",
-          "name": "SET_PLAYER_GROUP_RECRUITMENT",
-          "num_params": 2,
-          "short_desc": "",
           "input": [
             {
               "name": "self",
@@ -33643,6 +33639,10 @@
               "type": "bool"
             }
           ],
+          "id": "07B4",
+          "name": "SET_PLAYER_GROUP_RECRUITMENT",
+          "num_params": 2,
+          "short_desc": "Sets the player's ability to recruit new members to the group",
           "class": "Player",
           "member": "SetGroupRecruitment"
         },
@@ -34229,12 +34229,12 @@
         {
           "input": [
             {
-              "name": "_p1",
+              "name": "",
               "type": "int",
               "source": "var_local"
             },
             {
-              "name": "_p2",
+              "name": "",
               "type": "int",
               "source": "var_global"
             }
@@ -34251,12 +34251,12 @@
         {
           "input": [
             {
-              "name": "_p1",
+              "name": "",
               "type": "float",
               "source": "var_local"
             },
             {
-              "name": "_p2",
+              "name": "",
               "type": "float",
               "source": "var_global"
             }
@@ -35675,7 +35675,7 @@
           "id": "081A",
           "name": "SET_CHAR_WEAPON_SKILL",
           "num_params": 2,
-          "short_desc": "Sets the characters fire arms wielding style",
+          "short_desc": "Sets the character's fire arms wielding style",
           "class": "Char",
           "member": "SetWeaponSkill"
         },
@@ -38190,14 +38190,14 @@
               "type": "Player"
             },
             {
-              "name": "radius",
+              "name": "altitude",
               "type": "float"
             }
           ],
           "id": "08A2",
           "name": "PLANE_ATTACK_PLAYER_USING_DOG_FIGHT",
           "num_params": 3,
-          "short_desc": "",
+          "short_desc": "Sets the plane mission to attack the player while maintaining the minimum altitude",
           "class": "Plane",
           "member": "AttackPlayerUsingDogFight"
         },
@@ -38959,14 +38959,14 @@
               "type": "int"
             },
             {
-              "name": "modifier",
+              "name": "price",
               "type": "int"
             }
           ],
           "id": "08C8",
           "name": "ADD_PRICE_MODIFIER",
           "num_params": 2,
-          "short_desc": "",
+          "short_desc": "Sets a new base price for the shopping.dat item",
           "class": "Shopping",
           "member": "AddPriceModifier",
           "attrs": {
@@ -38983,7 +38983,7 @@
           "id": "08C9",
           "name": "REMOVE_PRICE_MODIFIER",
           "num_params": 1,
-          "short_desc": "",
+          "short_desc": "Restores the base price for a shopping.dat item altered by ADD_PRICE_MODIFIER",
           "class": "Shopping",
           "member": "RemovePriceModifier",
           "attrs": {
@@ -40550,7 +40550,7 @@
           "id": "0915",
           "name": "SET_WEATHER_TO_APPROPRIATE_TYPE_NOW",
           "num_params": 0,
-          "short_desc": "Sets the current weather ID according to the game clock and the players current town number",
+          "short_desc": "Sets the weather appropriate to the weather region the player is currently in",
           "class": "Weather",
           "member": "SetToAppropriateTypeNow",
           "attrs": {
@@ -40731,7 +40731,7 @@
           "id": "091D",
           "name": "SWITCH_ROADS_BACK_TO_ORIGINAL",
           "num_params": 6,
-          "short_desc": "",
+          "short_desc": "Reverts all changes to car paths done with SWITCH_ROADS_ON and SWITCH_ROADS_OFF",
           "class": "Path",
           "member": "SwitchRoadsBackToOriginal",
           "attrs": {
@@ -40768,7 +40768,7 @@
           "id": "091E",
           "name": "SWITCH_PED_ROADS_BACK_TO_ORIGINAL",
           "num_params": 6,
-          "short_desc": "",
+          "short_desc": "Reverts all changes to ped paths done with SWITCH_PED_ROADS_ON and SWITCH_PED_ROADS_OFF",
           "attrs": {
             "is_static": true
           },
@@ -42018,19 +42018,19 @@
             },
             {
               "name": "red",
-              "type": "int"
+              "type": "float"
             },
             {
               "name": "green",
-              "type": "int"
+              "type": "float"
             },
             {
               "name": "blue",
-              "type": "int"
+              "type": "float"
             },
             {
               "name": "alpha",
-              "type": "int"
+              "type": "float"
             },
             {
               "name": "size",
@@ -42255,7 +42255,7 @@
           "output": [
             {
               "name": "state",
-              "type": "int",
+              "type": "SwimState",
               "source": "var_any"
             }
           ],
@@ -44361,21 +44361,21 @@
               "type": "SpeechId"
             },
             {
-              "name": "_p3",
+              "name": "overrideSilence",
               "type": "bool"
             },
             {
-              "name": "_p4",
+              "name": "ignoreMute",
               "type": "bool"
             },
             {
-              "name": "_p5",
+              "name": "frontEnd",
               "type": "bool"
             }
           ],
           "output": [
             {
-              "name": "_p6",
+              "name": "saidVariant",
               "type": "int",
               "source": "var_any"
             }
@@ -45113,7 +45113,7 @@
           "output": [
             {
               "name": "languageSlot",
-              "type": "int",
+              "type": "Language",
               "source": "var_any"
             }
           ],
@@ -46084,8 +46084,8 @@
               "type": "float"
             },
             {
-              "name": "mode",
-              "type": "int"
+              "name": "speed",
+              "type": "MoveState"
             },
             {
               "name": "time",
@@ -46557,7 +46557,7 @@
           "id": "0A47",
           "name": "FINISH_SETTING_UP_CONVERSATION_NO_SUBTITLES",
           "num_params": 0,
-          "short_desc": "",
+          "short_desc": "Finalizes the current conversation sequence started with 0717. Selected answers will not be subtitled",
           "class": "Conversation",
           "member": "FinishSettingUpNoSubtitles",
           "attrs": {
@@ -46587,7 +46587,7 @@
           "num_params": 0,
           "short_desc": "Returns true for Xbox versions of the game",
           "attrs": {
-            "is_nop": true
+            "is_condition": true
           }
         },
         {
@@ -46643,17 +46643,14 @@
           "num_params": 0,
           "short_desc": "Returns true for Japanese versions of the game",
           "attrs": {
-            "is_nop": true
+            "is_condition": true
           }
         },
         {
           "id": "0A4E",
-          "name": "IS_XBOX_PLAYER2_PRESSING_START",
+          "name": "DO_DEBUG_STUFF",
           "num_params": 0,
-          "short_desc": "Returns true on Xbox versions of the game if player 2 is pressing the start button",
-          "attrs": {
-            "is_condition": true
-          }
+          "short_desc": "Increments an unused counter, likely used in the debug version of the game"
         }
       ]
     },
@@ -46824,7 +46821,7 @@
               "type": "string"
             },
             {
-              "name": "",
+              "name": "args",
               "type": "arguments"
             }
           ],
@@ -46849,7 +46846,7 @@
               "type": "string"
             },
             {
-              "name": "",
+              "name": "args",
               "type": "arguments"
             }
           ],
@@ -47187,7 +47184,7 @@
               "type": "int"
             },
             {
-              "name": "numParams",
+              "name": "numArgs",
               "type": "int"
             },
             {
@@ -47195,7 +47192,7 @@
               "type": "int"
             },
             {
-              "name": "funcParams",
+              "name": "args",
               "type": "arguments"
             }
           ],
@@ -47220,7 +47217,7 @@
               "type": "int"
             },
             {
-              "name": "numParams",
+              "name": "numArgs",
               "type": "int"
             },
             {
@@ -47228,7 +47225,7 @@
               "type": "int"
             },
             {
-              "name": "funcParams",
+              "name": "args",
               "type": "arguments"
             }
           ],
@@ -47249,7 +47246,7 @@
               "type": "int"
             },
             {
-              "name": "numParams",
+              "name": "numArgs",
               "type": "int"
             },
             {
@@ -47257,7 +47254,7 @@
               "type": "int"
             },
             {
-              "name": "funcParams",
+              "name": "args",
               "type": "arguments"
             }
           ],
@@ -47289,7 +47286,7 @@
               "type": "int"
             },
             {
-              "name": "numParams",
+              "name": "numArgs",
               "type": "int"
             },
             {
@@ -47297,7 +47294,7 @@
               "type": "int"
             },
             {
-              "name": "funcParams",
+              "name": "args",
               "type": "arguments"
             }
           ],
@@ -47397,11 +47394,11 @@
               "type": "label"
             },
             {
-              "name": "numParams",
+              "name": "numArgs",
               "type": "int"
             },
             {
-              "name": "params",
+              "name": "args",
               "type": "arguments"
             }
           ],
@@ -47483,7 +47480,7 @@
           "id": "0AB5",
           "name": "STORE_CLOSEST_ENTITIES",
           "num_params": 3,
-          "short_desc": "Stores the handles of a vehicle and ped closest to the char or -1 otherwise",
+          "short_desc": "Stores the handles of a vehicle and ped closest to the char or -1 otherwise. Ignores script created entities",
           "class": "Char",
           "member": "StoreClosestEntities"
         },
@@ -47923,8 +47920,8 @@
         {
           "input": [
             {
-              "name": "buffer",
-              "type": "int"
+              "name": "result",
+              "type": "string"
             },
             {
               "name": "format",
@@ -47938,7 +47935,7 @@
           "id": "0AD3",
           "name": "STRING_FORMAT",
           "num_params": 3,
-          "short_desc": "Formats a text according to the format string and given arguments and writes it in the buffer",
+          "short_desc": "Formats a text according to the format string and given arguments and writes it in the result",
           "class": "Text",
           "member": "StringFormat",
           "attrs": {
@@ -48266,8 +48263,8 @@
               "type": "bool"
             },
             {
-              "name": "skipDead",
-              "type": "bool"
+              "name": "filter",
+              "type": "CharSearchFilter"
             }
           ],
           "output": [
@@ -59923,13 +59920,13 @@
       "commands": [
         {
           "id": "0AF6",
-          "name": "SAMP_SPAWN_LOCAL_PLAYER",
+          "name": "SAMP_FORCE_SPAWN_MY_PLAYER",
           "num_params": 0,
-          "short_desc": "Sends SampRpc.Spawn to SAMP Server. Teleports our char to spawn as well",
-          "class": "Samp",
+          "short_desc": "Sends SampRpc.Spawn to SAMP Server. Teleports our character to spawn as well",
           "attrs": {
             "is_static": true
           },
+          "class": "SampMyPlayer",
           "member": "ForceSpawn"
         },
         {
@@ -59969,8 +59966,8 @@
           "name": "SAMP_ADD_MESSAGE_TO_CHAT",
           "num_params": 3,
           "short_desc": "Adds one line of colored message to the chat",
-          "class": "Samp",
-          "member": "AddChatMessage",
+          "class": "SampChat",
+          "member": "AddMsg",
           "attrs": {
             "is_static": true
           }
@@ -59991,7 +59988,7 @@
           "num_params": 2,
           "short_desc": "Sends SampRpc.Chat containing the message or command to the server",
           "class": "Samp",
-          "member": "SendChatMsg",
+          "member": "SendRpcChat",
           "attrs": {
             "is_static": true
           }
@@ -60000,13 +59997,13 @@
           "id": "0AFA",
           "name": "SAMP_IS_AVAILABLE",
           "num_params": 0,
-          "short_desc": "Returns true if SAMP structures were initialized. Used when checking if gta sa is running on SAMP or in Single Player",
+          "short_desc": "Evaluates as logical true if SAMP structures was initialized. Used when checking if gta sa is running on SAMP or in Single Player",
           "attrs": {
             "is_condition": true,
             "is_static": true
           },
           "class": "Samp",
-          "member": "Available"
+          "member": "IsAvailable"
         },
         {
           "input": [
@@ -60119,8 +60116,8 @@
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -60134,11 +60131,8 @@
           "name": "SAMP_GET_PLAYER_CHAR_BY_ID",
           "num_params": 2,
           "short_desc": "Returns the character handle using the Player ID. Returns -1 if the player is not in the stream zone",
-          "class": "Samp",
-          "member": "GetChar",
-          "attrs": {
-            "is_static": true
-          }
+          "class": "SampPlayer",
+          "member": "GetChar"
         },
         {
           "id": "0B21",
@@ -60149,8 +60143,8 @@
             "is_condition": true,
             "is_static": true
           },
-          "class": "Samp",
-          "member": "ChatInputVisible"
+          "class": "SampChatInput",
+          "member": "IsVisible"
         },
         {
           "input": [
@@ -60176,8 +60170,8 @@
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "id": "0B23",
@@ -60185,17 +60179,16 @@
           "num_params": 1,
           "short_desc": "Returns true if REMOTE Player with the given ID is connected",
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "class": "Samp",
-          "member": "RemotePlayerConnected"
+          "class": "SampPlayer",
+          "member": "IsRemotelyConnected"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -60209,17 +60202,14 @@
           "name": "SAMP_GET_PLAYER_POINTER",
           "num_params": 2,
           "short_desc": "Returns the player's samp structure. Returns 0 (NULL Pointer) if player isn't connected",
-          "class": "Samp",
-          "member": "GetPlayerPtr",
-          "attrs": {
-            "is_static": true
-          }
+          "class": "SampPlayer",
+          "member": "GetPtr"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -60233,17 +60223,14 @@
           "name": "SAMP_GET_PLAYER_HEALTH",
           "num_params": 2,
           "short_desc": "Gets the amount of health the specified player has",
-          "class": "Samp",
-          "member": "GetPlayerHealth",
-          "attrs": {
-            "is_static": true
-          }
+          "class": "SampPlayer",
+          "member": "GetHealth"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -60257,11 +60244,8 @@
           "name": "SAMP_GET_PLAYER_ARMOR",
           "num_params": 2,
           "short_desc": "Gets the amount of armor the specified player has",
-          "class": "Samp",
-          "member": "GetPlayerArmor",
-          "attrs": {
-            "is_static": true
-          }
+          "class": "SampPlayer",
+          "member": "GetArmor"
         },
         {
           "input": [
@@ -60305,11 +60289,11 @@
             }
           ],
           "id": "0B29",
-          "name": "SAMP_SET_LOCAL_NICKNAME",
+          "name": "SAMP_SET_MY_NICKNAME",
           "num_params": 1,
-          "short_desc": "Changes our Local Nickname",
-          "class": "Samp",
-          "member": "SetMyName",
+          "short_desc": "Changes our nickname (visually)",
+          "class": "SampMyPlayer",
+          "member": "SetNickname",
           "attrs": {
             "is_static": true
           }
@@ -60317,8 +60301,8 @@
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -60332,11 +60316,8 @@
           "name": "SAMP_GET_PLAYER_PING",
           "num_params": 2,
           "short_desc": "Returns the ping of the specified player with ID",
-          "class": "Samp",
-          "member": "GetPlayerPing",
-          "attrs": {
-            "is_static": true
-          }
+          "class": "SampPlayer",
+          "member": "GetPing"
         },
         {
           "input": [
@@ -60347,8 +60328,8 @@
           ],
           "output": [
             {
-              "name": "id",
-              "type": "int",
+              "name": "idAsHandle",
+              "type": "SampPlayer",
               "source": "var_any"
             }
           ],
@@ -60383,8 +60364,61 @@
         {
           "input": [
             {
-              "name": "id",
+              "name": "offset",
               "type": "int"
+            },
+            {
+              "name": "value",
+              "type": "any"
+            },
+            {
+              "name": "size",
+              "type": "int"
+            }
+          ],
+          "id": "0B2D",
+          "name": "SAMP_WRITE_SAMP_MEMORY_WITH_OFFSET",
+          "num_params": 3,
+          "short_desc": "Writes the value with size to samp.dll+offset memory",
+          "class": "Samp",
+          "member": "WriteSampMemoryWithOffset",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "offset",
+              "type": "int"
+            },
+            {
+              "name": "size",
+              "type": "int"
+            }
+          ],
+          "output": [
+            {
+              "name": "value",
+              "type": "any",
+              "source": "var_any"
+            }
+          ],
+          "id": "0B2E",
+          "name": "SAMP_READ_SAMP_MEMORY_WITH_OFFSET",
+          "num_params": 3,
+          "short_desc": "Reads the value with size from samp.dll+offset memory",
+          "attrs": {
+            "is_static": true
+          },
+          "class": "Samp",
+          "member": "ReadSampMemoryWithOffset"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -60408,11 +60442,8 @@
           "name": "SAMP_GET_STREAMED_OUT_PLAYER_COORDS",
           "num_params": 4,
           "short_desc": "Returns the 3D Coordinates of a player who is outside the stream zone, if the server allows it",
-          "class": "Samp",
-          "member": "GetPlayerStreamedOutCoords",
-          "attrs": {
-            "is_static": true
-          }
+          "class": "SampPlayer",
+          "member": "GetStreamedOutCoords"
         },
         {
           "input": [
@@ -60515,7 +60546,7 @@
             "is_static": true
           },
           "short_desc": "Registers a callback hooked from a client sided chat command",
-          "class": "LocalChatCmd",
+          "class": "SampLocalChatCmd",
           "member": "Hook"
         },
         {
@@ -60540,8 +60571,8 @@
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -60555,17 +60586,14 @@
           "name": "SAMP_GET_PLAYER_NICKNAME",
           "num_params": 2,
           "short_desc": "Returns a pointer to the nickname of the specified player",
-          "class": "Samp",
-          "member": "GetPlayerName",
-          "attrs": {
-            "is_static": true
-          }
+          "class": "SampPlayer",
+          "member": "GetName"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -60579,11 +60607,8 @@
           "name": "SAMP_GET_PLAYER_COLOR",
           "num_params": 2,
           "short_desc": "Returns the color of the specified player in 0xAARRGGBB format",
-          "class": "Samp",
-          "member": "GetPlayerColor",
-          "attrs": {
-            "is_static": true
-          }
+          "class": "SampPlayer",
+          "member": "GetColor"
         },
         {
           "input": [
@@ -60622,7 +60647,7 @@
           "id": "0B39",
           "name": "SAMP_GET_SERVER_ADDRESS",
           "num_params": 2,
-          "short_desc": "Returns the server's port and writes server's IP address to buffer",
+          "short_desc": "Returns the server's port and stores server's IP address to buffer",
           "attrs": {
             "is_static": true
           },
@@ -60640,7 +60665,7 @@
           "id": "0B3A",
           "name": "SAMP_GET_SERVER_NAME",
           "num_params": 1,
-          "short_desc": "Writes the server name to buffer",
+          "short_desc": "Stores the server name to buffer",
           "class": "Samp",
           "member": "GetServerName",
           "attrs": {
@@ -60717,13 +60742,13 @@
           },
           "short_desc": "Returns logical true if the last submitted SAMP Dialog is equal to the specified dialogid",
           "class": "Samp",
-          "member": "DialogResponded"
+          "member": "HasDialogResponded"
         },
         {
           "output": [
             {
               "name": "handle",
-              "type": "Bitstream",
+              "type": "SampBitstream",
               "source": "var_any"
             }
           ],
@@ -60731,18 +60756,17 @@
           "name": "SAMP_RAKNET_CREATE_BITSTREAM",
           "num_params": 1,
           "short_desc": "Creates a new raknet bitstream object",
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "Create",
           "attrs": {
             "is_constructor": true
           }
         },
         {
-          "output": [
+          "input": [
             {
               "name": "self",
-              "type": "Bitstream",
-              "source": "var_any"
+              "type": "SampBitstream"
             }
           ],
           "id": "0B3E",
@@ -60752,7 +60776,7 @@
             "is_condition": true,
             "is_destructor": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "Delete",
           "short_desc": "Remove's the specified bitstream object, freeing it from memory"
         },
@@ -60760,7 +60784,7 @@
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "id": "0B3F",
@@ -60770,14 +60794,14 @@
             "is_condition": true
           },
           "short_desc": "Resets all parameters/clears BitStream",
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "Reset"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             },
             {
               "name": "value",
@@ -60798,7 +60822,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "Write",
           "short_desc": "Writes a specified value with datatype and datasize at the \"write pointer\" of the specified bitstream, then advances its \"write pointer\" by the same size"
         },
@@ -60810,7 +60834,7 @@
             },
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             },
             {
               "name": "priority",
@@ -60836,14 +60860,14 @@
             "is_condition": true
           },
           "short_desc": "Sends a BitStream as an RPC with the specified parameters",
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "SendAsRpcWithParams"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             },
             {
               "name": "priority",
@@ -60864,7 +60888,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "SendAsPacketWithParams",
           "short_desc": "Sends a Packet BitStream with the specified parameters. Commonly used to send dacket data to server"
         },
@@ -60872,7 +60896,7 @@
           "id": "0B43",
           "name": "SF_COMMAND_RETURN",
           "num_params": 0,
-          "short_desc": "Marks the end of a console command's callback or a chat command's callback. Used as its returning statement",
+          "short_desc": "Marks the end of a command callback. Used as its returning statement",
           "attrs": {
             "is_static": true
           },
@@ -60921,7 +60945,7 @@
           "output": [
             {
               "name": "handle",
-              "type": "TextLabel3D",
+              "type": "SampTextLabel3D",
               "source": "var_any"
             }
           ],
@@ -60933,14 +60957,14 @@
             "is_constructor": true
           },
           "short_desc": "Creates an artificial SAMP 3D text with the specified parameter attributes",
-          "class": "TextLabel3D",
+          "class": "SampTextLabel3D",
           "member": "Create"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "TextLabel3D"
+              "type": "SampTextLabel3D"
             }
           ],
           "id": "0B45",
@@ -60951,24 +60975,24 @@
             "is_destructor": true
           },
           "short_desc": "Destroys a 3D text using it's ID",
-          "class": "TextLabel3D",
+          "class": "SampTextLabel3D",
           "member": "Delete"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "TextLabel3D"
+              "type": "SampTextLabel3D"
             }
           ],
           "id": "0B46",
-          "name": "SAMP_IS_3D_TEXT_EXIST",
+          "name": "SAMP_DOES_3D_TEXT_EXIST",
           "num_params": 1,
           "attrs": {
             "is_condition": true
           },
           "short_desc": "Returns logical true if the specified 3D text exists",
-          "class": "TextLabel3D",
+          "class": "SampTextLabel3D",
           "member": "DoesExist"
         },
         {
@@ -61041,7 +61065,7 @@
             "is_condition": true,
             "is_static": true
           },
-          "short_desc": "Writes the text from the input field of the active dialog to the buffer",
+          "short_desc": "Stores the text from the input field of the active dialog to the buffer",
           "class": "Samp",
           "member": "GetDialogEditboxText"
         },
@@ -61059,7 +61083,7 @@
             "is_condition": true,
             "is_static": true
           },
-          "short_desc": "Sets the text of the edit field of the dialog box",
+          "short_desc": "Sets the text of the edit field of the active dialog's box",
           "class": "Samp",
           "member": "SetDialogEditboxText"
         },
@@ -61079,7 +61103,7 @@
           },
           "short_desc": "Evaluates as logical true if the specified dialog with id is currently visible",
           "class": "Samp",
-          "member": "DialogActive"
+          "member": "IsDialogActive"
         },
         {
           "output": [
@@ -61130,7 +61154,12 @@
           "id": "0B4F",
           "name": "SAMP_GET_GAMESTATE",
           "num_params": 1,
-          "short_desc": "Returns the connection status to the server"
+          "short_desc": "Returns our connection status towards the server",
+          "class": "Samp",
+          "member": "GetGamestate",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
           "input": [
@@ -61285,7 +61314,7 @@
           },
           "short_desc": "Converts 3D coordinates from the world into window screen coordinates (pixels)",
           "class": "Sf",
-          "member": "From3DTo2D"
+          "member": "From3DTo2DCoords"
         },
         {
           "input": [
@@ -61311,8 +61340,8 @@
         {
           "input": [
             {
-              "name": "playerId",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -61326,12 +61355,11 @@
           "name": "SAMP_GET_PLAYER_ANIMATION",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Returns the SAMP ID of the animation currently being played by the specified player",
-          "class": "Samp",
-          "member": "GetPlayerAnim"
+          "class": "SampPlayer",
+          "member": "GetAnim"
         },
         {
           "input": [
@@ -61359,7 +61387,7 @@
             "is_condition": true,
             "is_static": true
           },
-          "short_desc": "Writes the filename and animname of the animation using its SAMP ID",
+          "short_desc": "Stores the filename and animname of the animation using its SAMP ID",
           "class": "Samp",
           "member": "GetAnimName"
         },
@@ -61436,27 +61464,26 @@
             "is_condition": true,
             "is_static": true
           },
-          "short_desc": "Writes the text of an item with specific id from the active dialog's list, to buffer. If the dialog is not opened, the last opened dialog is evaluated instead",
+          "short_desc": "Stores the text of an item with specific id from the active dialog's list, to buffer. If the dialog is not opened, the last opened dialog is evaluated instead",
           "class": "Samp",
           "member": "GetDialogItemText"
         },
         {
           "input": [
             {
-              "name": "playerId",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "id": "0B5C",
           "name": "SAMP_IS_PLAYER_PAUSED",
           "num_params": 1,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Evaluates as logical true if the specified player is in paused state (or AFK)",
-          "class": "Samp",
-          "member": "PlayerPaused"
+          "class": "SampPlayer",
+          "member": "IsPaused"
         },
         {
           "input": [
@@ -61526,7 +61553,7 @@
           "num_params": 4,
           "short_desc": "Returns the GameScreen Coordinates counterpart of the specified WindowScreen Coordinates",
           "class": "Sf",
-          "member": "FromWinToGameScreen",
+          "member": "FromWindowToGameScreenCoords",
           "attrs": {
             "is_static": true
           }
@@ -61559,28 +61586,28 @@
           "num_params": 4,
           "short_desc": "Returns the WindowScreen Coordinates counterpart of the specified GameScreen Coordinates",
           "class": "Sf",
-          "member": "FromGameToWinScreen",
+          "member": "FromGameToWindowScreenCoords",
           "attrs": {
             "is_static": true
           }
         },
         {
           "id": "0B61",
-          "name": "SAMP_IS_LOCAL_PLAYER_SPAWNED",
+          "name": "SAMP_IS_MY_PLAYER_SPAWNED",
           "num_params": 0,
           "attrs": {
             "is_condition": true,
             "is_static": true
           },
-          "short_desc": "Evaluates as logical true if our local player has been spawned already",
-          "class": "Sf",
-          "member": "ImSpawned"
+          "short_desc": "Evaluates as logical true if our player has been spawned already",
+          "class": "SampMyPlayer",
+          "member": "IsSpawned"
         },
         {
           "input": [
             {
-              "name": "playerId",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -61594,12 +61621,11 @@
           "name": "SAMP_GET_PLAYER_SPECIAL_ACTION",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Returns the special action ID of the specified player",
-          "class": "Samp",
-          "member": "GetPlayerSpecialAction"
+          "class": "SampPlayer",
+          "member": "GetSpecialAction"
         },
         {
           "input": [
@@ -61616,32 +61642,31 @@
             "is_static": true
           },
           "short_desc": "Removes all callbacks hooked from a client sided chat command created by SAMP_REGISTER_CLIENTSIDE_COMMAND, suppressing all its callback's operation ",
-          "class": "LocalChatCmd",
+          "class": "SampLocalChatCmd",
           "member": "Unhook"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "id": "0B64",
           "name": "SAMP_IS_PLAYER_NPC",
           "num_params": 1,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Checks if the specified player is an NPC",
-          "class": "Samp",
-          "member": "Npc"
+          "class": "SampPlayer",
+          "member": "IsNpc"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -61655,12 +61680,11 @@
           "name": "SAMP_GET_PLAYER_SCORE",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Returns the current score of the specified player",
-          "class": "Samp",
-          "member": "GetPlayerScore"
+          "class": "SampPlayer",
+          "member": "GetScore"
         },
         {
           "input": [
@@ -61768,8 +61792,8 @@
           "name": "SF_D3D_DRAW_LINE",
           "num_params": 6,
           "short_desc": "Draws a line between two window screen coordinates",
-          "class": "Sf",
-          "member": "D3DDrawLine",
+          "class": "SfD3D",
+          "member": "DrawLine",
           "attrs": {
             "is_static": true
           }
@@ -61801,8 +61825,8 @@
           "name": "SF_D3D_DRAW_BORDERLESS_BOX",
           "num_params": 5,
           "short_desc": "Draws a rectangular area at the specified coordinates",
-          "class": "Sf",
-          "member": "D3DDrawBorderlessBox",
+          "class": "SfD3D",
+          "member": "DrawBorderlessBox",
           "attrs": {
             "is_static": true
           }
@@ -61845,14 +61869,14 @@
           "attrs": {
             "is_static": true
           },
-          "class": "Sf",
-          "member": "D3DDrawBorderedBox"
+          "class": "SfD3D",
+          "member": "DrawBorderedBox"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "D3DFont"
+              "type": "SfD3DFont"
             },
             {
               "name": "text",
@@ -61870,14 +61894,14 @@
           "name": "SF_D3D_GET_DRAW_WIDTH_OF_TEXT_WITH_FONT",
           "num_params": 3,
           "short_desc": "Returns the width (in pixels) that will be occupied by the text with font",
-          "class": "D3DFont",
+          "class": "SfD3DFont",
           "member": "GetDrawWidth"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "D3DFont"
+              "type": "SfD3DFont"
             }
           ],
           "output": [
@@ -61891,7 +61915,7 @@
           "name": "SF_D3D_GET_FONT_DRAW_HEIGHT",
           "num_params": 2,
           "short_desc": "Returns the height (in pixels) occupied by any text that uses the specified font",
-          "class": "D3DFont",
+          "class": "SfD3DFont",
           "member": "GetDrawHeight"
         },
         {
@@ -61912,7 +61936,7 @@
           "output": [
             {
               "name": "handle",
-              "type": "D3DFont",
+              "type": "SfD3DFont",
               "source": "var_any"
             }
           ],
@@ -61920,7 +61944,7 @@
           "name": "SF_D3D_CREATE_FONT",
           "num_params": 4,
           "short_desc": "Creates a D3DFont Object",
-          "class": "D3DFont",
+          "class": "SfD3DFont",
           "member": "Create",
           "attrs": {
             "is_constructor": true
@@ -61930,7 +61954,7 @@
           "input": [
             {
               "name": "self",
-              "type": "D3DFont"
+              "type": "SfD3DFont"
             }
           ],
           "id": "0B6E",
@@ -61941,14 +61965,14 @@
             "is_destructor": true
           },
           "short_desc": "Destroys the specified font object, freeing it from memory",
-          "class": "D3DFont",
+          "class": "SfD3DFont",
           "member": "Delete"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "D3DFont"
+              "type": "SfD3DFont"
             },
             {
               "name": "text",
@@ -61971,7 +61995,7 @@
           "name": "SF_D3D_DRAW_TEXT_WITH_FONT",
           "num_params": 5,
           "short_desc": "Draws text using the specified font",
-          "class": "D3DFont",
+          "class": "SfD3DFont",
           "member": "DrawText"
         },
         {
@@ -62009,8 +62033,8 @@
           "name": "SF_D3D_DRAW_POLYGON",
           "num_params": 7,
           "short_desc": "Draws a polygon with the specified parameters",
-          "class": "Sf",
-          "member": "D3DDrawPolygon",
+          "class": "SfD3D",
+          "member": "DrawPolygon",
           "attrs": {
             "is_static": true
           }
@@ -62025,7 +62049,7 @@
           "output": [
             {
               "name": "handle",
-              "type": "D3DTexture",
+              "type": "SfD3DTexture",
               "source": "var_any"
             }
           ],
@@ -62037,14 +62061,14 @@
             "is_constructor": true
           },
           "short_desc": "Loads a file (any image, or txd) as D3DTexture Object",
-          "class": "D3DTexture",
+          "class": "SfD3DTexture",
           "member": "Load"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "D3DTexture"
+              "type": "SfD3DTexture"
             }
           ],
           "id": "0B72",
@@ -62054,7 +62078,7 @@
             "is_condition": true,
             "is_destructor": true
           },
-          "class": "D3DTexture",
+          "class": "SfD3DTexture",
           "member": "Release",
           "short_desc": "Releases the D3DTexture Object, freeing it from memory"
         },
@@ -62062,7 +62086,7 @@
           "input": [
             {
               "name": "self",
-              "type": "D3DTexture"
+              "type": "SfD3DTexture"
             },
             {
               "name": "coordX",
@@ -62092,14 +62116,14 @@
           "id": "0B73",
           "name": "SF_D3D_DRAW_TEXTURE",
           "num_params": 7,
-          "class": "D3DTexture",
+          "class": "SfD3DTexture",
           "member": "Draw",
           "short_desc": "Draws the texture on the screen"
         },
         {
           "input": [
             {
-              "name": "chatLinIid",
+              "name": "chatLineid",
               "type": "int"
             },
             {
@@ -62127,8 +62151,8 @@
             "is_static": true
           },
           "short_desc": "Changes the chat line's text into a custom one",
-          "class": "Samp",
-          "member": "SetChatLine"
+          "class": "SampChat",
+          "member": "SetLine"
         },
         {
           "input": [
@@ -62167,8 +62191,8 @@
             "is_static": true
           },
           "short_desc": "Returns the chat line's text parameters",
-          "class": "Samp",
-          "member": "GetChatLine"
+          "class": "SampChat",
+          "member": "GetLine"
         },
         {
           "input": [
@@ -62181,8 +62205,8 @@
           "name": "SAMP_SET_CHAT_INPUT_TEXT",
           "num_params": 1,
           "short_desc": "Overwrites the content written at the chat input box",
-          "class": "Samp",
-          "member": "SetChatInputText",
+          "class": "SampChatInput",
+          "member": "SetText",
           "attrs": {
             "is_static": true
           }
@@ -62203,8 +62227,8 @@
             "is_static": true
           },
           "short_desc": "Returns the current text in the chat input box",
-          "class": "Samp",
-          "member": "GetChatInputText"
+          "class": "SampChatInput",
+          "member": "GetText"
         },
         {
           "input": [
@@ -62224,8 +62248,8 @@
           "attrs": {
             "is_static": true
           },
-          "class": "Sf",
-          "member": "ConsoleLog"
+          "class": "SfConsole",
+          "member": "Log"
         },
         {
           "input": [
@@ -62238,8 +62262,8 @@
           "name": "SAMP_SET_CHAT_INPUT_VISIBILITY",
           "num_params": 1,
           "short_desc": "Sets the visibility status (open/closed) of the chat input box",
-          "class": "Samp",
-          "member": "SetChatInputVisibility",
+          "class": "SampChatInput",
+          "member": "SetVisibility",
           "attrs": {
             "is_static": true
           }
@@ -62382,14 +62406,14 @@
           "output": [
             {
               "name": "handle",
-              "type": "DxutDialog",
+              "type": "SfDxutDialog",
               "source": "var_any"
             }
           ],
           "id": "0B80",
           "name": "SF_DXUT_CREATE_DIALOG",
           "num_params": 2,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "Create",
           "attrs": {
             "is_constructor": true
@@ -62400,7 +62424,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             }
           ],
           "output": [
@@ -62422,14 +62446,14 @@
             "is_condition": true
           },
           "short_desc": "Returns the last event and component ID that occurred with the specified dialog",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "Pop"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -62460,14 +62484,14 @@
           "name": "SF_DXUT_DIALOG_ADD_BUTTON",
           "num_params": 7,
           "short_desc": "Adds a button on the DXUTDialog",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "AddButton"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -62497,7 +62521,7 @@
           "id": "0B83",
           "name": "SF_DXUT_DIALOG_ADD_CHECKBOX",
           "num_params": 7,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "AddCheckbox",
           "short_desc": "Creates a checkbox on the DxutDialog"
         },
@@ -62505,7 +62529,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "coordX",
@@ -62528,14 +62552,14 @@
           "name": "SF_DXUT_DIALOG_SET_COORDS_AND_DIMS",
           "num_params": 5,
           "short_desc": "Sets the coordinates and dimensions of the DxutDialog",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "SetCoordsAndDims"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             }
           ],
           "output": [
@@ -62563,7 +62587,7 @@
           "id": "0B85",
           "name": "SF_DXUT_DIALOG_GET_COORDS_AND_DIMS",
           "num_params": 5,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "GetCoordsAndDims",
           "short_desc": "Returns the Coordinates and Dimensions of the DxutDialog"
         },
@@ -62571,7 +62595,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "isVisible",
@@ -62582,14 +62606,14 @@
           "name": "SF_DXUT_DIALOG_SET_VISIBILITY",
           "num_params": 2,
           "short_desc": "Sets the visibility status of the DxutDialog",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "Visibility"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             }
           ],
           "id": "0B87",
@@ -62598,7 +62622,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "IsVisible",
           "short_desc": "Checks if the DxutDialog is visible"
         },
@@ -62606,7 +62630,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -62637,14 +62661,14 @@
           "name": "SF_DXUT_DIALOG_ADD_EDITBOX",
           "num_params": 7,
           "short_desc": "Creates a text input field on a DxutDialog",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "AddEditbox"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -62665,7 +62689,7 @@
             "is_condition": true
           },
           "short_desc": "Returns the text of a control using its ID",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "GetControlText"
         },
         {
@@ -62676,7 +62700,7 @@
             },
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "id": "0B8A",
@@ -62686,14 +62710,14 @@
             "is_condition": true
           },
           "short_desc": "Sends BitStream as RPC to Server",
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "SendAsRpc"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "id": "0B8B",
@@ -62702,7 +62726,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "SendAsPacket",
           "short_desc": "Sends Packet BitStream to Server"
         },
@@ -62716,7 +62740,7 @@
           },
           "short_desc": "Checks if the mouse cursor were both visible and movable",
           "class": "Samp",
-          "member": "CursorActive"
+          "member": "IsCursorActive"
         },
         {
           "input": [
@@ -62789,18 +62813,18 @@
           "id": "0B8F",
           "name": "SF_WINDOW_SCREEN_COORDS_TO_WORLD_COORDS",
           "num_params": 6,
-          "short_desc": "Converts the screen coordinate system to the game 3D coordinate system with the specified depth",
+          "short_desc": "Converts window screen coordinates (pixels) to world's 3D coordinates with the specified depth",
           "attrs": {
             "is_static": true
           },
           "class": "Sf",
-          "member": "From2Dto3D"
+          "member": "From2DTo3DCoords"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "controlId",
@@ -62815,14 +62839,14 @@
           "name": "SF_DXUT_DIALOG_SET_VISIBILITY_OF_CONTROL",
           "num_params": 3,
           "short_desc": "Sets the visibility of the DXUTDialog's control element with ID",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "SetVisibilityOfControl"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -62852,7 +62876,7 @@
           "id": "0B91",
           "name": "SF_DXUT_DIALOG_ADD_STATIC_TEXT",
           "num_params": 7,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "AddStaticText",
           "short_desc": "Adds a static text control in the DxutDialog"
         },
@@ -62860,7 +62884,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "checkboxId",
@@ -62874,14 +62898,14 @@
             "is_condition": true
           },
           "short_desc": "Evaluates as logical true if the checkbox control of the DxutDialog is checked",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "IsCheckBoxChecked"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "color",
@@ -62892,14 +62916,14 @@
           "name": "SF_DXUT_DIALOG_SET_BACKGROUND_COLOR",
           "num_params": 2,
           "short_desc": "Sets the background color of the DxutDialog",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "SetBgColor"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -62917,14 +62941,14 @@
             "is_condition": true
           },
           "short_desc": "Sets the text of a control using its ID",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "SetControlText"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -62937,7 +62961,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "IsControlVisible",
           "short_desc": "Evaluates as true if the DxutDialog's control element with ID is visible"
         },
@@ -62945,7 +62969,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -62975,7 +62999,7 @@
           "id": "0B96",
           "name": "SF_DXUT_DIALOG_ADD_SLIDER",
           "num_params": 7,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "AddSlider",
           "short_desc": "Creates a horizontal slider on the DxutDialog"
         },
@@ -62983,7 +63007,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63001,14 +63025,14 @@
           "name": "SF_DXUT_DIALOG_GET_SLIDER_VALUE",
           "num_params": 3,
           "short_desc": "Returns the thumb position value of the DxutDialog's slider with ID",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "GetSliderValue"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63022,7 +63046,7 @@
           "id": "0B98",
           "name": "SF_DXUT_DIALOG_SET_SLIDER_VALUE",
           "num_params": 3,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "SetSliderValue",
           "short_desc": "Sets the thumb position value of the DxutDialog's slider with ID"
         },
@@ -63030,7 +63054,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63056,7 +63080,7 @@
           "id": "0B99",
           "name": "SF_DXUT_DIALOG_ADD_LISTBOX",
           "num_params": 6,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "AddListbox",
           "short_desc": "Creates a listbox on the dialog"
         },
@@ -63064,7 +63088,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63090,14 +63114,14 @@
             "is_condition": true
           },
           "short_desc": "Inserts a new element into the DxutDialog's listbox with ID",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "InsertListboxElement"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63120,14 +63144,14 @@
           "name": "SF_DXUT_DIALOG_GET_SELECTED_LISTBOX_ELEMENT",
           "num_params": 4,
           "short_desc": "Returns the index of the selected element and the count/number of elements in the DxutDialog's listbox with ID",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "GetSelectedListboxElement"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63144,7 +63168,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "DeleteListboxElement",
           "short_desc": "Removes the element found at the specified index from the DxutDialog's listbox with ID"
         },
@@ -63152,7 +63176,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63182,14 +63206,14 @@
             "is_condition": true
           },
           "short_desc": "Returns the text and data associated with the DxutDialog's listbox element by index",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "GetListboxElement"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63201,9 +63225,9 @@
             }
           ],
           "id": "0B9E",
-          "name": "SAMP_DIALOG_SET_STATUS_OF_CHECKBOX",
+          "name": "SF_DXUT_DIALOG_SET_STATUS_OF_CHECKBOX",
           "num_params": 3,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "SetCheckboxStatus",
           "short_desc": "Sets the status of a checkbox"
         },
@@ -63211,7 +63235,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "isVisible",
@@ -63222,14 +63246,14 @@
           "name": "SF_DXUT_DIALOG_SET_TITLE_VISIBILITY",
           "num_params": 2,
           "short_desc": "Sets the visibility of the DxutDialog's title",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "SetTitleVisibility"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             }
           ],
           "id": "0BA0",
@@ -63238,7 +63262,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "IsTitleVisible",
           "short_desc": "Evaluates as logical true if the DxutDialog's title is visible"
         },
@@ -63246,7 +63270,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "isMinimized",
@@ -63257,14 +63281,14 @@
           "name": "SF_DXUT_DIALOG_SET_MINIMIZED",
           "num_params": 2,
           "short_desc": "Sets the minimized status of the DxutDialog",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "SetMinimized"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             }
           ],
           "id": "0BA2",
@@ -63274,14 +63298,14 @@
             "is_condition": true
           },
           "short_desc": "Returns logical true if the DxutDialog is minimized",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "IsMinimized"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63291,7 +63315,7 @@
           "id": "0BA3",
           "name": "SF_DXUT_DIALOG_DELETE_CONTROL",
           "num_params": 2,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "DeleteControl",
           "short_desc": "Removes a DxutDialog's control with ID and frees the memory allocated for it"
         },
@@ -63299,7 +63323,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             }
           ],
           "id": "0BA4",
@@ -63308,7 +63332,7 @@
           "attrs": {
             "is_destructor": true
           },
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "Delete",
           "short_desc": "Deletes the DxutDialog and frees the memory allocated for it"
         },
@@ -63316,7 +63340,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63327,14 +63351,14 @@
           "name": "SF_DXUT_DIALOG_SET_FOCUSED_CONTROL",
           "num_params": 2,
           "short_desc": "Sets the focus of user interaction to a specific DxutDialog control with ID",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "ToggleControlFocus"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63353,14 +63377,14 @@
           "name": "SF_DXUT_DIALOG_SET_DIMS_OF_CONTROL",
           "num_params": 4,
           "short_desc": "Changes the dimensions of the DxutDialog control with ID",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "SetDims"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63382,7 +63406,7 @@
           "id": "0BA7",
           "name": "SF_DXUT_DIALOG_GET_DIMS_OF_CONTROL",
           "num_params": 4,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "GetControlDims",
           "short_desc": "Returns the dimensions of the DxutDialog control with ID"
         },
@@ -63390,7 +63414,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63408,7 +63432,7 @@
           "id": "0BA8",
           "name": "SF_DXUT_DIALOG_SET_COORDS_OF_CONTROL",
           "num_params": 4,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "SetControlCoords",
           "short_desc": "Sets the window position of the DxutDialog control with ID"
         },
@@ -63416,7 +63440,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63438,7 +63462,7 @@
           "id": "0BA9",
           "name": "SF_DXUT_DIALOG_GET_COORDS_OF_CONTROL",
           "num_params": 4,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "GetControlCoords",
           "short_desc": "Returns the window position of a DxutDialog control"
         },
@@ -63446,7 +63470,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             },
             {
               "name": "id",
@@ -63460,7 +63484,7 @@
           "id": "0BAA",
           "name": "SF_DXUT_DIALOG_SET_COLOR_OF_CHECKBOX",
           "num_params": 3,
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "SetCheckboxColor",
           "short_desc": "Sets the color of DxutDialog's checkbox control with ID"
         },
@@ -63468,7 +63492,7 @@
           "input": [
             {
               "name": "self",
-              "type": "DxutDialog"
+              "type": "SfDxutDialog"
             }
           ],
           "id": "0BAB",
@@ -63478,7 +63502,7 @@
             "is_condition": true
           },
           "short_desc": "Evaluates as logical true if the specified DxutDialog exists",
-          "class": "DxutDialog",
+          "class": "SfDxutDialog",
           "member": "DoesExist"
         },
         {
@@ -63736,8 +63760,8 @@
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -63751,18 +63775,17 @@
           "name": "SAMP_STORE_PLAYER_ONFOOT_DATA",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "short_desc": "Writes the current player's onFootData structure to the buffer",
-          "class": "Samp",
+          "short_desc": "Stores the current player's onFootData structure to the buffer",
+          "class": "SampPlayer",
           "member": "StoreOnFootData"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -63773,21 +63796,20 @@
             }
           ],
           "id": "0BBB",
-          "name": "SAMP_STORE_PLAYER_INCAR_DATA",
+          "name": "SAMP_STORE_PLAYER_DRIVING_DATA",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "class": "Samp",
-          "member": "StoreInCarData",
-          "short_desc": "Writes the current player's inCarData structure to the buffer"
+          "class": "SampPlayer",
+          "member": "StoreDrivingData",
+          "short_desc": "Stores the player's current inCarData structure to the buffer"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -63801,18 +63823,17 @@
           "name": "SAMP_STORE_PLAYER_PASSENGER_DATA",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "short_desc": "Writes the current passengerData structure of the player to the buffer",
-          "class": "Samp",
+          "short_desc": "Stores the current passengerData structure of the player to the buffer",
+          "class": "SampPlayer",
           "member": "StorePassengerData"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -63826,18 +63847,17 @@
           "name": "SAMP_STORE_PLAYER_TRAILER_DATA",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "class": "Samp",
+          "class": "SampPlayer",
           "member": "StoreTrailerData",
-          "short_desc": "Writes the player's current trailerData structure to the buffer"
+          "short_desc": "Stores the player's current trailerData structure to the buffer"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampPlayer"
             }
           ],
           "output": [
@@ -63851,11 +63871,10 @@
           "name": "SAMP_STORE_PLAYER_AIM_DATA",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "short_desc": "Writes the specified player's aimData structure to the buffer",
-          "class": "Samp",
+          "short_desc": "Stores the specified player's aimData structure to the buffer",
+          "class": "SampPlayer",
           "member": "StoreAimData"
         },
         {
@@ -63886,7 +63905,7 @@
           "name": "SAMP_SEND_ONFOOT_DATA",
           "num_params": 1,
           "class": "Samp",
-          "member": "SendOnFootData",
+          "member": "SendPktOnFootData",
           "attrs": {
             "is_static": true
           },
@@ -63900,14 +63919,14 @@
             }
           ],
           "id": "0BC1",
-          "name": "SAMP_SEND_INCAR_DATA",
+          "name": "SAMP_SEND_DRIVING_DATA",
           "num_params": 1,
           "class": "Samp",
-          "member": "SendInCarData",
+          "member": "SendPktDrivingData",
           "attrs": {
             "is_static": true
           },
-          "short_desc": "Sends SampPacket.DriverSync to the server"
+          "short_desc": "Sends SampPacket.DrivingSync to the server"
         },
         {
           "input": [
@@ -63920,7 +63939,7 @@
           "name": "SAMP_SEND_PASSENGER_DATA",
           "num_params": 1,
           "class": "Samp",
-          "member": "SendPassengerData",
+          "member": "SendPktPassengerData",
           "attrs": {
             "is_static": true
           },
@@ -63937,7 +63956,7 @@
           "name": "SAMP_SEND_AIM_DATA",
           "num_params": 1,
           "class": "Samp",
-          "member": "SendAimData",
+          "member": "SendPktAimData",
           "attrs": {
             "is_static": true
           },
@@ -63954,7 +63973,7 @@
           "name": "SAMP_SEND_BULLET_DATA",
           "num_params": 1,
           "class": "Samp",
-          "member": "SendBulletData",
+          "member": "SendPktBulletData",
           "attrs": {
             "is_static": true
           },
@@ -63971,7 +63990,7 @@
           "name": "SAMP_SEND_TRAILER_DATA",
           "num_params": 1,
           "class": "Samp",
-          "member": "SendTrailerData",
+          "member": "SendPktTrailerData",
           "attrs": {
             "is_static": true
           },
@@ -63988,7 +64007,7 @@
           "name": "SAMP_SEND_UNOCCUPIEDCAR_DATA",
           "num_params": 1,
           "class": "Samp",
-          "member": "SendUnoccupiedCarData",
+          "member": "SendPktUnoccupiedCarData",
           "attrs": {
             "is_static": true
           },
@@ -64005,7 +64024,7 @@
           "name": "SAMP_SEND_SPECTATOR_DATA",
           "num_params": 1,
           "class": "Samp",
-          "member": "SendSpectatorData",
+          "member": "SendPktSpectatorData",
           "attrs": {
             "is_static": true
           },
@@ -64305,7 +64324,12 @@
           "id": "0BD2",
           "name": "SAMP_SEND_MENU_SELECT_ROW",
           "num_params": 1,
-          "short_desc": "Sends SampRpc.MenuSelect about selecting an item in a menu (GTA:SA menu)"
+          "short_desc": "Sends SampRpc.MenuSelect about selecting an item in a menu (GTA:SA menu)",
+          "class": "Samp",
+          "member": "SendRpcMenuSelectRow",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
           "id": "0BD3",
@@ -64340,9 +64364,12 @@
           "name": "SAMP_IS_SCOREBOARD_VISIBLE",
           "num_params": 0,
           "attrs": {
-            "is_condition": true
+            "is_condition": true,
+            "is_static": true
           },
-          "short_desc": "Evaluates as logical true if the scoreboard is visible"
+          "short_desc": "Evaluates as logical true if the scoreboard is visible",
+          "class": "Samp",
+          "member": "IsScoreboardVisible"
         },
         {
           "input": [
@@ -64354,7 +64381,12 @@
           "id": "0BD6",
           "name": "SAMP_SET_SCOREBOARD_VISIBILITY",
           "num_params": 1,
-          "short_desc": "Sets the visibility of the scoreboard"
+          "short_desc": "Sets the visibility of the scoreboard",
+          "class": "Samp",
+          "member": "SetScoreboardVisibility",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
           "input": [
@@ -64383,7 +64415,7 @@
           "id": "0BD8",
           "name": "SAMP_GET_DIALOG_TITLE",
           "num_params": 1,
-          "short_desc": "Writes the title of the active dialog to buffer. If the dialog is not opened, the last opened dialog is evaluated instead",
+          "short_desc": "Stores the title of the active dialog to buffer. If the dialog is not opened, the last opened dialog is evaluated instead",
           "class": "Samp",
           "member": "GetDialogTitle",
           "attrs": {
@@ -64416,7 +64448,7 @@
             "is_static": true
           },
           "class": "Samp",
-          "member": "DialogClientSide",
+          "member": "IsDialogClientSide",
           "short_desc": "Evaluates as logical true if the active dialog is has a client side attribute"
         },
         {
@@ -64428,8 +64460,8 @@
             "is_static": true
           },
           "short_desc": "Evaluates as logical true if chat lines are visible",
-          "class": "Samp",
-          "member": "ChatVisible"
+          "class": "SampChat",
+          "member": "IsVisible"
         },
         {
           "output": [
@@ -64446,8 +64478,8 @@
           "attrs": {
             "is_static": true
           },
-          "class": "Samp",
-          "member": "GetChatDisplayMode"
+          "class": "SampChat",
+          "member": "GetDisplayMode"
         },
         {
           "input": [
@@ -64463,39 +64495,39 @@
           "attrs": {
             "is_static": true
           },
-          "class": "Samp",
-          "member": "SetChatDisplayMode"
+          "class": "SampChat",
+          "member": "SetDisplayMode"
         },
         {
           "input": [
             {
-              "name": "threadId",
+              "name": "scriptId",
               "type": "int"
             }
           ],
           "id": "0BDE",
-          "name": "SF_PAUSE_THREAD",
+          "name": "SF_PAUSE_SCRIPT",
           "num_params": 1,
-          "short_desc": "Sets the specified thread's isActive parameter to 0",
+          "short_desc": "Sets the specified script's isActive parameter to 0",
           "attrs": {
             "is_static": true
           },
           "class": "Sf",
-          "member": "PauseThread"
+          "member": "PauseScript"
         },
         {
           "input": [
             {
-              "name": "threadId",
+              "name": "scriptId",
               "type": "int"
             }
           ],
           "id": "0BDF",
-          "name": "SF_RESUME_THREAD",
+          "name": "SF_RESUME_SCRIPT",
           "num_params": 1,
-          "short_desc": "Sets the specified thread's isActive parameter to 1",
+          "short_desc": "Sets the specified script's isActive parameter to 1",
           "class": "Sf",
-          "member": "ResumeThread",
+          "member": "ResumeScript",
           "attrs": {
             "is_static": true
           }
@@ -64503,24 +64535,24 @@
         {
           "input": [
             {
-              "name": "unblockData",
+              "name": "processData",
               "type": "bool"
             }
           ],
           "id": "0BE0",
           "name": "SAMP_RAKNET_HOOK_RETURN",
           "num_params": 1,
-          "class": "RakNet",
+          "class": "SampRaknet",
           "member": "Return",
           "attrs": {
             "is_static": true
           },
-          "short_desc": "Returns the flow of control to RakNet and decides wether the currently intercepted data will be processed by RakNet or not"
+          "short_desc": "Returns the flow of control to RakNet and decides whether the currently intercepted data will be processed by RakNet or not"
         },
         {
           "input": [
             {
-              "name": "callbackLabel",
+              "name": "callback",
               "type": "label"
             }
           ],
@@ -64531,14 +64563,14 @@
             "is_condition": true,
             "is_static": true
           },
-          "class": "RakNet",
+          "class": "SampRaknet",
           "member": "HookRpcOut",
-          "short_desc": "Redirects all outgoing RPCs to the specified callback(label) for subsequent processing before sending to the server"
+          "short_desc": "Redirects all outgoing RPCs to the specified callback for subsequent processing before sending to the server"
         },
         {
           "input": [
             {
-              "name": "callbackLabel",
+              "name": "callback",
               "type": "label"
             }
           ],
@@ -64549,14 +64581,14 @@
             "is_condition": true,
             "is_static": true
           },
-          "class": "RakNet",
+          "class": "SampRaknet",
           "member": "HookPacketOut",
-          "short_desc": "Redirects all outgoing Packets to the specified callback(label) for subsequent processing before sending to the server"
+          "short_desc": "Redirects all outgoing Packets to the specified callback for subsequent processing before sending to the server"
         },
         {
           "input": [
             {
-              "name": "callbackLabel",
+              "name": "callback",
               "type": "label"
             }
           ],
@@ -64567,14 +64599,14 @@
             "is_condition": true,
             "is_static": true
           },
-          "short_desc": "Redirects all incoming RPCs to the specified callback(label) for subsequent processing before acceptance on the local client",
-          "class": "RakNet",
+          "short_desc": "Redirects all incoming RPCs to the specified callback for subsequent processing before acceptance on the local client",
+          "class": "SampRaknet",
           "member": "HookRpcIn"
         },
         {
           "input": [
             {
-              "name": "callbackLabel",
+              "name": "callback",
               "type": "label"
             }
           ],
@@ -64585,9 +64617,9 @@
             "is_condition": true,
             "is_static": true
           },
-          "class": "RakNet",
+          "class": "SampRaknet",
           "member": "HookPacketIn",
-          "short_desc": "Redirects all incoming packets to the specified callback(label) for subsequent processing before acceptance on the local client"
+          "short_desc": "Redirects all incoming packets to the specified callback for subsequent processing before acceptance on the local client"
         },
         {
           "input": [
@@ -64611,7 +64643,7 @@
             "is_static": true
           },
           "short_desc": "Returns the hook parameter's value of the currently executing callback",
-          "class": "RakNet",
+          "class": "SampRaknet",
           "member": "GetHookParam"
         },
         {
@@ -64632,7 +64664,7 @@
             "is_condition": true,
             "is_static": true
           },
-          "class": "RakNet",
+          "class": "SampRaknet",
           "member": "SetHookParam",
           "short_desc": "Sets the hook parameter's value of the currently executing callback"
         },
@@ -64640,7 +64672,7 @@
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             },
             {
               "name": "dataType",
@@ -64661,14 +64693,14 @@
             "is_condition": true
           },
           "short_desc": "Reads a value with datatype and datasize at the \"read pointer\" of the specified bitstream , then advances its \"read pointer\" by the same size",
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "Read"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             },
             {
               "name": "buffer",
@@ -64686,14 +64718,14 @@
             "is_condition": true
           },
           "short_desc": "Stores an array of bytes from the Bitstream to buffer",
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "ReadArray"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "id": "0BE9",
@@ -64702,7 +64734,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "ResetReadPtr",
           "short_desc": "Resets the read pointer of the BitStream. Setting \"write offset = 0\""
         },
@@ -64710,7 +64742,7 @@
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "id": "0BEA",
@@ -64720,14 +64752,14 @@
             "is_condition": true
           },
           "short_desc": "Resets (THIS COMMAND IS BUGGED, SETS THE WRITE POINTER AT THE BEGINNING OF THE DATA ( WRITE OFFSET = 0) WHICH IS WRONG. DO NOT USE) the value write pointer in the BitStream",
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "ResetWritePtr"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             },
             {
               "name": "bitCount",
@@ -64740,7 +64772,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "SkipBits",
           "short_desc": "Increases both its \"read pointer\" and \"write pointer\" of the Bitstream by the specified bit count"
         },
@@ -64748,7 +64780,7 @@
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             },
             {
               "name": "offset",
@@ -64761,7 +64793,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "SetWriteOffset",
           "short_desc": "Sets the write offset of the BitStream"
         },
@@ -64769,7 +64801,7 @@
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             },
             {
               "name": "offset",
@@ -64782,7 +64814,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "SetReadPtr",
           "short_desc": "Sets the read offset of the BitStream"
         },
@@ -64790,7 +64822,7 @@
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "output": [
@@ -64803,7 +64835,7 @@
           "id": "0BEE",
           "name": "SAMP_RAKNET_BITSTREAM_GET_NUMBER_OF_BITS_USED",
           "num_params": 2,
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "GetBitsUsed",
           "short_desc": "Returns the number of used bits in the BitStream"
         },
@@ -64811,7 +64843,7 @@
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "output": [
@@ -64828,14 +64860,14 @@
             "is_condition": true
           },
           "short_desc": "Returns the number of bytes used in the BitStream",
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "GetBytesUsed"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "output": [
@@ -64852,14 +64884,14 @@
             "is_condition": true
           },
           "short_desc": "Returns the number of unread bits in the BitStream",
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "GetUnreadBits"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "output": [
@@ -64875,7 +64907,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "GetWriteOffset",
           "short_desc": "Returns the current write offset of the BitStream"
         },
@@ -64883,7 +64915,7 @@
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "output": [
@@ -64899,7 +64931,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "GetReadOffset",
           "short_desc": "Returns the current read offset of the BitStream"
         },
@@ -64907,7 +64939,7 @@
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "output": [
@@ -64924,14 +64956,14 @@
             "is_condition": true
           },
           "short_desc": "Returns a pointer to the BitStream's data",
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "GetDataPtr"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             },
             {
               "name": "buffer",
@@ -64948,15 +64980,15 @@
           "attrs": {
             "is_condition": true
           },
-          "short_desc": "Decrypts a compressed string (CString) from the bitstream and writes it to the buffer",
-          "class": "Bitstream",
+          "short_desc": "Decrypts a compressed string (CString) from the bitstream then stores this to the buffer",
+          "class": "SampBitstream",
           "member": "DecodeCString"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             },
             {
               "name": "buffer",
@@ -64973,8 +65005,8 @@
           "attrs": {
             "is_condition": true
           },
-          "short_desc": "Encrypts a string stored in the buffer and writes the compressed string (CString) to the bitstream",
-          "class": "Bitstream",
+          "short_desc": "Encrypts a string stored in the buffer then stores this compressed string (CString) to the bitstream",
+          "class": "SampBitstream",
           "member": "EncodeString"
         },
         {
@@ -64985,7 +65017,7 @@
             },
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "id": "0BF6",
@@ -64994,7 +65026,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "EmulateAsRpcIn",
           "short_desc": "Emulates the BitStream's data like an incoming RPC"
         },
@@ -65006,7 +65038,7 @@
             },
             {
               "name": "self",
-              "type": "Bitstream"
+              "type": "SampBitstream"
             }
           ],
           "id": "0BF7",
@@ -65015,7 +65047,7 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "Bitstream",
+          "class": "SampBitstream",
           "member": "EmulateAsPacketIn",
           "short_desc": "Emulates the BitStream's data like an Incoming Packet"
         },
@@ -65041,7 +65073,7 @@
             "is_static": true
           },
           "short_desc": "Returns a pointer to the RPC ID's Name",
-          "class": "RakNet",
+          "class": "SampRaknet",
           "member": "GetRpcName"
         },
         {
@@ -65066,14 +65098,14 @@
             "is_static": true
           },
           "short_desc": "Returns a pointer to the Packet ID's Name",
-          "class": "RakNet",
+          "class": "SampRaknet",
           "member": "GetPacketName"
         },
         {
           "id": "0BFA",
           "name": "SF_PUSH_LOCAL_VARIABLES",
           "num_params": 0,
-          "short_desc": "Saves the values ​​of all local variables from the currently executing thread (Main Thread or a Function) to a separate memory that can be recovered later on by SF_POP_LOCAL_VARIABLES",
+          "short_desc": "Saves the values of all local variables from the currently executing script (Main Script or a Function) to a separate memory that can be recovered later on by SF_POP_LOCAL_VARIABLES",
           "attrs": {
             "is_static": true
           },
@@ -65089,7 +65121,7 @@
             "is_static": true
           },
           "member": "PopLocalVars",
-          "short_desc": "Restores all previously saved local variables by SF_PUSH_LOCAL_VARIABLES to the local variables of the currently executing thread (Main Thread or a Function)"
+          "short_desc": "Restores all previously saved local variables by SF_PUSH_LOCAL_VARIABLES to the local variables of the currently executing script (Main Script or a Function)"
         },
         {
           "input": [
@@ -65110,8 +65142,8 @@
             "is_static": true
           },
           "short_desc": "Sets the value of the custom global variable with name",
-          "class": "Sf",
-          "member": "SetGVar"
+          "class": "SfGVar",
+          "member": "Set"
         },
         {
           "input": [
@@ -65134,8 +65166,8 @@
             "is_condition": true,
             "is_static": true
           },
-          "class": "Sf",
-          "member": "GetGVar",
+          "class": "SfGVar",
+          "member": "Get",
           "short_desc": "Returns the value of the custom global variable with name"
         },
         {
@@ -65549,7 +65581,7 @@
             }
           ],
           "id": "0C0C",
-          "name": "SF_READ_MEMORY_OFFSET",
+          "name": "SF_READ_MEMORY_WITH_OFFSET",
           "num_params": 4,
           "attrs": {
             "is_condition": true,
@@ -65557,7 +65589,7 @@
           },
           "short_desc": "Reads the value with size from memory address with offset",
           "class": "Sf",
-          "member": "MemoryReadOffset"
+          "member": "ReadMemoryWithOffset"
         },
         {
           "input": [
@@ -65579,7 +65611,7 @@
             }
           ],
           "id": "0C0D",
-          "name": "SF_WRITE_MEMORY_OFFSET",
+          "name": "SF_WRITE_MEMORY_WITH_OFFSET",
           "num_params": 4,
           "attrs": {
             "is_condition": true,
@@ -65587,7 +65619,7 @@
           },
           "short_desc": "Writes the value with size to memory address with offset",
           "class": "Sf",
-          "member": "MemoryWriteOffset"
+          "member": "WriteMemoryWithOffset"
         },
         {
           "input": [
@@ -65699,11 +65731,11 @@
         {
           "input": [
             {
-              "name": "address1",
+              "name": "addressA",
               "type": "int"
             },
             {
-              "name": "address2",
+              "name": "addressB",
               "type": "int"
             },
             {
@@ -65712,7 +65744,7 @@
             }
           ],
           "id": "0C12",
-          "name": "SF_EQUAL_MEMORY_BLOCKS",
+          "name": "SF_MEMEQ",
           "num_params": 3,
           "attrs": {
             "is_condition": true,
@@ -65746,16 +65778,16 @@
         {
           "input": [
             {
-              "name": "string1",
+              "name": "stringA",
               "type": "string"
             },
             {
-              "name": "string2",
+              "name": "stringB",
               "type": "string"
             }
           ],
           "id": "0C14",
-          "name": "SF_EQUAL_STRINGS",
+          "name": "SF_STREQ",
           "num_params": 2,
           "attrs": {
             "is_condition": true,
@@ -65966,7 +65998,7 @@
           "id": "0C1C",
           "name": "SF_ITOA",
           "num_params": 3,
-          "short_desc": "Converts a baseN integer into an ascii string then writes it to stringBuffer",
+          "short_desc": "Converts a baseN integer into an ascii string then stores it to stringBuffer",
           "class": "Sf",
           "member": "ItoA",
           "attrs": {
@@ -66100,16 +66132,16 @@
         {
           "input": [
             {
-              "name": "string1",
+              "name": "stringA",
               "type": "string"
             },
             {
-              "name": "string2",
+              "name": "stringB",
               "type": "string"
             }
           ],
           "id": "0C21",
-          "name": "SF_EQUAL_INSENSITIVE_STRINGS",
+          "name": "SF_STRIEQ",
           "num_params": 2,
           "attrs": {
             "is_condition": true,
@@ -66199,11 +66231,11 @@
         {
           "input": [
             {
-              "name": "string1",
+              "name": "stringA",
               "type": "string"
             },
             {
-              "name": "string2",
+              "name": "stringB",
               "type": "string"
             },
             {
@@ -66212,7 +66244,7 @@
             }
           ],
           "id": "0C25",
-          "name": "SF_EQUAL_SUBSTRINGS",
+          "name": "SF_STRNEQ",
           "num_params": 3,
           "attrs": {
             "is_condition": true,
@@ -66607,14 +66639,14 @@
             }
           ],
           "id": "0C32",
-          "name": "SF_MATRIX_VECTORS_TO_QUAT",
+          "name": "SF_AXES_TO_QUAT",
           "num_params": 13,
           "attrs": {
             "is_static": true
           },
           "class": "Sf",
-          "member": "MatrixVectorsToQuat",
-          "short_desc": "Converts the matrix vectors into quaternion values"
+          "member": "AxesToQuat",
+          "short_desc": "Converts the basis vectors of a rotation matrix into quaternion values"
         },
         {
           "input": [
@@ -66683,9 +66715,9 @@
             }
           ],
           "id": "0C33",
-          "name": "SF_QUAT_TO_MATRIX_VECTORS",
+          "name": "SF_QUAT_TO_AXES",
           "num_params": 13,
-          "short_desc": "Converts the quaternion values into matrix vectors",
+          "short_desc": "Converts the quaternion values into basis vectors of a rotation matrix",
           "attrs": {
             "is_static": true
           },
@@ -66711,8 +66743,8 @@
             "is_static": true
           },
           "short_desc": "Registers the name of a custom global function allowing other scripts to call it using SF_CALL_CUSTOM_GLOBAL_FUNCTION command",
-          "class": "Sf",
-          "member": "RegGFunc"
+          "class": "SfGFunc",
+          "member": "Register"
         },
         {
           "input": [
@@ -66721,11 +66753,11 @@
               "type": "string"
             },
             {
-              "name": "numParam",
+              "name": "numArgs",
               "type": "int"
             },
             {
-              "name": "params",
+              "name": "args",
               "type": "arguments"
             }
           ],
@@ -66737,8 +66769,8 @@
             "is_static": true
           },
           "short_desc": "Calls a registered custom global function with name",
-          "class": "Sf",
-          "member": "CallGFunc"
+          "class": "SfGFunc",
+          "member": "Call"
         },
         {
           "input": [
@@ -66759,8 +66791,8 @@
             "is_static": true
           },
           "short_desc": "Returns the flow of the execution to the next instruction after the custom global function call, optionally returning one or more parameters as result",
-          "class": "Sf",
-          "member": "GFuncRet"
+          "class": "SfGFunc",
+          "member": "Return"
         },
         {
           "input": [
@@ -66776,8 +66808,8 @@
             "is_condition": true,
             "is_static": true
           },
-          "class": "Sf",
-          "member": "GFuncRegistered",
+          "class": "SfGFunc",
+          "member": "IsRegistered",
           "short_desc": "Evaluates as logical true if the specified name is registered a custom global function"
         },
         {
@@ -66807,8 +66839,8 @@
             "is_static": true
           },
           "short_desc": "Returns the origin informations of a custom global function with name",
-          "class": "Sf",
-          "member": "GFuncGetOrigin"
+          "class": "SfGFunc",
+          "member": "GetOrigin"
         },
         {
           "input": [
@@ -66824,8 +66856,8 @@
           "attrs": {
             "is_static": true
           },
-          "class": "Sf",
-          "member": "GFuncUnreg"
+          "class": "SfGFunc",
+          "member": "Unregister"
         },
         {
           "input": [
@@ -67018,7 +67050,7 @@
           "input": [
             {
               "name": "idAsHandle",
-              "type": "TextLabel3D"
+              "type": "SampTextLabel3D"
             },
             {
               "name": "text",
@@ -67064,14 +67096,14 @@
           "attrs": {
             "is_static": true
           },
-          "class": "TextLabel3D",
+          "class": "SampTextLabel3D",
           "member": "CreateWithId"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "TextLabel3D"
+              "type": "SampTextLabel3D"
             }
           ],
           "output": [
@@ -67127,15 +67159,15 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "TextLabel3D",
+          "class": "SampTextLabel3D",
           "member": "GetParams",
-          "short_desc": "Returns all the informations about a TextLabel3D using its ID"
+          "short_desc": "Returns all the informations about a SampTextLabel3D using its ID"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "TextLabel3D"
+              "type": "SampTextLabel3D"
             },
             {
               "name": "text",
@@ -67149,14 +67181,14 @@
             "is_condition": true
           },
           "short_desc": "Sets new text for 3D text",
-          "class": "TextLabel3D",
+          "class": "SampTextLabel3D",
           "member": "SetText"
         },
         {
           "input": [
             {
               "name": "id",
-              "type": "int"
+              "type": "SampTextDraw"
             },
             {
               "name": "text",
@@ -67172,21 +67204,21 @@
             }
           ],
           "id": "0C48",
-          "name": "SAMP_MODIFY_TEXTDRAW",
+          "name": "SAMP_CREATE_TEXTDRAW",
           "num_params": 4,
           "attrs": {
             "is_condition": true,
             "is_static": true
           },
           "short_desc": "Modifies a textdraw with the specified parameters, creating it if it doesn't exist",
-          "class": "Samp",
-          "member": "ModifyTextDraw"
+          "class": "SampTextDraw",
+          "member": "Create"
         },
         {
           "input": [
             {
-              "name": "textDrawId",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             },
             {
               "name": "isVisible",
@@ -67209,18 +67241,17 @@
           "name": "SAMP_SET_TEXTDRAW_BOX",
           "num_params": 5,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Sets the parameters of the \"box\" (rectangle) of the text draw",
-          "class": "Samp",
-          "member": "SetTextDrawBox"
+          "class": "SampTextDraw",
+          "member": "SetBox"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             },
             {
               "name": "alignment",
@@ -67231,18 +67262,17 @@
           "name": "SAMP_SET_TEXTDRAW_ALIGNMENT",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Sets the alignment of the text in the textdraw",
-          "class": "Samp",
-          "member": "SetTextDrawAlignment"
+          "class": "SampTextDraw",
+          "member": "SetAlignment"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             },
             {
               "name": "isProportional",
@@ -67253,18 +67283,17 @@
           "name": "SAMP_SET_TEXTDRAW_PROPORTIONALITY",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "class": "Samp",
-          "short_desc": "Sets wether the text scaling status is proportional to the text draw or not",
-          "member": "SetTextDrawProportionality"
+          "class": "SampTextDraw",
+          "short_desc": "Sets whether the text scaling status is proportional to the text draw or not",
+          "member": "SetProportionality"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             },
             {
               "name": "style",
@@ -67275,18 +67304,17 @@
           "name": "SAMP_SET_TEXTDRAW_STYLE",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Sets the text draw style",
-          "class": "Samp",
-          "member": "SetTextDrawStyle"
+          "class": "SampTextDraw",
+          "member": "SetStyle"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             },
             {
               "name": "tickness",
@@ -67301,18 +67329,17 @@
           "name": "SAMP_SET_TEXTDRAW_SHADOW",
           "num_params": 3,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Sets a shadow on the text draw",
-          "class": "Samp",
-          "member": "SetTextDrawShadow"
+          "class": "SampTextDraw",
+          "member": "SetShadow"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             },
             {
               "name": "tickness",
@@ -67327,18 +67354,17 @@
           "name": "SAMP_SET_TEXTDRAW_OUTLINE",
           "num_params": 3,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Sets the outline of the text draw",
-          "class": "Samp",
-          "member": "SetTextDrawOutline"
+          "class": "SampTextDraw",
+          "member": "SetOutline"
         },
         {
           "input": [
             {
-              "name": "textDrawId",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             },
             {
               "name": "model",
@@ -67373,18 +67399,17 @@
           "name": "SAMP_SET_TEXTDRAW_MODEL",
           "num_params": 8,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Sets the model (object, auto) of the text draw for style 5",
-          "class": "Sf",
-          "member": "SetTextDrawModel"
+          "class": "SampTextDraw",
+          "member": "SetModel"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             },
             {
               "name": "text",
@@ -67395,18 +67420,17 @@
           "name": "SAMP_SET_TEXTDRAW_TEXT",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Sets the text of the textdraw",
-          "class": "Samp",
-          "member": "SetTextDrawText"
+          "class": "SampTextDraw",
+          "member": "SetText"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             },
             {
               "name": "coordX",
@@ -67421,18 +67445,17 @@
           "name": "SAMP_SET_TEXTDRAW_COORDS",
           "num_params": 3,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Sets the gamescreen coordinates of the textdraw",
-          "class": "Samp",
-          "member": "SetTextDrawCoords"
+          "class": "SampTextDraw",
+          "member": "SetCoords"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             },
             {
               "name": "width",
@@ -67451,18 +67474,17 @@
           "name": "SAMP_SET_TEXTDRAW_CHARACTER_PROPERTIES",
           "num_params": 4,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "class": "Samp",
-          "member": "SetTextDrawCharacterProperties",
+          "class": "SampTextDraw",
+          "member": "SetCharProps",
           "short_desc": "Sets the size and color property of all characters in the textdraw"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "output": [
@@ -67491,18 +67513,17 @@
           "name": "SAMP_GET_TEXTDRAW_BOX",
           "num_params": 5,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Returns the parameters of the \"box\" (rectangle) of the specified text draw",
-          "class": "Samp",
-          "member": "GetTextDrawBox"
+          "class": "SampTextDraw",
+          "member": "GetBox"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "output": [
@@ -67516,18 +67537,17 @@
           "name": "SAMP_GET_TEXTDRAW_ALIGNMENT",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Sets the alignment of the text in the textdraw",
-          "class": "Samp",
-          "member": "GetTextDrawAlignment"
+          "class": "SampTextDraw",
+          "member": "GetAlignment"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "output": [
@@ -67541,18 +67561,17 @@
           "name": "SAMP_GET_TEXTDRAW_PROPORTIONALITY",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "class": "Samp",
-          "member": "GetTextdrawProportionality",
+          "class": "SampTextDraw",
+          "member": "GetProportionality",
           "short_desc": "Returns true if the text scaling status is proportional to the text draw"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "output": [
@@ -67566,18 +67585,17 @@
           "name": "SAMP_GET_TEXTDRAW_STYLE",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Returns the text draw style",
-          "class": "Samp",
-          "member": "GetTextdrawStyle"
+          "class": "SampTextDraw",
+          "member": "GetStyle"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "output": [
@@ -67596,18 +67614,17 @@
           "name": "SAMP_GET_TEXTDRAW_SHADOW",
           "num_params": 3,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Returns the tickness and color property of the text draw's shadow",
-          "class": "Samp",
-          "member": "GetTextdrawShadow"
+          "class": "SampTextDraw",
+          "member": "GetShadow"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "output": [
@@ -67626,18 +67643,17 @@
           "name": "SAMP_GET_TEXTDRAW_OUTLINE",
           "num_params": 3,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Returns the tickness and color property of the text draw's outline",
-          "class": "Samp",
-          "member": "GetTextdrawOutline"
+          "class": "SampTextDraw",
+          "member": "GetOutline"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "output": [
@@ -67681,18 +67697,17 @@
           "name": "SAMP_GET_TEXTDRAW_MODEL",
           "num_params": 8,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "class": "Samp",
-          "member": "GetTextdrawModel",
+          "class": "SampTextDraw",
+          "member": "GetModel",
           "short_desc": "Returns the properties of the text draw as a model (style 5)"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "output": [
@@ -67706,18 +67721,17 @@
           "name": "SAMP_STORE_TEXTDRAW_TEXT",
           "num_params": 2,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
           "short_desc": "Stores the textdraw's text to stringBuffer",
-          "class": "Samp",
-          "member": "StoreTextdrawText"
+          "class": "SampTextDraw",
+          "member": "StoreText"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "output": [
@@ -67736,18 +67750,17 @@
           "name": "SAMP_GET_TEXTDRAW_COORDS",
           "num_params": 3,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "class": "Samp",
-          "member": "GetTextdrawCoords",
+          "class": "SampTextDraw",
+          "member": "GetCoords",
           "short_desc": "Returns the gamescreen coordinates of the textdraw"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "output": [
@@ -67771,36 +67784,34 @@
           "name": "SAMP_GET_TEXTDRAW_CHARACTER_PROPERTIES",
           "num_params": 4,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "class": "Samp",
-          "member": "GetTextdrawCharacterProperties",
+          "class": "SampTextDraw",
+          "member": "GetCharProps",
           "short_desc": "Returns the size and color property of all characters in the textdraw"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "id": "0C5D",
           "name": "SAMP_DOES_TEXTDRAW_EXIST",
           "num_params": 1,
           "attrs": {
-            "is_condition": true,
-            "is_static": true
+            "is_condition": true
           },
-          "class": "Samp",
-          "member": "TextDrawExist",
+          "class": "SampTextDraw",
+          "member": "DoesExist",
           "short_desc": "Evaluates as logical true if the specified textdraw exists"
         },
         {
           "input": [
             {
-              "name": "id",
-              "type": "int"
+              "name": "self",
+              "type": "SampTextDraw"
             }
           ],
           "id": "0C5E",
@@ -67808,10 +67819,10 @@
           "num_params": 1,
           "attrs": {
             "is_condition": true,
-            "is_static": true
+            "is_destructor": true
           },
-          "class": "Samp",
-          "member": "DeleteTextdraw",
+          "class": "SampTextDraw",
+          "member": "Delete",
           "short_desc": "Deletes the specified textdraw"
         },
         {
@@ -67822,14 +67833,14 @@
             }
           ],
           "id": "0C5F",
-          "name": "SF_IS_CUSTOM_GLOBAL_VARIABLE_DEFINED",
+          "name": "SF_DOES_CUSTOM_GLOBAL_VARIABLE_EXIST",
           "num_params": 1,
           "attrs": {
             "is_condition": true,
             "is_static": true
           },
-          "class": "Sf",
-          "member": "GVarDefined",
+          "class": "SfGVar",
+          "member": "DoesExist",
           "short_desc": "Evaluates as logical true if a custom global variable with specified name existed"
         },
         {
@@ -67839,7 +67850,7 @@
               "type": "string"
             },
             {
-              "name": "threadPtr",
+              "name": "scriptPtr",
               "type": "int"
             },
             {
@@ -67852,15 +67863,15 @@
             }
           ],
           "id": "0C60",
-          "name": "SF_GVAR_SET_THREAD_SCOPE",
+          "name": "SF_SET_CUSTOM_GLOBAL_VARIABLE_SCOPE",
           "num_params": 4,
           "attrs": {
             "is_condition": true,
             "is_static": true
           },
-          "short_desc": "Sets wether the specified script thread can read or write to the specified custom global variable",
-          "class": "Sf",
-          "member": "GVarSetThreadScope"
+          "short_desc": "Sets whether the specified script can read or write to the specified custom global variable",
+          "class": "SfGVar",
+          "member": "SetScope"
         },
         {
           "input": [
@@ -67869,7 +67880,7 @@
               "type": "int"
             },
             {
-              "name": "threadPtr",
+              "name": "scriptPtr",
               "type": "int"
             }
           ],
@@ -67886,15 +67897,15 @@
             }
           ],
           "id": "0C61",
-          "name": "SF_GVAR_GET_THREAD_SCOPE",
+          "name": "SF_GET_CUSTOM_GLOBAL_VARIABLE_SCOPE",
           "num_params": 4,
           "attrs": {
             "is_condition": true,
             "is_static": true
           },
-          "short_desc": "Returns the specified script thread's read/write permissions to the specified custom global variable",
-          "class": "Sf",
-          "member": "GVarGetThreadScope"
+          "short_desc": "Returns the specified script's read/write permissions to the specified custom global variable",
+          "class": "SfGVar",
+          "member": "GetScope"
         },
         {
           "input": [
@@ -67910,8 +67921,8 @@
           "attrs": {
             "is_static": true
           },
-          "class": "Sf",
-          "member": "ConsoleExecCmd"
+          "class": "SfConsole",
+          "member": "ExecCmd"
         },
         {
           "input": [
@@ -67931,8 +67942,8 @@
             "is_condition": true,
             "is_static": true
           },
-          "class": "Sf",
-          "member": "ConsoleRegCmd",
+          "class": "SfConsole",
+          "member": "RegisterCmd",
           "short_desc": "Registers a callback hooked on a SAMPFUNCS console command with maximum length of 64 characters"
         },
         {
@@ -67949,8 +67960,8 @@
             "is_condition": true,
             "is_static": true
           },
-          "class": "Sf",
-          "member": "ConsoleUnregCmd",
+          "class": "SfConsole",
+          "member": "UnregisterCmd",
           "short_desc": "Removes the specified SAMPFUNCS console command. This command does nothing if the the specified command isn't a registered in the SAMPFUNCS console then evaluates as logical false if used as a condition"
         },
         {
@@ -67960,22 +67971,22 @@
               "type": "string"
             },
             {
-              "name": "filepath",
+              "name": "filePath",
               "type": "string"
             }
           ],
           "output": [
             {
               "name": "handle",
-              "type": "AsyncDownload",
+              "type": "SfDownload",
               "source": "var_any"
             }
           ],
           "id": "0C65",
           "name": "SF_DOWNLOAD_FILE",
           "num_params": 3,
-          "short_desc": "Downloads a file from the specified url source asynchronosly then saves it to filepath. Returns a handle to this file's AsyncDownload object for tracking purposes",
-          "class": "AsyncDownload",
+          "short_desc": "Downloads a file from the specified url source asynchronosly then saves it to filepath. Returns a handle to this file's SfDownload object for tracking purposes",
+          "class": "SfDownload",
           "member": "File",
           "attrs": {
             "is_constructor": true
@@ -67985,13 +67996,13 @@
           "input": [
             {
               "name": "self",
-              "type": "AsyncDownload"
+              "type": "SfDownload"
             }
           ],
           "output": [
             {
               "name": "state",
-              "type": "int",
+              "type": "SfDownloadState",
               "source": "var_any"
             }
           ],
@@ -68001,399 +68012,530 @@
           "attrs": {
             "is_condition": true
           },
-          "class": "AsyncDownload",
+          "class": "SfDownload",
           "member": "GetState",
-          "short_desc": "Returns the download status of the AsyncDownload object"
+          "short_desc": "Returns the download status of the SfDownload object"
         },
         {
+          "input": [
+            {
+              "name": "varName",
+              "type": "string"
+            },
+            {
+              "name": "stringBuffer",
+              "type": "string"
+            },
+            {
+              "name": "buffersize",
+              "type": "int"
+            }
+          ],
           "id": "0C67",
-          "name": "SAMP_GET_WINDOWS_ENVIRONMENT_VARIABLE",
+          "name": "SF_STORE_OS_ENVIRONMENT_VARIABLE",
           "num_params": 3,
           "attrs": {
-            "is_condition": true
+            "is_condition": true,
+            "is_static": true
           },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            },
-            {
-              "name": "_p3",
-              "type": "int"
-            }
-          ]
+          "class": "Sf",
+          "short_desc": "Stores the contents of the specified Windows variable (or environment variable) name to buffer",
+          "member": "GetOsEnv"
         },
         {
+          "input": [
+            {
+              "name": "unicodeString",
+              "type": "int"
+            },
+            {
+              "name": "ansiStringBuffer",
+              "type": "string"
+            },
+            {
+              "name": "bufferSize",
+              "type": "int"
+            }
+          ],
           "id": "0C68",
-          "name": "SAMP_UNICODE_TO_ANSI",
+          "name": "SF_UNICODE_TO_ANSI",
           "num_params": 3,
           "attrs": {
-            "is_condition": true
+            "is_condition": true,
+            "is_static": true
           },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            },
-            {
-              "name": "_p3",
-              "type": "int"
-            }
-          ]
+          "short_desc": "Converts a Unicode string to ANSI string then stores it to ansiStringBuffer",
+          "class": "Sf",
+          "member": "UnicodeToAnsi"
         },
         {
+          "input": [
+            {
+              "name": "ansiString",
+              "type": "string"
+            },
+            {
+              "name": "unicodeStringBuffer",
+              "type": "int"
+            },
+            {
+              "name": "buffersize",
+              "type": "int"
+            }
+          ],
           "id": "0C69",
-          "name": "SAMP_ANSI_TO_UNICODE",
+          "name": "SF_ANSI_TO_UNICODE",
           "num_params": 3,
           "attrs": {
-            "is_condition": true
+            "is_condition": true,
+            "is_static": true
           },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            },
-            {
-              "name": "_p3",
-              "type": "int"
-            }
-          ]
+          "class": "Sf",
+          "member": "AnsiToUnicode",
+          "short_desc": "Converts an ANSI string to Unicode string then stores it to ansiStringBuffer"
         },
         {
+          "input": [
+            {
+              "name": "scriptLabel",
+              "type": "label"
+            },
+            {
+              "name": "newScriptPtrTo",
+              "type": "SfScript",
+              "source": "var_any"
+            },
+            {
+              "name": "passedValues",
+              "type": "arguments"
+            }
+          ],
           "id": "0C6A",
-          "name": "SAMP_CREATE_CUSTOM_SCRIPT_AT_LABEL",
-          "num_params": 1,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "arguments"
-            }
-          ]
+          "name": "SF_START_NEW_SCRIPT_FROM_LABEL",
+          "num_params": 3,
+          "class": "SfScript",
+          "member": "RunFromLabel",
+          "attrs": {
+            "is_static": true
+          },
+          "short_desc": "Starts a new script from the specified scriptLabel then stores its pointer at newScriptPtrTo parameter"
         },
         {
+          "input": [
+            {
+              "name": "scriptBin",
+              "type": "int"
+            },
+            {
+              "name": "newScriptPtrTo",
+              "type": "SfScript",
+              "source": "var_any"
+            },
+            {
+              "name": "passedValues",
+              "type": "arguments"
+            }
+          ],
           "id": "0C6B",
-          "name": "SAMP_CREATE_CUSTOM_SCRIPT_AT_POINTER",
-          "num_params": 1,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "arguments"
-            }
-          ]
-        },
-        {
-          "id": "0C6C",
-          "name": "SAMP_SET_SCRIPT_LOCAL_VAR",
+          "name": "SF_START_NEW_SCRIPT_FROM_POINTER",
           "num_params": 3,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            },
-            {
-              "name": "_p3",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C6D",
-          "name": "SAMP_GET_SCRIPT_LOCAL_VAR",
-          "num_params": 3,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            },
-            {
-              "name": "_p3",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C6E",
-          "name": "SAMP_DESTROY_CUSTOM_SCRIPT",
-          "num_params": 1,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C6F",
-          "name": "SAMP_RESTART_CUSTOM_SCRIPT",
-          "num_params": 1,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "arguments"
-            }
-          ]
-        },
-        {
-          "id": "0C70",
-          "name": "SAMP_GET_MODULE_HANDLE",
-          "num_params": 2,
+          "short_desc": "Starts a new script from the specified memory location where a script binary data is stored (scriptBin) then stores its pointer at newScriptPtrTo parameter",
           "attrs": {
-            "is_condition": true
+            "is_static": true
           },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C71",
-          "name": "SAMP_GET_MODULE_PROC_ADDRESS",
-          "num_params": 3,
-          "attrs": {
-            "is_condition": true
-          },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            },
-            {
-              "name": "_p3",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C72",
-          "name": "SAMP_SET_VIRTUAL_KEY",
-          "num_params": 2,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C73",
-          "name": "SAMP_SET_CHAR_KEY",
-          "num_params": 2,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C74",
-          "name": "SAMP_CREATE_TIMER_INTERVAL",
-          "num_params": 3,
-          "attrs": {
-            "is_condition": true
-          },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            },
-            {
-              "name": "_p3",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C75",
-          "name": "SAMP_KILL_TIMER",
-          "num_params": 1,
-          "attrs": {
-            "is_condition": true
-          },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C76",
-          "name": "SAMP_RESET_TIMER",
-          "num_params": 1,
-          "attrs": {
-            "is_condition": true
-          },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C77",
-          "name": "SAMP_SET_TIMER_INTERVAL",
-          "num_params": 2,
-          "attrs": {
-            "is_condition": true
-          },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C78",
-          "name": "SAMP_SET_TIMER_ACTIVE",
-          "num_params": 2,
-          "attrs": {
-            "is_condition": true
-          },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C79",
-          "name": "SAMP_IS_TIMER_ACTIVE",
-          "num_params": 1,
-          "attrs": {
-            "is_condition": true
-          },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C7A",
-          "name": "SAMP_GET_TIMER_INTERVAL",
-          "num_params": 2,
-          "attrs": {
-            "is_condition": true
-          },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C7B",
-          "name": "SAMP_GET_TIMER_TIME_ELAPSED",
-          "num_params": 2,
-          "attrs": {
-            "is_condition": true
-          },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ]
-        },
-        {
-          "id": "0C7C",
-          "name": "SAMP_GET_TIMER_TIME_LEFT",
-          "num_params": 2,
-          "attrs": {
-            "is_condition": true
-          },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ]
+          "class": "SfScript",
+          "member": "RunFromPtr"
         },
         {
           "input": [
             {
               "name": "self",
-              "type": "AsyncDownload"
+              "type": "SfScript"
+            },
+            {
+              "name": "varIndex",
+              "type": "int"
+            },
+            {
+              "name": "value",
+              "type": "any"
             }
           ],
-          "output": [],
-          "id": "0C7D",
-          "name": "SAMP_RELEASE_DOWNLOAD",
+          "id": "0C6C",
+          "name": "SF_SET_SCRIPT_LOCAL_VARIABLE",
+          "num_params": 3,
+          "short_desc": "Sets the values for a local variable in the specified script",
+          "class": "SfScript",
+          "member": "SetLVar"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfScript"
+            },
+            {
+              "name": "varIndex",
+              "type": "int"
+            }
+          ],
+          "output": [
+            {
+              "name": "value",
+              "type": "any",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C6D",
+          "name": "SF_GET_SCRIPT_LOCAL_VARIABLE",
+          "num_params": 3,
+          "class": "SfScript",
+          "member": "GetLVar",
+          "short_desc": "Returns the value of a local variable in the specified script"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfScript"
+            }
+          ],
+          "id": "0C6E",
+          "name": "SF_TERMINATE_SCRIPT",
+          "num_params": 1,
+          "class": "SfScript",
+          "member": "Terminate",
+          "short_desc": "Terminates a script pointed by the address",
+          "attrs": {
+            "is_destructor": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfScript"
+            },
+            {
+              "name": "passedValues",
+              "type": "arguments"
+            }
+          ],
+          "id": "0C6F",
+          "name": "SF_RESTART_SCRIPT",
+          "num_params": 2,
+          "short_desc": "Restarts a script pointed by the address",
+          "class": "SfScript",
+          "member": "Restart"
+        },
+        {
+          "input": [
+            {
+              "name": "moduleName",
+              "type": "string"
+            }
+          ],
+          "output": [
+            {
+              "name": "handle",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C70",
+          "name": "SF_GET_LOADED_MODULE",
+          "num_params": 2,
+          "attrs": {
+            "is_condition": true,
+            "is_static": true
+          },
+          "short_desc": "Returns the handle of a loaded module with name (moduleName)",
+          "class": "Sf",
+          "member": "GetModule"
+        },
+        {
+          "input": [
+            {
+              "name": "moduleHandle",
+              "type": "int"
+            },
+            {
+              "name": "functionName",
+              "type": "string"
+            }
+          ],
+          "output": [
+            {
+              "name": "functionPtr",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C71",
+          "name": "SF_GET_MODULE_PROCEDURE",
+          "num_params": 3,
+          "attrs": {
+            "is_condition": true,
+            "is_static": true
+          },
+          "short_desc": "Returns a pointer (functionPtr) to specified functionName inside the moduleHandle",
+          "class": "Sf",
+          "member": "GetModuleProc"
+        },
+        {
+          "input": [
+            {
+              "name": "keyCode",
+              "type": "KeyCode"
+            },
+            {
+              "name": "isPressed",
+              "type": "bool"
+            }
+          ],
+          "id": "0C72",
+          "name": "SF_SET_KEY_STATUS",
+          "num_params": 2,
+          "short_desc": "Sets whether a specific virtual key code is pressed or not",
+          "attrs": {
+            "is_static": true
+          },
+          "class": "Sf",
+          "member": "SetKeyStatus"
+        },
+        {
+          "input": [
+            {
+              "name": "ascii",
+              "type": "int"
+            },
+            {
+              "name": "isPressed",
+              "type": "bool"
+            }
+          ],
+          "id": "0C73",
+          "name": "SF_SET_CHARACTER_KEY_STATUS",
+          "num_params": 2,
+          "attrs": {
+            "is_static": true
+          },
+          "short_desc": "Sets whether a specific virtual key represented in ascii character format is pressed or not",
+          "class": "Sf",
+          "member": "SetCharKeyStatus"
+        },
+        {
+          "input": [
+            {
+              "name": "interval",
+              "type": "int"
+            },
+            {
+              "name": "callback",
+              "type": "label"
+            }
+          ],
+          "output": [
+            {
+              "name": "handle",
+              "type": "SfTimer",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C74",
+          "name": "SF_CREATE_TIMER",
+          "num_params": 3,
+          "attrs": {
+            "is_condition": true,
+            "is_constructor": true
+          },
+          "class": "SfTimer",
+          "short_desc": "Creates and starts an SfTimer object that periodically executes its callback upon expiration",
+          "member": "Create"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfTimer"
+            }
+          ],
+          "id": "0C75",
+          "name": "SF_DELETE_TIMER",
+          "num_params": 1,
+          "attrs": {
+            "is_condition": true,
+            "is_destructor": true
+          },
+          "class": "SfTimer",
+          "member": "Delete",
+          "short_desc": "Removes the specified SfTimer object, freeing it from memory"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfTimer"
+            }
+          ],
+          "id": "0C76",
+          "name": "SF_RESET_TIMER",
           "num_params": 1,
           "attrs": {
             "is_condition": true
           },
-          "class": "AsyncDownload",
+          "class": "SfTimer",
+          "member": "Reset",
+          "short_desc": "Resets the expiration time of the SfTimer, restarting its trigger countdown"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfTimer"
+            },
+            {
+              "name": "interval",
+              "type": "int"
+            }
+          ],
+          "id": "0C77",
+          "name": "SF_SET_TIMER_INTERVAL",
+          "num_params": 2,
+          "attrs": {
+            "is_condition": true
+          },
+          "short_desc": "Sets a new interval for the SfTimer",
+          "class": "SfTimer",
+          "member": "SetInterval"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfTimer"
+            },
+            {
+              "name": "isActive",
+              "type": "bool"
+            }
+          ],
+          "id": "0C78",
+          "name": "SF_SET_TIMER_STATUS",
+          "num_params": 2,
+          "attrs": {
+            "is_condition": true
+          },
+          "class": "SfTimer",
+          "member": "SetStatus",
+          "short_desc": "Activates or pauses an SfTimer's functionality"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfTimer"
+            }
+          ],
+          "id": "0C79",
+          "name": "SF_IS_TIMER_ACTIVE",
+          "num_params": 1,
+          "attrs": {
+            "is_condition": true
+          },
+          "short_desc": "Evaluates as logical true if the SfTimer is active",
+          "class": "SfTimer",
+          "member": "IsActive"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfTimer"
+            }
+          ],
+          "output": [
+            {
+              "name": "interval",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C7A",
+          "name": "SF_GET_TIMER_INTERVAL",
+          "num_params": 2,
+          "attrs": {
+            "is_condition": true
+          },
+          "class": "SfTimer",
+          "member": "GetInterval",
+          "short_desc": "Returns the SfTimer's configured interval"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfTimer"
+            }
+          ],
+          "output": [
+            {
+              "name": "elapsedTime",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C7B",
+          "name": "SF_GET_TIMER_ELAPSED_TIME",
+          "num_params": 2,
+          "attrs": {
+            "is_condition": true
+          },
+          "class": "SfTimer",
+          "member": "GetElapsedTime",
+          "short_desc": "Returns the number of milliseconds that have passed since the last SfTimer reset (including after the interval has passed)"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfTimer"
+            }
+          ],
+          "output": [
+            {
+              "name": "timeLeft",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
+          "id": "0C7C",
+          "name": "SF_GET_TIMER_TIME_LEFT",
+          "num_params": 2,
+          "attrs": {
+            "is_condition": true
+          },
+          "class": "SfTimer",
+          "member": "GetTimeLeft",
+          "short_desc": "Returns the number of milliseconds remaining before the SfTimer expires (decremented if the timer is active)"
+        },
+        {
+          "input": [
+            {
+              "name": "self",
+              "type": "SfDownload"
+            }
+          ],
+          "id": "0C7D",
+          "name": "SF_RELEASE_DOWNLOAD",
+          "num_params": 1,
+          "attrs": {
+            "is_condition": true,
+            "is_destructor": true
+          },
+          "class": "SfDownload",
           "member": "Release",
-          "short_desc": "Frees an AsyncDownload object from memory"
+          "short_desc": "Frees an SfDownload object from memory"
         },
         {
           "id": "0C7E",
@@ -68403,8 +68545,8 @@
             "is_condition": true,
             "is_static": true
           },
-          "class": "Sf",
-          "member": "ConsoleIsOpen",
+          "class": "SfConsole",
+          "member": "IsOpen",
           "short_desc": "Evaluates as logical true if the SAMPFUNCS console is open"
         },
         {
@@ -68422,7 +68564,7 @@
           "name": "SAMP_SET_LOCAL_CHAT_COMMAND_DESCRIPTION",
           "num_params": 2,
           "short_desc": "Sets the description for the local command",
-          "class": "LocalChatCmd",
+          "class": "SampLocalChatCmd",
           "member": "SetDescription",
           "attrs": {
             "is_static": true
@@ -68442,126 +68584,199 @@
           "id": "0C80",
           "name": "SF_SET_CONSOLE_COMMAND_DESCRIPTION",
           "num_params": 2,
-          "short_desc": "Sets the description for the console command"
+          "short_desc": "Sets the description for the console command",
+          "class": "SfConsole",
+          "member": "SetCmdDesc",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
-          "id": "0C81",
-          "name": "SAMP_FORCE_CAR_SYNC",
-          "num_params": 1,
           "input": [
             {
-              "name": "_p1",
+              "name": "id",
               "type": "int"
             }
-          ]
+          ],
+          "id": "0C81",
+          "name": "SAMP_FORCE_DRIVING_SYNC",
+          "num_params": 1,
+          "short_desc": "Sends SampPacket.DrivingSync to server about our character driving a car with ID",
+          "class": "Samp",
+          "member": "ForceDrivingSync",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
-          "id": "0C82",
-          "name": "SAMP_FORCE_UNOCCUPIED_SYNC",
-          "num_params": 2,
           "input": [
             {
-              "name": "_p1",
+              "name": "carId",
               "type": "int"
             },
             {
-              "name": "_p2",
-              "type": "int"
+              "name": "seatId",
+              "type": "SeatId"
             }
-          ]
+          ],
+          "id": "0C82",
+          "name": "SAMP_FORCE_UNOCCUPIED_SYNC",
+          "num_params": 2,
+          "short_desc": "Sends SampPacket.UnoccupiedCarSync to server about a seatId of a car with carId being unoccupied",
+          "attrs": {
+            "is_static": true
+          },
+          "class": "Samp",
+          "member": "ForceUnnocupiedSync"
         },
         {
           "id": "0C83",
           "name": "SAMP_FORCE_ONFOOT_SYNC",
-          "num_params": 0
+          "num_params": 0,
+          "short_desc": "Sends SampPacket.OnFootSync to server about our character being onfoot",
+          "attrs": {
+            "is_static": true
+          },
+          "class": "Samp",
+          "member": "ForceOnfootSync"
         },
         {
           "id": "0C84",
           "name": "SAMP_FORCE_AIM_SYNC",
-          "num_params": 0
+          "num_params": 0,
+          "short_desc": "Sends SampPacket.AimSync containing our current aim data, to server",
+          "attrs": {
+            "is_static": true
+          },
+          "class": "Samp",
+          "member": "ForceAimSync"
         },
         {
+          "input": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
           "id": "0C85",
           "name": "SAMP_FORCE_TRAILER_SYNC",
           "num_params": 1,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            }
-          ]
+          "short_desc": "Sends SampPacket.TrailerSync to server about a trailer with ID being attached to our player",
+          "attrs": {
+            "is_static": true
+          },
+          "class": "Samp",
+          "member": "ForceTrailerSync"
         },
         {
-          "id": "0C86",
-          "name": "SAMP_FORCE_PASSENGER_SYNC",
-          "num_params": 2,
           "input": [
             {
-              "name": "_p1",
+              "name": "carId",
               "type": "int"
             },
             {
-              "name": "_p2",
-              "type": "int"
+              "name": "seatId",
+              "type": "SeatId"
             }
-          ]
+          ],
+          "id": "0C86",
+          "name": "SAMP_FORCE_PASSENGER_SYNC",
+          "num_params": 2,
+          "short_desc": "Sends SampPacket.PassengerSync to server about our character sitting at seatId of a car with carId",
+          "class": "Samp",
+          "member": "ForcePassengerSync",
+          "attrs": {
+            "is_static": true
+          }
         },
         {
           "id": "0C87",
           "name": "SAMP_FORCE_STATS_SYNC",
-          "num_params": 0
+          "num_params": 0,
+          "short_desc": "Sends SampPacket.StatsUpdate containing our current money and drunk level, to server",
+          "attrs": {
+            "is_static": true
+          },
+          "class": "Samp",
+          "member": "ForceStatsSync"
         },
         {
           "id": "0C88",
           "name": "SAMP_FORCE_WEAPONS_SYNC",
-          "num_params": 0
+          "num_params": 0,
+          "short_desc": "Sends SampPacket.WeaponsUpdate containing our character's current weapons, to server",
+          "attrs": {
+            "is_static": true
+          },
+          "class": "Samp",
+          "member": "ForceWeaponsSync"
         },
         {
-          "id": "0C89",
-          "name": "SAMP_KEY_JUST_PRESSED",
-          "num_params": 1,
-          "attrs": {
-            "is_condition": true
-          },
           "input": [
             {
-              "name": "_p1",
-              "type": "int"
+              "name": "keyCode",
+              "type": "KeyCode"
             }
-          ]
+          ],
+          "id": "0C89",
+          "name": "SF_KEY_JUST_PRESSED",
+          "num_params": 1,
+          "attrs": {
+            "is_condition": true,
+            "is_static": true
+          },
+          "short_desc": "Evaluates as logical true if the specified virtual keyCode has been pressed just now",
+          "class": "Sf",
+          "member": "KeyJustPressed"
         },
         {
+          "input": [
+            {
+              "name": "streamedOnly",
+              "type": "bool"
+            }
+          ],
+          "output": [
+            {
+              "name": "maxPlayerId",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
           "id": "0C8A",
           "name": "SAMP_GET_MAX_PLAYER_ID",
           "num_params": 2,
           "attrs": {
-            "is_condition": true
+            "is_condition": true,
+            "is_static": true
           },
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ]
+          "short_desc": "Returns the maximum player ID currently streamed if streamedOnly = true. Else, returns the maximum player ID allowed in the server",
+          "class": "Samp",
+          "member": "MaxPlayerId"
         },
         {
+          "input": [
+            {
+              "name": "streamedOnly",
+              "type": "bool"
+            }
+          ],
+          "output": [
+            {
+              "name": "playerCount",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
           "id": "0C8B",
           "name": "SAMP_GET_PLAYER_COUNT",
           "num_params": 2,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            },
-            {
-              "name": "_p2",
-              "type": "int"
-            }
-          ]
+          "short_desc": "Returns the number of players that are currently streamed if streamedOnly = true. Else, returns the number of players allowed in the server",
+          "class": "Samp",
+          "attrs": {
+            "is_static": true
+          },
+          "member": "GetPlayerCount"
         },
         {
           "input": [
@@ -68577,7 +68792,7 @@
           "output": [
             {
               "name": "handle",
-              "type": "D3DTexture",
+              "type": "SfD3DTexture",
               "source": "var_any"
             }
           ],
@@ -68589,7 +68804,7 @@
             "is_constructor": true
           },
           "short_desc": "Loads a texture from a file located in memory buffer",
-          "class": "D3DTexture",
+          "class": "SfD3DTexture",
           "member": "LoadTextureFromFileMemory"
         },
         {
@@ -68632,15 +68847,21 @@
           "member": "ClipboardReadData"
         },
         {
+          "input": [
+            {
+              "name": "text",
+              "type": "string"
+            }
+          ],
           "id": "0C8F",
           "name": "SAMP_PROCESS_CHAT_INPUT",
           "num_params": 1,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            }
-          ]
+          "short_desc": "Processes a message by SAMPFUNCS callbacks, then sent to server as SampRpc.Chat",
+          "attrs": {
+            "is_static": true
+          },
+          "class": "SampChatInput",
+          "member": "Process"
         },
         {
           "input": [
@@ -68657,7 +68878,7 @@
             "is_static": true
           },
           "short_desc": "Evaluates as logical true if the specified command is localized by a callback hook",
-          "class": "LocalChatCmd",
+          "class": "SampLocalChatCmd",
           "member": "IsHooked"
         },
         {
@@ -68675,30 +68896,43 @@
             "is_static": true
           },
           "short_desc": "Returns logical true if the specified console command is registered",
-          "class": "Sf",
-          "member": "ConsoleHasCmd"
+          "class": "SfConsole",
+          "member": "IsCmdRegistered"
         },
         {
+          "output": [
+            {
+              "name": "version",
+              "type": "int",
+              "source": "var_any"
+            }
+          ],
           "id": "0C92",
-          "name": "SAMP_GET_CLEO_LIBRARY_VERSION",
+          "name": "SF_GET_CLEO_LIBRARY_VERSION",
           "num_params": 1,
-          "input": [
-            {
-              "name": "_p1",
-              "type": "int"
-            }
-          ]
+          "short_desc": "Returns the installed version of CLEO",
+          "attrs": {
+            "is_static": true
+          },
+          "class": "Sf",
+          "member": "GetCleoLibVer"
         },
         {
-          "id": "1337",
-          "name": "SAMP_MAKE_SCRIPT_PRIVATE",
-          "num_params": 1,
           "input": [
             {
-              "name": "_p1",
+              "name": "isPrivate",
               "type": "int"
             }
-          ]
+          ],
+          "id": "1337",
+          "name": "SF_MAKE_SCRIPT_PRIVATE",
+          "num_params": 1,
+          "short_desc": "Makes the script where this command is executed invisible across other scripts",
+          "class": "Sf",
+          "member": "MakeScriptPrivate",
+          "attrs": {
+            "is_static": true
+          }
         }
       ]
     },
@@ -69624,8 +69858,8 @@
         {
           "input": [
             {
-              "name": "_p1",
-              "type": "any"
+              "name": "text",
+              "type": "string"
             }
           ],
           "id": "0662",
@@ -69635,12 +69869,12 @@
         {
           "input": [
             {
-              "name": "_p1",
-              "type": "any"
+              "name": "text",
+              "type": "string"
             },
             {
-              "name": "_p2",
-              "type": "any"
+              "name": "number",
+              "type": "int"
             }
           ],
           "id": "0663",
@@ -69650,12 +69884,12 @@
         {
           "input": [
             {
-              "name": "_p1",
-              "type": "any"
+              "name": "text",
+              "type": "string"
             },
             {
-              "name": "_p2",
-              "type": "any"
+              "name": "number",
+              "type": "float"
             }
           ],
           "id": "0664",
@@ -72248,6 +72482,175 @@
           "attrs": {
             "is_condition": true,
             "is_static": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "commands": [
+        {
+          "input": [
+            {
+              "name": "keyCode",
+              "type": "KeyCode"
+            }
+          ],
+          "id": "2080",
+          "name": "IS_KEY_JUST_PRESSED",
+          "num_params": 1,
+          "class": "Pad",
+          "member": "IsKeyJustPressed",
+          "attrs": {
+            "is_static": true,
+            "is_condition": true
+          },
+          "short_desc": "Returns true if the player has just started to press a specified key this frame"
+        },
+        {
+          "input": [
+            {
+              "name": "minKeyCode",
+              "type": "KeyCode"
+            },
+            {
+              "name": "maxKeyCode",
+              "type": "KeyCode"
+            }
+          ],
+          "output": [
+            {
+              "name": "keyCode",
+              "type": "KeyCode",
+              "source": "var_any"
+            }
+          ],
+          "id": "2081",
+          "name": "GET_KEY_PRESSED_IN_RANGE",
+          "num_params": 3,
+          "class": "Pad",
+          "member": "GetKeyPressedInRange",
+          "short_desc": "Gets code of first currently hold down key in range between minKeyCode and maxKeyCode. If no key is pressed return value is unmodified and logical result is set to false",
+          "attrs": {
+            "is_condition": true,
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "minKeyCode",
+              "type": "KeyCode"
+            },
+            {
+              "name": "maxKeyCode",
+              "type": "KeyCode"
+            }
+          ],
+          "output": [
+            {
+              "name": "keyCode",
+              "type": "KeyCode",
+              "source": "var_any"
+            }
+          ],
+          "id": "2082",
+          "name": "GET_KEY_JUST_PRESSED_IN_RANGE",
+          "num_params": 3,
+          "short_desc": "Gets code of first just pressed key in range between minKeyCode and maxKeyCode. If no key was pressed return value is unmodified and logical result is set to false",
+          "member": "GetKeyJustPressedInRange",
+          "attrs": {
+            "is_static": true,
+            "is_condition": true
+          },
+          "class": "Pad"
+        },
+        {
+          "input": [
+            {
+              "name": "keyCode",
+              "type": "KeyCode"
+            }
+          ],
+          "id": "2083",
+          "name": "EMULATE_KEY_PRESS",
+          "num_params": 1,
+          "class": "Pad",
+          "member": "EmulateKeyPress",
+          "short_desc": "Simulates key press event",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "keyCode",
+              "type": "KeyCode"
+            }
+          ],
+          "id": "2084",
+          "name": "EMULATE_KEY_RELEASE",
+          "num_params": 1,
+          "class": "Pad",
+          "member": "EmulateKeyRelease",
+          "short_desc": "Simulates key release event",
+          "attrs": {
+            "is_static": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "action",
+              "type": "ControllerAction"
+            },
+            {
+              "name": "altKey",
+              "type": "ControllerAltKey"
+            }
+          ],
+          "output": [
+            {
+              "name": "keyCode",
+              "type": "KeyCode",
+              "source": "var_any"
+            }
+          ],
+          "id": "2085",
+          "name": "GET_CONTROLLER_KEY",
+          "num_params": 3,
+          "class": "Pad",
+          "member": "GetControllerKey",
+          "short_desc": "Returns n-th alternate key assigned to pad's action. If no key is bound then return value is unchanged and logical result is false",
+          "attrs": {
+            "is_static": true,
+            "is_condition": true
+          }
+        },
+        {
+          "input": [
+            {
+              "name": "keyCode",
+              "type": "KeyCode"
+            }
+          ],
+          "output": [
+            {
+              "name": "name",
+              "type": "string",
+              "source": "var_any"
+            }
+          ],
+          "id": "2086",
+          "name": "GET_KEY_NAME",
+          "num_params": 2,
+          "class": "Pad",
+          "member": "GetKeyName",
+          "short_desc": "Returns keyboard/mouse key name text of specified keyCode. If key code has no name return value is unchanged and logical result is false",
+          "attrs": {
+            "is_static": true,
+            "is_condition": true
           }
         }
       ]
