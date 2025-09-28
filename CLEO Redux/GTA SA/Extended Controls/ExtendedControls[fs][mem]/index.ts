@@ -68,7 +68,7 @@ let MOUSE = {
     state: loadSetting('alt_mouse_steering') ?? false,
     invertY: loadSetting('alt_mouse_steering_invert_y') ?? true,
     camLock: loadSetting('alt_mouse_steering_cam_lock') ?? true,
-    toggle: false,
+    toggle: loadSetting('alt_mouse_steering') ?? false,
     steering: 0xC1CC02,
     flying: 0xC1CC03,
     normalY: 0xBA6745
@@ -277,13 +277,18 @@ function emulateButton(address: int, size: int) {
 function toggleAim() {
     if (!plr.isControlOn()) return;
     if (plc.isInAnyCar()) return;
-    if (Pad.IsButtonPressed(PadId.Pad1, Button.LeftShoulder2)) return; // Previous weapon
-    if (Pad.IsButtonPressed(PadId.Pad1, Button.RightShoulder2)) return; // Next weapon
+    if (Pad.IsButtonPressed(PadId.Pad1, Button.LeftShoulder2) // Previous weapon
+        && !plr.isUsingJetpack()
+    ) return;
+    if (Pad.IsButtonPressed(PadId.Pad1, Button.RightShoulder2) // Next weapon
+        && !plr.isUsingJetpack()
+    ) return;
     if (Pad.IsButtonPressed(PadId.Pad1, Button.Cross) // Sprint
         && !plc.isCurrentWeapon(WeaponType.Camera)
         && !plc.isCurrentWeapon(WeaponType.Sniper)
         && !plc.isCurrentWeapon(WeaponType.RocketLauncher)
         && !plc.isCurrentWeapon(WeaponType.RocketLauncherHs)
+        && !plr.isUsingJetpack()
     ) {
         AIM.toggle = false;
     };

@@ -464,8 +464,10 @@ export class AltMenu {
                 this.processCurrentItemEvents(item);
 
                 Hud.DrawRect(
-                    320, y + this.defaults.itemsFontSize.height * 5.2,
-                    640, this.defaults.itemsFontSize.height * 12,
+                    x + (this.defaults.itemsAlignment !== 'CENTRE' ? 97 : 0),
+                    y + this.defaults.itemsFontSize.height * 5.2,
+                    200,
+                    this.defaults.itemsFontSize.height * 12,
                     ...this.defaults.selectedBackgroundColour
                 );
                 Text.SetColor(...this.defaults.selectedColour);
