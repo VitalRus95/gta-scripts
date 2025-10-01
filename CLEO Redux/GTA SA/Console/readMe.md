@@ -2,14 +2,21 @@
 ## ENGLISH
 * **Author**: Vital (Vitaly Pavlovich Ulyanov)
 * **Thanks for help to**: Seemann, wmysterio
-* **Description**: A command line for GTA: San Andreas with a full-fledged list of commands, hints, autocompletion, and search. Turn on and off with ~.
-* **Requirements**: CLEO Redux v1.3.1 + CLEO 5.0.2 or newer with IDE loader plugins (should be installed with CLEO).
-* **Installation**: Put `Console[mem]` folder and `sa_enums.ts` file in your `GTA San Andreas\CLEO` directory.
+* **Description**: A command line for GTA: San Andreas with a full-fledged list of commands, history, hints, autocompletion, and search. Turn on and off with ~.
+* **Requirements**: CLEO Redux v1.3.3 + CLEO 5.1.0 or newer with IDE loader plugins (should be installed with CLEO).
+* **Installation**: Put `Console[mem][fs]`, `altMenu[mem].ts`, and `sa_enums.ts` in your `GTA San Andreas\CLEO` directory.
 
 <details>
 <summary>Version history</summary>
 
 ```diff
+v0.9 [02.10.2025]
++ The code is rewritten almost from scratch
++ All main features of the older version are preserved and improved
++ Added command history (scrollable with up/down arrow buttons)
++ Added convenient menus for weapons, vehicles, statistics, gangs, and much more
++ A separate menu for scripter's tools
+
 v0.75 [31.03.2025]
 + `IGNORED BY POLICE`, `IGNORED BY PEDESTRIANS`, `DEATH PENALTIES`, `ARREST PENALTIES` commands
 + `Lose nothing` config
@@ -50,14 +57,21 @@ v0.5 [17.03.2025]
 ## РУССКИЙ
 * **Автор**: Vital (Виталий Павлович Ульянов)
 * **Благодарю за помощь**: Seemann, wmysterio
-* **Описание**: Командная строка для GTA: San Andreas с полноценным списком команд, подсказками, автозавершением и поиском. Включить/выключить: ~.
-* **Требования**: CLEO Redux v1.3.1 + CLEO 5.0.2 или новее и плагин IDE loader (установите с CLEO).
-* **Установка**: Поместите папку `Console[mem]` и файл `sa_enums.ts` в каталог `GTA San Andreas\CLEO`.
+* **Описание**: Командная строка для GTA: San Andreas с полноценным списком команд, историей, подсказками, автозавершением и поиском. Включить/выключить: ~.
+* **Требования**: CLEO Redux v1.3.3 + CLEO 5.1.0 или новее и плагин IDE loader (установите с CLEO).
+* **Установка**: Поместите `Console[mem][fs]`, `altMenu[mem].ts` и `sa_enums.ts` в каталог `GTA San Andreas\CLEO`.
 
 <details>
 <summary>История изменений</summary>
 
 ```diff
+v0.9 [02.10.2025]
++ Код переписан практически с нуля
++ Сохранены и улучшены все основные возможности старой версии
++ Добавлена история команд, пролистываемая кнопками со стрелками вверх и вниз
++ Добавлены удобные меню для оружия, транспорта, статистики, банд и многого другого
++ Отдельное меню инструментов скриптера
+
 v0.75 [31.03.2025]
 + Команды `IGNORED BY POLICE`, `IGNORED BY PEDESTRIANS`, `DEATH PENALTIES`, `ARREST PENALTIES`
 + Конфигурация `Lose nothing` (не терять деньги и оружие после смерти и ареста)

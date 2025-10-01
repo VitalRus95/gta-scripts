@@ -376,6 +376,7 @@ let cmdList: {
             let interior = command.match(/\d+/);
             if (interior && +interior[0] > -1 && +interior[0] < 19) {
                 Streaming.SetAreaVisible(+interior[0]);
+                plc.setAreaVisible(+interior[0]);
                 if (plc.isInAnyCar()) plc.storeCarIsInNoSave().setAreaVisible(+interior[0]);
                 return true;
             }
@@ -737,8 +738,8 @@ let cmdList: {
         }
     },
     {   // Burglary houses
-        name: 'BURLGARY HOUSES ',
-        template: 'BURLGARY HOUSES ~y~bool',
+        name: 'BURGLARY HOUSES ',
+        template: 'BURGLARY HOUSES ~y~bool',
         func: function (): boolean {
             let flag = command.match(/[01]/);
             if (flag) {
@@ -1066,7 +1067,7 @@ function drawOverlay() {
     if (overlay.alpha > 0) {
         Text.UseCommands(true);
         Hud.DrawRect(
-            320, 224, 640, 448,
+            320, 224, 641, 449,
             overlay.red, overlay.green, overlay.blue, overlay.alpha
         );
         Text.UseCommands(false);
@@ -1313,8 +1314,10 @@ function switchProofsBit(isOnFoot: boolean, bitmask: Proofs): boolean {
 }
 
 function setProofs() {
-    Memory.WriteU8(plp + 0x42, playerProofs, false);
-    if (plc.isInAnyCar()) {
+    if (playerProofs !== 0) {
+        Memory.WriteU8(plp + 0x42, playerProofs, false);
+    }
+    if (plc.isInAnyCar() && carProofs !== 0) {
         Memory.WriteU8(
             Memory.GetVehiclePointer(plc.storeCarIsInNoSave()) + 0x42,
             carProofs, false
