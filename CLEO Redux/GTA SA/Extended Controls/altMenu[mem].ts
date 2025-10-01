@@ -116,12 +116,14 @@ export class AltMenu {
         this.selection = 0;
         this.items = items;
         this.defaults = {
-            addHelp: defaults?.addHelp ?? true,
+            addHelp: defaults?.addHelp ?? false,
             counterAlignment: defaults?.counterAlignment ?? 'LEFT',
             counterColour: defaults?.counterColour ?? [210, 210, 210, 210],
             counterFont: defaults?.counterFont ?? Font.Subtitles,
             counterFontSize: defaults?.counterFontSize ?? {width: 0.37, height: 1.8},
-            counterPos: defaults?.counterPos ?? {x: 0.06, y: 0.7},
+            counterPos: defaults?.counterPos ?? {
+                x: 0.06, y: defaults?.disableHud ? 0.92 : 0.7
+            },
             counterOutlineColour: defaults?.counterOutlineColour ?? [0, 0, 0, 180],
             disableControls: defaults?.disableControls ?? true,
             disableHud: defaults?.disableHud ?? false,
@@ -136,7 +138,9 @@ export class AltMenu {
             itemsFont: defaults?.itemsFont ?? Font.Menu,
             itemsFontSize: defaults?.itemsFontSize ?? {width: 0.35, height: 1.9},
             itemsHold: defaults?.itemsHold,
-            itemsPos: defaults?.itemsPos ?? {x: 0.06, y: 0.41},
+            itemsPos: defaults?.itemsPos ?? {
+                x: 0.06, y: defaults?.disableHud ? 0.63 : 0.41
+            },
             itemsShadowColour: defaults?.itemsShadowColour ?? [0, 0, 0, 180],
             selectedBackgroundColour: defaults?.selectedBackgroundColour ?? [127, 127, 127, 110],
             selectedColour: defaults?.selectedColour ?? [255, 255, 255, 230],
@@ -147,7 +151,9 @@ export class AltMenu {
             titleFont: defaults?.titleFont ?? Font.Menu,
             titleFontSize: defaults?.titleFontSize ?? {width: 0.46, height: 2.5},
             titleOutlineColour: defaults?.titleOutlineColour ?? [0, 0, 0, 170],
-            titlePos: defaults?.titlePos ?? {x: 0.06, y: 0.34},
+            titlePos: defaults?.titlePos ?? {
+                x: 0.06, y: defaults?.disableHud ? 0.56 : 0.34
+            },
         };
 
         if (this.defaults.addHelp) {
@@ -611,7 +617,5 @@ const help: AltMenu = new AltMenu(
                 plc.setSayScript(phrases[i], true, true, false);
             }
         }
-    ], {
-        addHelp: false
-    }
+    ]
 );
