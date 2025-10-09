@@ -2,7 +2,69 @@
 import data from "../../data/vehicles.ide";
 import { configsInfo } from "./configs";
 import { AltMenu, Item } from "../altMenu[mem]";
-import { Font, KeyCode, ScriptSound, RadioChannel, SwitchType, CarLock, Button, PadId, WeaponType, BodyPart, Align, TimerDirection } from '../sa_enums';
+import { Font, KeyCode, ScriptSound, RadioChannel, SwitchType, CarLock, Button, PadId, WeaponType, BodyPart, Align, TimerDirection, ButtonGxt } from '../sa_enums';
+
+// Interfaces
+interface Vec3 {
+    x: float;
+    y: float;
+    z: float;
+}
+
+// Classes
+class Matrix {
+    entityPointer: int;
+    matrixPointer: int;
+
+    constructor (entityPointer: int) {
+        this.entityPointer = entityPointer;
+        this.matrixPointer = Memory.ReadU32(this.entityPointer + 0x14, false);
+    }
+
+    private readVector(pointer: int): Vec3 {
+        return {
+            x: Memory.ReadFloat(pointer, false),
+            y: Memory.ReadFloat(pointer + 4, false),
+            z: Memory.ReadFloat(pointer + 8, false)
+        };
+    }
+
+    private invertVector(vector: Vec3): Vec3 {
+        return {
+            x: vector.x * -1,
+            y: vector.y * -1,
+            z: vector.z * -1
+        };
+    }
+
+    getRight(): Vec3 {
+        return this.readVector(this.matrixPointer);
+    }
+
+    getForward(): Vec3 {
+        return this.readVector(this.matrixPointer + 0x10);
+    }
+
+    getUp(): Vec3 {
+        return this.readVector(this.matrixPointer + 0x20);
+    }
+
+    getPos(): Vec3 {
+        return this.readVector(this.matrixPointer + 0x30);
+    }
+
+    getLeft(): Vec3 {
+        return this.invertVector(this.getRight());
+    }
+
+    getBackward(): Vec3 {
+        return this.invertVector(this.getForward());
+    }
+
+    getDown(): Vec3 {
+        return this.invertVector(this.getUp());
+    }
+}
 
 // Enumerations
 enum Proofs {
@@ -17,6 +79,7 @@ enum Proofs {
 const plr: Player = new Player(0);
 const plc: Char = plr.getChar();
 const plp: int = Memory.GetPedPointer(plc);
+const THIS_PAD: int = Memory.CallFunctionReturn(0x53FB70, 1, 1, 0);
 const CPLAYER: int = 0xB7CD98;
 const ON: string = '~g~~h~ON';
 const OFF: string = '~r~~h~OFF';
@@ -57,6 +120,10 @@ let camOffset = {
     rotationX: 0, rotationY: 0, rotationZ: 0
 };
 let sphereRadius: float = 2.0;
+let freeCamMult: float = 1.0;
+let freeCamInfo: boolean = true;
+let freeCam: boolean = false;
+let camMatrix: Matrix = new Matrix(0xB6F028);
 
 // Menus
 let helpMenu: AltMenu = getHelpMenu();
@@ -116,6 +183,23 @@ let cmdList: { name: string, template?: string, action: Function }[] = [
                 wait(0);
             }
             clearInput();
+            return true;
+        }
+    },
+    {   // Free camera
+        name: 'FREE CAM',
+        action: function (): boolean {
+            Text.PrintHelpString(`~y~${ButtonGxt.Sprint}~s~ - toggle help.~n~~y~${ButtonGxt.EnterExit}~s~ - exit.`);
+            Memory.WriteU8(plp + 0x598, 1, false);
+            if (freeCamInfo) updateFreeCamInfo();
+            let camPos = camMatrix.getPos();
+            Camera.SetVectorMove(
+                camPos.x, camPos.y, camPos.z,
+                camPos.x, camPos.y, camPos.z,
+                100, false
+            );
+            freeCam = true;
+            toggle = false;
             return true;
         }
     },
@@ -449,7 +533,7 @@ let cmdList: { name: string, template?: string, action: Function }[] = [
                 wait(0);
             }
             clearInput();
-            return false;
+            return true;
         }
     },
     {   // Gravity
@@ -824,7 +908,12 @@ while (true) {
     if (!plr.isPlaying()) continue;
     if (Pad.IsKeyPressed(KeyCode.Oem3)) { // ~ (`)
         toggle = !toggle;
-        plr.setControl(!toggle);
+        if (!freeCam) {
+            plr.setControl(!toggle);
+        } else {
+            if (toggle) resetOutput()
+            else if (freeCamInfo) updateFreeCamInfo();
+        }
         clearInput();
 
         while (Pad.IsKeyPressed(KeyCode.Oem3)) {
@@ -832,18 +921,21 @@ while (true) {
             wait(0);
         }
     }
+
     // Execute always
     setProofs();
+    freeCamera();
     drawOverlay();
 
     // Execute only with open console
     if (!toggle) continue;
-    processInputControls();
     getInput();
     lockPlayer();
     drawConsole();
+    processInputControls();
 }
 
+// Functions
 function processInputControls() {
     // Home [move cursor to start]
     if (Pad.IsKeyPressed(KeyCode.Home) && cursorPos !== 0) {
@@ -947,9 +1039,9 @@ function processInputControls() {
     // Enter [run command]
     if (Pad.IsKeyPressed(KeyCode.Return)) {
         while (Pad.IsKeyPressed(KeyCode.Return)) {
+            wait(0);
             drawConsole();
             drawOverlay();
-            wait(0);
         }
         // If the command is not found, start search
         if (!runCommand()) searchCommands();
@@ -958,9 +1050,9 @@ function processInputControls() {
     // Tab [autocompletion]
     if (Pad.IsKeyPressed(KeyCode.Tab)) {
         while (Pad.IsKeyPressed(KeyCode.Tab)) {
+            wait(0);
             drawConsole();
             drawOverlay();
-            wait(0);
         }
 
         let results = cmdList.filter(
@@ -981,9 +1073,9 @@ function processInputControls() {
             addCharacter(button.char);
 
             while (Pad.IsKeyPressed(button.id)) {
+                wait(0);
                 drawConsole();
                 drawOverlay();
-                wait(0);
             }
         }
     }
@@ -1003,6 +1095,10 @@ function clearInput() {
     Memory.WriteU8(LAST_CHAR, 0, false);
 }
 
+function resetOutput() {
+    output = command;
+}
+
 function moveCursor(distance: int) {
     cursorPos = clamp(0, cursorPos + distance, command.length);
 }
@@ -1018,7 +1114,7 @@ function addCharacter(char: string) {
 }
 
 function lockPlayer() {
-    plr.setControl(false);
+    if (!freeCam) plr.setControl(false);
     Memory.WriteU16(0xB73472, 0, false); // Disable changing camera view
 }
 
@@ -1092,7 +1188,7 @@ function runCommand(input: string = command): boolean {
 function drawConsole() {
     FxtStore.insert('CONSOLE', `${
         output.substring(0, cursorPos)
-        + CURSOR
+        + (toggle ? CURSOR : '')
         + output.substring(cursorPos)
     }~s~`, true);
 
@@ -1115,6 +1211,115 @@ function drawOverlay() {
             overlay.red, overlay.green, overlay.blue, overlay.alpha
         );
         Text.UseCommands(false);
+    }
+}
+
+function updateFreeCamInfo() {
+    let pos = camMatrix.getPos();
+    let forward = camMatrix.getForward();
+
+    output = `~s~SPEED: ~y~${freeCamMult.toFixed(1)}~s~. POSITION: ~y~${
+        pos.x.toFixed(2)
+    } ${
+        pos.y.toFixed(2)
+    } ${
+        pos.z.toFixed(2)
+    }~s~. TARGET: ~y~${
+        (pos.x + forward.x * 10).toFixed(2)
+    } ${
+        (pos.y + forward.y * 10).toFixed(2)
+    } ${
+        (pos.z + forward.z * 10).toFixed(2)
+    }~s~.`;
+}
+
+function freeCamera() {
+    if (!freeCam) return;
+    if (!toggle && Pad.IsButtonPressed(PadId.Pad1, Button.Triangle)) { // Exit
+        let pos = camMatrix.getPos();
+
+        Memory.WriteU8(plp + 0x598, 0, false);
+        plr.setControl(true);
+        plc.setCoordinates(pos.x, pos.y, World.GetGroundZFor3DCoord(
+            pos.x, pos.y, pos.z
+        ));
+        Camera.PersistPos(false);
+        Camera.SetBehindPlayer();
+        resetOutput();
+        
+        freeCam = false;
+        return;
+    }
+
+    // Toggle help
+    if (sprintJustPressed()) {
+        freeCamInfo = !freeCamInfo;
+        if (!freeCamInfo) resetOutput();
+    }
+
+    let camPos = camMatrix.getPos();
+    let changeX = Pad.GetPositionOfAnalogueSticks(0).leftStickX;
+    let changeY = Pad.GetPositionOfAnalogueSticks(0).leftStickY;
+
+    plc.setCoordinates(camPos.x, camPos.y, -90);
+    Camera.PersistPos(true);
+
+    // Movement speed
+    if (Pad.IsButtonPressed(PadId.Pad1, Button.RightShoulder2) && TIMERA > 149) {
+        freeCamMult = clamp(0.1, freeCamMult + 0.1, 5);
+        TIMERA = 0;
+    }
+    if (Pad.IsButtonPressed(PadId.Pad1, Button.LeftShoulder2) && TIMERA > 149) {
+        freeCamMult = clamp(0.1, freeCamMult - 0.1, 5);
+        TIMERA = 0;
+    }
+
+    // Add camera left/right vector
+    if (changeX !== 0) {
+        let added: Vec3 = changeX < 0
+            ? camMatrix.getRight()
+            : camMatrix.getLeft();
+        
+        camPos.x += added.x * freeCamMult * 0.45;
+        camPos.y += added.y * freeCamMult * 0.45;
+        camPos.z += added.z * freeCamMult * 0.45;
+    }
+
+    // Add camera forward/backward vector
+    if (changeY !== 0) {
+        let added: Vec3 = changeY < 0
+            ? camMatrix.getForward()
+            : camMatrix.getBackward();
+        
+        camPos.x += added.x * freeCamMult;
+        camPos.y += added.y * freeCamMult;
+        camPos.z += added.z * freeCamMult;
+    }
+
+    // Move camera
+    if (!toggle && (changeX !== 0 || changeY !== 0)) {
+        Camera.SetVectorMove(
+            camPos.x, camPos.y, camPos.z,
+            camPos.x, camPos.y, camPos.z,
+            100, false
+        );
+        let forward = camMatrix.getForward();
+        plc.setHeading(
+            Math.GetHeadingFromVector2D(forward.x, forward.y)
+        );
+    }
+
+    // Update and draw info
+    if (freeCamInfo && !toggle) {
+        if (changeX !== 0
+            || changeY !== 0
+            || Mouse.GetMovement().deltaX !== 0
+            || Mouse.GetMovement().deltaY !== 0
+        ) {
+            updateFreeCamInfo();
+        }
+        Text.PrintStringNow(`~y~${ButtonGxt.NextWeapon}~s~/~y~${ButtonGxt.PreviousWeapon}~s~ - change speed. ~y~${ButtonGxt.EnterExit}~s~ - exit.`, 0);
+        drawConsole();
     }
 }
 
@@ -1154,6 +1359,10 @@ function getLeftRight(): number {
         return offset > 0 ? 1 : -1;
     }
     return 0;
+}
+
+function sprintJustPressed(): boolean {
+    return Memory.Fn.ThiscallU8(0x4D59E0, THIS_PAD)() !== 0;
 }
 
 function isBitSet(variable: number, mask: number): boolean {

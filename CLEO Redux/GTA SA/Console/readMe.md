@@ -10,6 +10,9 @@
 <summary>Version history</summary>
 
 ```diff
+v0.91 [10.10.2025]
++ Added free camera (`FREE CAM` command)
+
 v0.9 [02.10.2025]
 + The code is rewritten almost from scratch
 + All main features of the older version are preserved and improved
@@ -65,6 +68,9 @@ v0.5 [17.03.2025]
 <summary>История изменений</summary>
 
 ```diff
+v0.91 [10.10.2025]
++ Добавлена свободная камера (команда `FREE CAM`)
+
 v0.9 [02.10.2025]
 + Код переписан практически с нуля
 + Сохранены и улучшены все основные возможности старой версии
