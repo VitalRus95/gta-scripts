@@ -10,6 +10,9 @@
 <summary>Version history</summary>
 
 ```diff
+v0.915 [16.10.2025]
++ Added free camera acceleration
+
 v0.91 [10.10.2025]
 + Added free camera (`FREE CAM` command)
 
@@ -68,6 +71,9 @@ v0.5 [17.03.2025]
 <summary>История изменений</summary>
 
 ```diff
+v0.915 [16.10.2025]
++ Добавлено ускорение свободной камеры
+
 v0.91 [10.10.2025]
 + Добавлена свободная камера (команда `FREE CAM`)
 

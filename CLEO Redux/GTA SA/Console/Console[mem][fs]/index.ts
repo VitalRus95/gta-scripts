@@ -189,7 +189,7 @@ let cmdList: { name: string, template?: string, action: Function }[] = [
     {   // Free camera
         name: 'FREE CAM',
         action: function (): boolean {
-            Text.PrintHelpString(`~y~${ButtonGxt.Sprint}~s~ - toggle help.~n~~y~${ButtonGxt.EnterExit}~s~ - exit.`);
+            Text.PrintHelpString(`~y~${ButtonGxt.Jump}~s~ - toggle help.~n~~y~${ButtonGxt.EnterExit}~s~ - exit.`);
             Memory.WriteU8(plp + 0x598, 1, false);
             if (freeCamInfo) updateFreeCamInfo();
             let camPos = camMatrix.getPos();
@@ -1252,9 +1252,10 @@ function freeCamera() {
     }
 
     // Toggle help
-    if (sprintJustPressed()) {
+    if (jumpJustPressed()) {
         freeCamInfo = !freeCamInfo;
         if (!freeCamInfo) resetOutput();
+        else updateFreeCamInfo();
     }
 
     let camPos = camMatrix.getPos();
@@ -1267,12 +1268,17 @@ function freeCamera() {
     // Movement speed
     if (Pad.IsButtonPressed(PadId.Pad1, Button.RightShoulder2) && TIMERA > 149) {
         freeCamMult = clamp(0.1, freeCamMult + 0.1, 5);
+        updateFreeCamInfo();
         TIMERA = 0;
     }
     if (Pad.IsButtonPressed(PadId.Pad1, Button.LeftShoulder2) && TIMERA > 149) {
         freeCamMult = clamp(0.1, freeCamMult - 0.1, 5);
+        updateFreeCamInfo();
         TIMERA = 0;
     }
+
+    // Camera speed boost while holding `Sprint` button
+    let boost = Pad.IsButtonPressed(PadId.Pad1, Button.Cross) ? 3 : 1;
 
     // Add camera left/right vector
     if (changeX !== 0) {
@@ -1280,9 +1286,9 @@ function freeCamera() {
             ? camMatrix.getRight()
             : camMatrix.getLeft();
         
-        camPos.x += added.x * freeCamMult * 0.45;
-        camPos.y += added.y * freeCamMult * 0.45;
-        camPos.z += added.z * freeCamMult * 0.45;
+        camPos.x += added.x * freeCamMult * boost * 0.45;
+        camPos.y += added.y * freeCamMult * boost * 0.45;
+        camPos.z += added.z * freeCamMult * boost * 0.45;
     }
 
     // Add camera forward/backward vector
@@ -1291,18 +1297,20 @@ function freeCamera() {
             ? camMatrix.getForward()
             : camMatrix.getBackward();
         
-        camPos.x += added.x * freeCamMult;
-        camPos.y += added.y * freeCamMult;
-        camPos.z += added.z * freeCamMult;
+        camPos.x += added.x * freeCamMult * boost;
+        camPos.y += added.y * freeCamMult * boost;
+        camPos.z += added.z * freeCamMult * boost;
     }
 
     // Move camera
     if (!toggle && (changeX !== 0 || changeY !== 0)) {
+        // Update camera position
         Camera.SetVectorMove(
             camPos.x, camPos.y, camPos.z,
             camPos.x, camPos.y, camPos.z,
             100, false
         );
+        // Update player's heading
         let forward = camMatrix.getForward();
         plc.setHeading(
             Math.GetHeadingFromVector2D(forward.x, forward.y)
@@ -1318,7 +1326,7 @@ function freeCamera() {
         ) {
             updateFreeCamInfo();
         }
-        Text.PrintStringNow(`~y~${ButtonGxt.NextWeapon}~s~/~y~${ButtonGxt.PreviousWeapon}~s~ - change speed. ~y~${ButtonGxt.EnterExit}~s~ - exit.`, 0);
+        Text.PrintStringNow(`~y~${ButtonGxt.NextWeapon}~s~/~y~${ButtonGxt.PreviousWeapon}~s~ - change speed.~n~~y~${ButtonGxt.Sprint}~s~ - speed up. ~y~${ButtonGxt.EnterExit}~s~ - exit.`, 0);
         drawConsole();
     }
 }
@@ -1361,8 +1369,8 @@ function getLeftRight(): number {
     return 0;
 }
 
-function sprintJustPressed(): boolean {
-    return Memory.Fn.ThiscallU8(0x4D59E0, THIS_PAD)() !== 0;
+function jumpJustPressed(): boolean {
+    return Memory.Fn.ThiscallU8(0x53EF20, THIS_PAD)() !== 0;
 }
 
 function isBitSet(variable: number, mask: number): boolean {
