@@ -10,6 +10,10 @@
 <summary>Version history</summary>
 
 ```diff
+v0.92 [21.10.2025]
++ Reorganised the code
++ Running `INTERIOR` command with no parameter inserts current interior
+
 v0.915 [16.10.2025]
 + Added free camera acceleration
 
@@ -71,6 +75,10 @@ v0.5 [17.03.2025]
 <summary>История изменений</summary>
 
 ```diff
+v0.92 [21.10.2025]
++ Реорганизация кода
++ Запуск команды `INTERIOR` без параметра подставляет текущий интерьер
+
 v0.915 [16.10.2025]
 + Добавлено ускорение свободной камеры
 
