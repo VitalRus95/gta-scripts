@@ -1,9 +1,9 @@
 //  Script by Vital (Vitaly Pavlovich Ulyanov)
-import { CHANGE_VALUE, plr, plc } from "./sharedConstants";
 import { AltMenu } from "../altMenu[mem]";
 import {
     Button,
     ButtonGxt,
+    FileMode,
     Font,
     KeyCode,
     PadId,
@@ -24,6 +24,7 @@ import { playerStatsMenu } from "./menus/playerStats";
 import { vehicleImmunitiesMenu } from "./menus/vehicleImmunities";
 import { weaponMenu } from "./menus/weapons";
 import { weatherMenu } from "./menus/weather";
+import { CHANGE_VALUE, OFF, ON, plc, plr } from "./sharedConstants";
 
 // Interfaces
 interface Vec3 {
@@ -157,6 +158,8 @@ let freeCam: boolean = false;
 let camMatrix: Matrix = new Matrix(0xb6f028);
 let toolsMenu: AltMenu = getToolsMenu();
 let frameDelta: float;
+let screenshot: boolean = loadBoolSetting("screenshot") ?? false;
+let saveCoords: boolean = loadBoolSetting("saveCoords") ?? false;
 
 // List of commands
 let cmdList: { name: string; template?: string; action: Function }[] = [
@@ -1012,7 +1015,11 @@ while (true) {
 
         while (Pad.IsKeyPressed(KeyCode.Oem3)) {
             if (toggle) drawConsole();
-            else drawOverlay();
+            else {
+                drawOverlay();
+                takeScreenshot();
+                saveCoordinates();
+            }
             wait(0);
         }
     }
@@ -1024,6 +1031,8 @@ while (true) {
     setProofs();
     freeCamera();
     drawOverlay();
+    takeScreenshot();
+    saveCoordinates();
 
     // Execute only with open console
     if (!toggle) continue;
@@ -1034,6 +1043,14 @@ while (true) {
 }
 
 // Functions
+function saveBoolSetting(setting: string, value: boolean) {
+    IniFile.WriteInt(+value, "./settings.ini", "SETTINGS", setting);
+}
+
+function loadBoolSetting(setting: string): boolean {
+    return IniFile.ReadInt("./settings.ini", "SETTINGS", setting) === 1;
+}
+
 function processInputControls() {
     // Home [move cursor to start]
     if (Pad.IsKeyPressed(KeyCode.Home) && cursorPos !== 0) {
@@ -1150,6 +1167,8 @@ function processInputControls() {
             wait(0);
             drawConsole();
             drawOverlay();
+            takeScreenshot();
+            saveCoordinates();
         }
         // If the command is not found, start search
         if (!runCommand()) searchCommands();
@@ -1161,6 +1180,8 @@ function processInputControls() {
             wait(0);
             drawConsole();
             drawOverlay();
+            takeScreenshot();
+            saveCoordinates();
         }
 
         let results = cmdList.filter((c) =>
@@ -1184,6 +1205,8 @@ function processInputControls() {
                 wait(0);
                 drawConsole();
                 drawOverlay();
+                takeScreenshot();
+                saveCoordinates();
             }
         }
     }
@@ -1191,7 +1214,7 @@ function processInputControls() {
 
 function getInput() {
     let input = Memory.ReadU8(LAST_CHAR, false);
-    if (input === 0) return;
+    if (input === 0 || input === 96) return;
     else if (command.length >= MAX_LENGTH) {
         clearInput();
         return;
@@ -1333,6 +1356,89 @@ function drawOverlay() {
     }
 }
 
+function takeScreenshot() {
+    if (!screenshot) return;
+    if (Pad.IsKeyPressed(KeyCode.F12)) {
+        Sound.AddOneOffSound(0, 0, 0, ScriptSound.SoundCameraShot);
+        Camera.TakePhoto(true);
+
+        while (Pad.IsKeyPressed(KeyCode.F12)) {
+            wait(0);
+        }
+    }
+}
+
+function saveCoordinates() {
+    if (!saveCoords) return;
+    if (!Pad.IsKeyPressed(KeyCode.Insert)) return;
+
+    while (Pad.IsKeyPressed(KeyCode.Insert)) {
+        wait(0);
+    }
+    Text.PrintHelpString("Coordinates are saved to ~y~coords.log!");
+
+    // Create/open the log
+    let coordsLog: File = undefined;
+
+    while (!coordsLog) {
+        coordsLog = File.Open(`${__dirname}/coords.log`, FileMode.AppendText);
+        wait(0);
+    }
+
+    // Add current date and time
+    let time = new Date();
+
+    const y = time.getFullYear();
+    const m = `${time.getMonth() + 1}`.padStart(2, "0");
+    const d = `${time.getDate()}`.padStart(2, "0");
+    const hrs = `${time.getHours()}`.padStart(2, "0");
+    const min = `${time.getMinutes()}`.padStart(2, "0");
+    const sec = `${time.getSeconds()}`.padStart(2, "0");
+
+    coordsLog.writeString(`[${y}.${m}.${d} ${hrs}:${min}:${sec}] `);
+
+    // Write values into the log
+    if (freeCam) {
+        // Free camera
+        let pos = camMatrix.getPos();
+        let fwd = camMatrix.getForward();
+
+        const strPos = `${pos.x.toFixed(2)} ${pos.y.toFixed(2)} ${pos.z.toFixed(2)}`;
+        const strFwd = `${fwd.x.toFixed(2)} ${fwd.y.toFixed(2)} ${fwd.z.toFixed(2)}`;
+
+        coordsLog.writeString(
+            `camera position: ${strPos} ; target: ${strFwd}\n`,
+        );
+    } else {
+        if (plc.isInAnyCar()) {
+            // In vehicle
+            let veh = plc.storeCarIsInNoSave();
+            let model = veh.getModel();
+            let { x, y, z } = veh.getCoordinates();
+            let heading: string = veh.getHeading().toFixed(2);
+
+            const strPos = `${x.toFixed(2)} ${y.toFixed(2)} ${z.toFixed(2)}`;
+
+            coordsLog.writeString(
+                `vehicle model ${model} ; X Y Z: ${strPos} ; heading: ${heading}\n`,
+            );
+        } else {
+            // On foot
+            let { x, y, z } = plc.getCoordinates();
+            let heading: string = plc.getHeading().toFixed(2);
+
+            const strPos = `${x.toFixed(2)} ${y.toFixed(2)} ${z.toFixed(2)}`;
+
+            coordsLog.writeFormattedString(
+                `player X Y Z: ${strPos} ; heading: ${heading}\n`,
+            );
+        }
+    }
+
+    // Close the log
+    coordsLog.close();
+}
+
 function updateFreeCamInfo() {
     let camPos = camMatrix.getPos();
     let camFwd = camMatrix.getForward();
@@ -1354,22 +1460,30 @@ function freeCamera() {
         // Exit
         let pos = camMatrix.getPos();
 
-        Memory.WriteU8(plp + 0x598, 0, false);
-        plr.setControl(true);
+        Memory.WriteU8(plp + 0x598, 0, false); // Unfreeze
         plc.setCoordinates(
             pos.x,
             pos.y,
-            World.GetGroundZFor3DCoord(pos.x, pos.y, pos.z),
+            !plc.isInFlyingVehicle()
+                ? World.GetGroundZFor3DCoord(pos.x, pos.y, pos.z)
+                : pos.z,
         );
         Camera.PersistPos(false);
         Camera.SetBehindPlayer();
+
+        // Wait until the button is released
+        while (Pad.IsButtonPressed(PadId.Pad1, Button.Triangle)) {
+            wait(0);
+        }
+
+        plr.setControl(true);
         resetOutput();
 
         freeCam = false;
         return;
     }
 
-    // Toggle help
+    // Toggle info
     if (jumpJustPressed()) {
         freeCamInfo = !freeCamInfo;
         if (!freeCamInfo) resetOutput();
@@ -1434,9 +1548,16 @@ function freeCamera() {
             100,
             false,
         );
+
         // Update player's heading
         let forward = camMatrix.getForward();
-        plc.setHeading(Math.GetHeadingFromVector2D(forward.x, forward.y));
+        if (plc.isInAnyCar()) {
+            plc.storeCarIsInNoSave().setHeading(
+                Math.GetHeadingFromVector2D(forward.x, forward.y),
+            );
+        } else {
+            plc.setHeading(Math.GetHeadingFromVector2D(forward.x, forward.y));
+        }
     }
 
     // Update and draw info
@@ -1550,6 +1671,29 @@ function getToolsMenu(): AltMenu {
                             100,
                         );
                     }
+                },
+            },
+            {
+                // Screenshot
+                name: function () {
+                    return `Screenshot: ${screenshot ? ON : OFF}`;
+                },
+                description: "Press ~y~F12~s~ to take a screenshot",
+                click: function () {
+                    screenshot = !screenshot;
+                    saveBoolSetting("screenshot", screenshot);
+                },
+            },
+            {
+                // Save coordinates
+                name: function () {
+                    return `Save coordinates: ${saveCoords ? ON : OFF}`;
+                },
+                description:
+                    "Press ~y~Insert~s~ to save current coordinates to ~y~coords.log",
+                click: function () {
+                    saveCoords = !saveCoords;
+                    saveBoolSetting("saveCoords", saveCoords);
                 },
             },
         ],

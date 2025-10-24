@@ -3,13 +3,18 @@
 * **Author**: Vital (Vitaly Pavlovich Ulyanov)
 * **Thanks for help to**: Seemann, wmysterio
 * **Description**: A command line for GTA: San Andreas with a full-fledged list of commands, history, hints, autocompletion, and search. Turn on and off with ~.
-* **Requirements**: CLEO Redux v1.3.3 + CLEO 5.1.0 or newer with IDE loader plugins (should be installed with CLEO).
+* **Requirements**: CLEO Redux v1.4.0 + CLEO 5.1.0 or newer with IDE loader plugins (should be installed with CLEO).
 * **Installation**: Put `Console[mem][fs]`, `altMenu[mem].ts`, and `sa_enums.ts` in your `GTA San Andreas\CLEO` directory.
 
 <details>
 <summary>Version history</summary>
 
 ```diff
+v0.93 [24.10.2025]
++ New scripting tools: screenshot (F12) & saving current coordinates (Insert)
++ Small fixes
+- CLEO Redux 1.4.0-dev.20251024 or newer is now required
+
 v0.92 [21.10.2025]
 + Reorganised the code
 + Running `INTERIOR` command with no parameter inserts current interior
@@ -68,13 +73,18 @@ v0.5 [17.03.2025]
 * **Автор**: Vital (Виталий Павлович Ульянов)
 * **Благодарю за помощь**: Seemann, wmysterio
 * **Описание**: Командная строка для GTA: San Andreas с полноценным списком команд, историей, подсказками, автозавершением и поиском. Включить/выключить: ~.
-* **Требования**: CLEO Redux v1.3.3 + CLEO 5.1.0 или новее и плагин IDE loader (установите с CLEO).
+* **Требования**: CLEO Redux v1.4.0 + CLEO 5.1.0 или новее и плагин IDE loader (установите с CLEO).
 * **Установка**: Поместите `Console[mem][fs]`, `altMenu[mem].ts` и `sa_enums.ts` в каталог `GTA San Andreas\CLEO`.
 
 <details>
 <summary>История изменений</summary>
 
 ```diff
+v0.93 [24.10.2025]
++ Новые инструменты скриптера: снимок экрана (F12) и сохранение текущих координат (Insert)
++ Небольшие правки
+- Теперь обязательна CLEO Redux 1.4.0-dev.20251024 или новее
+
 v0.92 [21.10.2025]
 + Реорганизация кода
 + Запуск команды `INTERIOR` без параметра подставляет текущий интерьер
