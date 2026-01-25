@@ -10,6 +10,16 @@
 <summary>Version history</summary>
 
 ```diff
+v1.0 [25.01.2026]
++ Gravity menu if no value is specified
++ Some code improvements
+
+v0.94 [27.10.2025]
++ Teleporter menu
++ Changed saving coordinates button to +
++ Vehicles now correctly spawn in interiors
++ Small code improvements
+
 v0.93 [24.10.2025]
 + New scripting tools: screenshot (F12) & saving current coordinates (Insert)
 + Small fixes
@@ -80,6 +90,16 @@ v0.5 [17.03.2025]
 <summary>История изменений</summary>
 
 ```diff
+v1.0 [25.01.2026]
++ Меню гравитации (если величина не введена)
++ Некоторые улучшения кода
+
+v0.94 [27.10.2025]
++ Меню телепорта
++ Теперь координаты сохраняются при нажатии +
++ Починил создание транспорта в интерьерах
++ Мелкие улучшения кода
+
 v0.93 [24.10.2025]
 + Новые инструменты скриптера: снимок экрана (F12) и сохранение текущих координат (Insert)
 + Небольшие правки

@@ -24,6 +24,8 @@ import { playerStatsMenu } from "./menus/playerStats";
 import { vehicleImmunitiesMenu } from "./menus/vehicleImmunities";
 import { weaponMenu } from "./menus/weapons";
 import { weatherMenu } from "./menus/weather";
+import { teleportMenu } from "./menus/teleporter";
+import { gravityMenu } from "./menus/gravity";
 import { CHANGE_VALUE, OFF, ON, plc, plr } from "./sharedConstants";
 
 // Interfaces
@@ -99,8 +101,7 @@ export enum Proofs {
 
 // Constants
 const plp: int = Memory.GetPedPointer(plc);
-const THIS_PAD: int = Memory.CallFunctionReturn(0x53fb70, 1, 1, 0);
-const CPLAYER: int = 0xb7cd98;
+const THIS_PAD: int = Memory.Fn.Cdecl(0x53fb70)(0);
 const MAX_LENGTH: int = 50;
 const LAST_CHAR: int = 0x969110;
 const CURSOR: string = "~>~~r~~h~~h~~h~";
@@ -117,6 +118,13 @@ const NUM_PAD_BUTTONS: { id: int; char: string }[] = [
     { id: KeyCode.NumPad9, char: "9" },
     { id: KeyCode.Subtract, char: "-" },
     { id: KeyCode.Decimal, char: "." },
+];
+const allProofs = [
+    Proofs.Bullet,
+    Proofs.Fire,
+    Proofs.Explosion,
+    Proofs.Collision,
+    Proofs.Melee,
 ];
 
 // Variables
@@ -144,13 +152,6 @@ let overlay: { red: int; green: int; blue: int; alpha: int } = {
     blue: 0,
     alpha: 0,
 };
-let allProofs = [
-    Proofs.Bullet,
-    Proofs.Fire,
-    Proofs.Explosion,
-    Proofs.Collision,
-    Proofs.Melee,
-];
 let sphereRadius: float = 2.0;
 let freeCamMult: float = 1.0;
 let freeCamInfo: boolean = true;
@@ -365,15 +366,23 @@ let cmdList: { name: string; template?: string; action: Function }[] = [
                     plc.setCoordinates(+pos[0], +pos[1], -100);
                 }
                 Camera.SetBehindPlayer();
-                return true;
             } else {
-                let { x, y, z } = plc.getCoordinates();
-                output =
-                    command = `POS ${x.toFixed(2)} ${y.toFixed(2)} ${z.toFixed(2)}`;
+                output = command = `POS ${vecToString(plc.getCoordinates())}`;
                 cursorPos = command.length;
-                return true;
             }
-            return false;
+            return true;
+        },
+    },
+    {
+        // Teleporter menu
+        name: "TELEPORT",
+        action: function (): boolean {
+            wait(0);
+            while (teleportMenu.isDisplayed()) {
+                wait(0);
+            }
+            clearInput();
+            return true;
         },
     },
     {
@@ -616,10 +625,14 @@ let cmdList: { name: string; template?: string; action: Function }[] = [
             let gravity = command.match(/[\d.-]+/);
             if (gravity) {
                 Memory.WriteFloat(0x863984, +gravity[0], false);
-                return true;
+            } else {
+                wait(0);
+                while (gravityMenu.isDisplayed()) {
+                    wait(0);
+                }
+                clearInput();
             }
-            output = command = "GRAVITY 0.008";
-            return false;
+            return true;
         },
     },
     {
@@ -1370,9 +1383,9 @@ function takeScreenshot() {
 
 function saveCoordinates() {
     if (!saveCoords) return;
-    if (!Pad.IsKeyPressed(KeyCode.Insert)) return;
+    if (!Pad.IsKeyPressed(KeyCode.OemPlus)) return;
 
-    while (Pad.IsKeyPressed(KeyCode.Insert)) {
+    while (Pad.IsKeyPressed(KeyCode.OemPlus)) {
         wait(0);
     }
     Text.PrintHelpString("Coordinates are saved to ~y~coords.log!");
@@ -1400,11 +1413,8 @@ function saveCoordinates() {
     // Write values into the log
     if (freeCam) {
         // Free camera
-        let pos = camMatrix.getPos();
-        let fwd = camMatrix.getForward();
-
-        const strPos = `${pos.x.toFixed(2)} ${pos.y.toFixed(2)} ${pos.z.toFixed(2)}`;
-        const strFwd = `${fwd.x.toFixed(2)} ${fwd.y.toFixed(2)} ${fwd.z.toFixed(2)}`;
+        const strPos = vecToString(camMatrix.getPos());
+        const strFwd = vecToString(camMatrix.getForward());
 
         coordsLog.writeString(
             `camera position: ${strPos} ; target: ${strFwd}\n`,
@@ -1414,20 +1424,17 @@ function saveCoordinates() {
             // In vehicle
             let veh = plc.storeCarIsInNoSave();
             let model = veh.getModel();
-            let { x, y, z } = veh.getCoordinates();
             let heading: string = veh.getHeading().toFixed(2);
 
-            const strPos = `${x.toFixed(2)} ${y.toFixed(2)} ${z.toFixed(2)}`;
+            const strPos = vecToString(veh.getCoordinates());
 
             coordsLog.writeString(
                 `vehicle model ${model} ; X Y Z: ${strPos} ; heading: ${heading}\n`,
             );
         } else {
             // On foot
-            let { x, y, z } = plc.getCoordinates();
             let heading: string = plc.getHeading().toFixed(2);
-
-            const strPos = `${x.toFixed(2)} ${y.toFixed(2)} ${z.toFixed(2)}`;
+            const strPos = vecToString(plc.getCoordinates());
 
             coordsLog.writeFormattedString(
                 `player X Y Z: ${strPos} ; heading: ${heading}\n`,
@@ -1440,16 +1447,9 @@ function saveCoordinates() {
 }
 
 function updateFreeCamInfo() {
-    let camPos = camMatrix.getPos();
-    let camFwd = camMatrix.getForward();
-
     const speed: string = `~y~${freeCamMult.toFixed(1)}~s~`;
-    const pos: string = [camPos.x, camPos.y, camPos.z]
-        .map((v) => v.toFixed(2))
-        .join(" ");
-    const target: string = [camFwd.x, camFwd.y, camFwd.z]
-        .map((v) => v.toFixed(2))
-        .join(" ");
+    const pos = vecToString(camMatrix.getPos());
+    const target = vecToString(camMatrix.getForward());
 
     output = `~s~SPEED: ~y~${speed}~s~. POSITION: ~y~${pos}~s~. TARGET: ~y~${target}~s~.`;
 }
@@ -1586,6 +1586,14 @@ function ringClamp(min: number, value: number, max: number): number {
     return value < min ? max : value > max ? min : value;
 }
 
+function vecToString(
+    vector: { x: float; y: float; z: float },
+    precision: int = 2,
+): string {
+    const { x, y, z } = vector;
+    return `${x.toFixed(precision)} ${y.toFixed(precision)} ${z.toFixed(precision)}`;
+}
+
 function setProofs() {
     if (playerProofs !== 0) {
         Memory.WriteU8(plp + 0x42, playerProofs, false);
@@ -1690,7 +1698,7 @@ function getToolsMenu(): AltMenu {
                     return `Save coordinates: ${saveCoords ? ON : OFF}`;
                 },
                 description:
-                    "Press ~y~Insert~s~ to save current coordinates to ~y~coords.log",
+                    "Press ~y~+~s~ to save current coordinates to ~y~coords.log",
                 click: function () {
                     saveCoords = !saveCoords;
                     saveBoolSetting("saveCoords", saveCoords);

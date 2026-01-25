@@ -52,6 +52,7 @@ function spawnVehicle(modelId: int, warpInto: boolean) {
 
     World.ClearArea(pos.x, pos.y, pos.z, 50, true);
     let veh = Car.Create(modelId, pos.x, pos.y, pos.z);
+    veh.setAreaVisible(plc.getAreaVisible());
     veh.setHeading(plc.getHeading() + 90);
     veh.lockDoors(CarLock.Unlocked);
 

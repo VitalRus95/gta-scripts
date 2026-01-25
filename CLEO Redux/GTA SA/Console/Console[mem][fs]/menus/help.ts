@@ -76,6 +76,10 @@ export let helpMenu: AltMenu = new AltMenu(
             description: "For help.~n~https://github.com/~y~wmysterio",
         },
         {
+            name: "Thanks to ~b~~h~~h~Miran",
+            description: "For help.~n~https://github.com/~y~MiranDMC",
+        },
+        {
             name: "Thanks to ~b~~h~~h~ANTINICKNAMES",
             description: "For ideas.~n~https://github.com/~y~ANTINICKNAMES",
         },
