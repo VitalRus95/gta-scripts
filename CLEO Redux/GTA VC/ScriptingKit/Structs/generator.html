@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>GTA Class Generator</title>
+        <style>
+            body {
+                background-color: rgb(30, 30, 30);
+                color: rgb(255, 240, 240);
+                width: 90%;
+            }
+
+            * {
+                margin-bottom: 4px;
+                font-size: 18px;
+            }
+
+            h1 {
+                margin-top: 4px;
+                font-size: 2em;
+            }
+
+            input {
+                background-color: rgb(40, 40, 40);
+                color: rgb(250, 250, 250);
+                border: 2px inset rgb(70, 186, 57);
+                width: 100%;
+            }
+
+            textarea {
+                background-color: rgb(40, 40, 40);
+                color: rgb(124, 226, 0);
+                border: 2px inset rgb(0, 175, 0);
+                resize: vertical;
+                width: 100%;
+                min-height: 10vh;
+                height: 15vh;
+            }
+
+            #output {
+                height: 60vh;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>GTA Class Generator</h1>
+        <input
+            type="text"
+            id="className"
+            placeholder="Class name"
+            autocomplete="off"
+        />
+        <textarea
+            name="input"
+            id="input"
+            placeholder="[property name] [size in bytes] [type]"
+            autocomplete="off"
+        ></textarea>
+        <textarea
+            name="output"
+            id="output"
+            placeholder="Generated TypeScript class to be used in CLEO Redux"
+            readonly
+            autocomplete="off"
+        ></textarea>
+
+        <script>
+            let className = document.getElementById("className");
+            let input = document.getElementById("input");
+            let output = document.getElementById("output");
+
+            className.addEventListener("input", generate);
+            input.addEventListener("input", generate);
+
+            function generate() {
+                /** @type {string[]} */
+                let lines = input.value.split("\n");
+                let offset = 0;
+                let body =
+                    "    pointer: int;\n\n" +
+                    "    constructor(pointer: int) {\n" +
+                    "        this.pointer = pointer;" +
+                    "\n    }\n\n";
+
+                output.value = "";
+                for (const l of lines) {
+                    l.replace(/\t/g, " ");
+                    let param = l.split(" ");
+
+                    if (!param || param.length < 3) continue;
+
+                    let prop = param[0];
+                    let size = param[1];
+                    let type = param.slice(2).join(" ");
+
+                    // Getter
+                    if (+size !== 12) {
+                        // 12 means vector3
+                        body +=
+                            `    get ${prop}(): ${type} {\n` +
+                            `        return Memory.Read${type === "float" ? "Float" : ""}(this.pointer + ${offset}${type !== "float" ? `, ${size}` : ""}, false)${type === "boolean" ? " !== 0" : ""};\n` +
+                            `    }\n`;
+                    } else {
+                        body +=
+                            `    get ${prop}(): ${type} {\n` +
+                            `        return [\n` +
+                            `            Memory.ReadFloat(this.pointer + ${offset}, false),\n` +
+                            `            Memory.ReadFloat(this.pointer + ${offset} + 4, false),\n` +
+                            `            Memory.ReadFloat(this.pointer + ${offset} + 8, false),\n` +
+                            `        ];\n    }\n`;
+                    }
+
+                    // Setter
+                    if (+size !== 12) {
+                        body +=
+                            `    set ${prop}(value: ${type}) {\n` +
+                            `        Memory.Write${type === "float" ? "Float" : ""}(this.pointer + ${offset}${type !== "float" ? `, ${size}` : ""}, ${type === "boolean" ? "+" : ""}value, false);` +
+                            `\n    }\n`;
+                    } else {
+                        body +=
+                            `    set ${prop}(value: ${type}) {\n` +
+                            `        Memory.WriteFloat(this.pointer + ${offset}, value[0], false);\n` +
+                            `        Memory.WriteFloat(this.pointer + ${offset} + 4, value[1], false);\n` +
+                            `        Memory.WriteFloat(this.pointer + ${offset} + 8, value[2], false);\n` +
+                            `    }\n`;
+                    }
+
+                    if (lines.indexOf(l) < lines.length - 1) {
+                        body += "\n";
+                    }
+
+                    offset += +size;
+                }
+                output.value +=
+                    "// Script by Vital (Vitaly Pavlovich Ulyanov)\n\n";
+                output.value += `export class ${className.value} {\n${body}}`;
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "GTA: Vice City Redux",
+  "version": "2",
+  "author": {
+    "name": "Vital (Vitaly Pavlovich Ulyanov)",
+    "url": "https://github.com/VitalRus95/gta-scripts"
+  },
+  "contributors": ["Seemann", "Miran", "Fix", "ThirteenAG", "Birds"],
+  "requirements": ["CLEO Redux 1.5.0 or newer", "CLEO 2.2.0 or newer", "GTA: Vice City v1.0"],
+  "description": "A pack of CLEO Redux scripts made to enhance and expand certain aspects of the game while preserving the original atmosphere as much as possible",
+  "permissions": ["mem"],
+  "entries": ["*.ts"]
+}

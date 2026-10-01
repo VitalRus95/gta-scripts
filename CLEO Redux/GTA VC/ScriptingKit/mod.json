@@ -1,0 +1,12 @@
+{
+    "name": "Scripting Kit for GTA: Vice City",
+    "version": "0.9",
+    "author": {
+        "name": "Vital (Vitaly Pavlovich Ulyanov)",
+        "url": "https://github.com/VitalRus95/gta-scripts"
+    },
+    "contributors": ["Seemann"],
+    "requirements": ["CLEO Redux 1.5.0 or newer", "GTA: Vice City v1.0"],
+    "description": "A pack of CLEO Redux tools to simplify making scripts and missions",
+    "permissions": ["mem"]
+}
